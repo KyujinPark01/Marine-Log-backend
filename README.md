@@ -73,9 +73,7 @@
 ---
 
 ## 🧠 기술 구성도  
-
-<img width="1530" height="1120" alt="image" src="https://github.com/user-attachments/assets/36289056-d52a-48a9-8039-c23e7a6a82ec" />
-
+<img width="1024" height="1024" alt="image" src="https://github.com/user-attachments/assets/3d294282-ad85-4560-8c1f-f76010bc5afb" />
 
 
 ---
@@ -95,8 +93,7 @@
 
 ---
 ## 📅 세부 일정
-
-<img width="1766" height="1000" alt="image" src="https://github.com/user-attachments/assets/08124a4d-71d3-4e08-bd6f-8d64557e097d" />
+<img width="1440" height="810" alt="image" src="https://github.com/user-attachments/assets/0daa2d71-0e08-4f4f-b493-e19d01fa16fa" />
 
 
 ---
@@ -109,9 +106,8 @@
 ---
 
 ## 🐚 Marine-Log Logo  
+<img width="256" height="256" alt="image" src="https://github.com/user-attachments/assets/4e4378a4-da28-4cd8-898a-60a30a0ea169" />
 
-
-<img width="256" height="256" alt="ChatGPT Image Oct 5, 2025, 09_19_02 AM" src="https://github.com/user-attachments/assets/a546bcaf-b270-439a-b57b-5ccf773c2c61" />
 
 > 파도가 해양 폐기물을 감싸며 연필로 이어져 통계 데이터를 기록하는 로고.  
 > 데이터 기반의 해양 정화 활동을 상징합니다.  
