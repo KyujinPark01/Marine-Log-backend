@@ -72,8 +72,9 @@
 
 ---
 
-## 🧠 기술 구성도  
-<img width="1024" height="1024" alt="image" src="https://github.com/user-attachments/assets/3d294282-ad85-4560-8c1f-f76010bc5afb" />
+## 🧠 소프트웨어 아키텍처
+<img width="1530" height="1120" alt="image" src="https://github.com/user-attachments/assets/f9f41461-47c7-407d-b651-c74631df29c7" />
+
 
 
 ---
