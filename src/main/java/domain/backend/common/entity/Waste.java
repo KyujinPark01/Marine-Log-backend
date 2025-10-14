@@ -16,7 +16,7 @@ import lombok.*;
 public class Waste extends BaseTimeEntity{
 
     @Id
-    private String id;
+    private Long id;
 
     private String specificType;
     private String type;

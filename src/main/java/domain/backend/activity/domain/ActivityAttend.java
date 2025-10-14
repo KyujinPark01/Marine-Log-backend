@@ -18,7 +18,7 @@ public class ActivityAttend extends BaseTimeEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     private Boolean isAccepted;
     private Boolean isAttended;
@@ -32,4 +32,7 @@ public class ActivityAttend extends BaseTimeEntity{
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "activity_id")
     private Activity activity;
+
+    @OneToOne(mappedBy = "attend", cascade = CascadeType.ALL, orphanRemoval = true)
+    private ActivityReview review;
 }

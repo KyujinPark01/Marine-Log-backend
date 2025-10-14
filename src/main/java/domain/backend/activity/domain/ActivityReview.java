@@ -3,7 +3,6 @@ package domain.backend.activity.domain;
 import domain.backend.common.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.annotation.Id;
 @Entity
 @Table(name = "activity_review")
 @Getter
@@ -13,7 +12,7 @@ import org.springframework.data.annotation.Id;
 @Builder
 public class ActivityReview extends BaseTimeEntity {
     @Id
-    private Integer id;
+    private Long id;
 
     private String text;
     private String pictureUrl;

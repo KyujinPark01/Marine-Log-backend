@@ -8,7 +8,7 @@ import lombok.*;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "geography")
+@Table(name = "location")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -17,7 +17,7 @@ import java.time.LocalDate;
 public class Geography extends BaseTimeEntity{
 
     @Id
-    private Integer activityId;
+    private Long activityId;
 
     private String geometry;
     private String region1depthName;

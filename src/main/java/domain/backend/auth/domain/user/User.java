@@ -1,6 +1,7 @@
 package domain.backend.auth.domain.user;
 
 import domain.backend.common.entity.BaseTimeEntity;
+import domain.backend.organization.domain.Organization;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -8,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name = "user")
+@Table(name = "member")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -32,10 +33,10 @@ public class User extends BaseTimeEntity {
     @Column(length = 30)
     private String phoneNumber;
 
-    //    // Organization 연결
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "organization_id")
-//    private Organization organization;
+        // Organization 연결
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "organization_id")
+    private Organization organization;
 
 
     // 소셜 로그인 정보 (1:N)

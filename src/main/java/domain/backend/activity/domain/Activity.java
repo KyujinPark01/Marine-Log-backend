@@ -22,7 +22,7 @@ public class Activity extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     private String name;
     private String description;
@@ -34,8 +34,6 @@ public class Activity extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private Status status;
 
-    private LocalDate createdAt;
-    private LocalDate updatedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "organization_id")
