@@ -10,7 +10,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import java.time.LocalDateTime;
 
 @MappedSuperclass
-@EnableJpaAuditing
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 public abstract class BaseTimeEntity {
