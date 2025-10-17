@@ -5,5 +5,4 @@ public interface LocationAggregationProjection {
     public Integer getCounts();
     public Double getLatitude();
     public Double getLongitude();
-
 }
