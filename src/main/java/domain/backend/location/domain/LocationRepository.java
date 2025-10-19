@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 
@@ -52,11 +53,14 @@ public interface LocationRepository extends JpaRepository<Location, Activity> {
         FROM location l
         JOIN activity a
         ON l.activity_id = a.id
-        WHERE l.geometry && ST_MakeEnvelope(:swLng, :swLat, :neLng, :neLat, 4326);
+        WHERE l.geometry && ST_MakeEnvelope(:swLng, :swLat, :neLng, :neLat, 4326)
+        AND a.start_datetime BETWEEN :startDate AND :endDate;
     """, nativeQuery = true)
     List<LocationSpecificProjection> getSpecific(
             @Param("swLat") Double swLat,
             @Param("swLng") Double swLng,
             @Param("neLat") Double neLat,
-            @Param("neLng") Double neLng);
+            @Param("neLng") Double neLng,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate);
 }

@@ -15,19 +15,9 @@ import java.util.List;
 public class LocationController {
     private final LocationService locationService;
 
-    @GetMapping("/activity/national")
-    public List<LocationAggregationDto> getAggregatedNational() {
-        return locationService.getAggregatedNationalData();
-    }
-
-    @GetMapping("/activity/broad")
-    public List<LocationAggregationDto> getAggregatedBroad() {
-        return locationService.getAggregatedBroadData();
-    }
-
-    @GetMapping("/activity/regional")
-    public List<LocationAggregationDto> getAggregatedRegional() {
-        return locationService.getAggregatedRegionalData();
+    @GetMapping("/activity/aggregate")
+    public List<LocationAggregationDto> getAggregated(@PathVariable String bound) {
+        return locationService.getAggregatedData(bound);
     }
 
     @PostMapping("/activity/specific")

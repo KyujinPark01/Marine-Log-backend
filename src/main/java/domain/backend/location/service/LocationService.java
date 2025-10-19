@@ -4,9 +4,11 @@ import domain.backend.location.domain.LocationRepository;
 import domain.backend.location.dto.LocationAggregationDto;
 import domain.backend.location.dto.LocationRequestDto;
 import domain.backend.location.dto.LocationSpecificDto;
+import domain.backend.location.projection.LocationAggregationProjection;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,30 +18,15 @@ public class LocationService {
     private final LocationRepository locationRepository;
 
 
-    public List<LocationAggregationDto> getAggregatedNationalData() {
-        return locationRepository.getAggregatedNational().stream()
-                .map(repository -> LocationAggregationDto.builder()
-                        .region(repository.getRegion())
-                        .counts(repository.getCounts())
-                        .latitude(repository.getLatitude())
-                        .longitude(repository.getLongitude())
-                        .build())
-                .toList();
-    }
+    public List<LocationAggregationDto> getAggregatedData(String bound) {
+        List<LocationAggregationProjection> projections = switch (bound.toLowerCase()) {
+            case "national" -> locationRepository.getAggregatedNational();
+            case "broad" -> locationRepository.getAggregatedBroad();
+            case "regional" -> locationRepository.getAggregatedRegional();
+            default -> throw new IllegalArgumentException("Invalid bound");
+        };
 
-    public List<LocationAggregationDto> getAggregatedBroadData() {
-        return locationRepository.getAggregatedBroad().stream()
-                .map(repository -> LocationAggregationDto.builder()
-                        .region(repository.getRegion())
-                        .counts(repository.getCounts())
-                        .latitude(repository.getLatitude())
-                        .longitude(repository.getLongitude())
-                        .build())
-                .toList();
-    }
-
-    public List<LocationAggregationDto> getAggregatedRegionalData() {
-        return locationRepository.getAggregatedRegional().stream()
+        return projections.stream()
                 .map(repository -> LocationAggregationDto.builder()
                         .region(repository.getRegion())
                         .counts(repository.getCounts())
@@ -50,11 +37,16 @@ public class LocationService {
     }
 
     public List<LocationSpecificDto> getSpecificData(LocationRequestDto locationRequestDto) {
+        LocalDate startDate = (locationRequestDto.getStartDate() != null) ? locationRequestDto.getStartDate() : LocalDate.of(1900, 1, 1);
+        LocalDate endDate = (locationRequestDto.getEndDate() != null) ? locationRequestDto.getEndDate() : LocalDate.now();
+
         return locationRepository.getSpecific(
                 locationRequestDto.getSwLat(),
                 locationRequestDto.getSwLng(),
                 locationRequestDto.getNeLat(),
-                locationRequestDto.getNeLng()
+                locationRequestDto.getNeLng(),
+                startDate,
+                endDate
                 ).stream()
                 .map(repository -> LocationSpecificDto.builder()
                         .activityId(repository.getActivityId())
