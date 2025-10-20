@@ -1,7 +1,7 @@
 package domain.backend.activity.domain;
 
 import domain.backend.common.entity.BaseTimeEntity;
-import domain.backend.common.entity.waste.Waste;
+import domain.backend.common.entity.Waste;
 import domain.backend.organization.domain.entity.HostedBy;
 import domain.backend.map.domain.Location;
 import jakarta.persistence.*;

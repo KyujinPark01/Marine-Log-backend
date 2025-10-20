@@ -1,8 +1,6 @@
-package domain.backend.common.entity.waste;
+package domain.backend.common.entity;
 
 import domain.backend.activity.domain.Activity;
-import domain.backend.auth.domain.user.User;
-import domain.backend.common.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,7 +22,8 @@ public class Waste {
     @JoinColumn(
             name = "activity_id",
             nullable = false,
-            foreignKey = @ForeignKey(name = "fk_waste_activity_id"))
+            foreignKey = @ForeignKey(name = "fk_waste_activity_id")
+    )
     private Activity activityId;
 
     // 3. 기타 속성들 선언

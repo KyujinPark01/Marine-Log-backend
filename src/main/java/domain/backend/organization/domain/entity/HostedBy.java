@@ -20,14 +20,14 @@ import java.math.BigDecimal;
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class HostedBy {
 
-    // 1. PK 선언
-    @Id
-    @Column(name = "attend_org_id")
-    private Long attendOrgId;
+    // 1. Embeddable을 사용한 PFK
+    @EmbeddedId
+    private HostedById hostedById;
 
     // 2. organization의 FK 선언
     // activity 1 : N waste
     @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("orgId")
     @JoinColumn(
             name = "org_id",
             nullable = false,
@@ -38,6 +38,7 @@ public class HostedBy {
     // 3. activity의 FK 선언
     // activity 1 : N hosted_by
     @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("activityId")
     @JoinColumn(
             name = "activity_id",
             nullable = false,

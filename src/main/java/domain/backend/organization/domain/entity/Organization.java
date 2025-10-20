@@ -15,7 +15,8 @@ public class Organization extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "org_id")
+    private Long orgId;
 
     @OneToMany(
             mappedBy = "organization",
