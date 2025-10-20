@@ -33,6 +33,12 @@ public class User extends BaseTimeEntity {
     @Column(name = "phone_number", length = 30)
     private String phoneNumber;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private Role role;
+
+    @Column(name = "refresh_token", length = 500)
+    private String refreshToken;
         // Organization 연결
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "organization_id")
