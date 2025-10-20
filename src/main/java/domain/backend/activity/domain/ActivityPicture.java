@@ -21,7 +21,7 @@ public class ActivityPicture {
             nullable = false,
             foreignKey = @ForeignKey(name = "fk_activity_picture_id")
     )
-    private Activity activityId;
+    private Activity activity;
 
     // 3. 기타 속성들 선언
     @Column(

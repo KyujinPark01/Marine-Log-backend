@@ -31,7 +31,7 @@ public class HostedBy {
             nullable = false,
             foreignKey = @ForeignKey(name = "fk_org_activity_id")
     )
-    private Organization orgActivityId;
+    private Organization organization;
 
     // 3. activity의 FK 선언
     // activity 1 : N hosted_by
@@ -42,7 +42,7 @@ public class HostedBy {
             nullable = false,
             foreignKey = @ForeignKey(name = "fk_activity_org_id")
     )
-    private Activity activityOrgId;
+    private Activity activity;
 
     // 4. 기타 속성
     @Column(name="contribution")

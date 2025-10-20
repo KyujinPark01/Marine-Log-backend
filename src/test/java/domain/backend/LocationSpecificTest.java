@@ -93,7 +93,7 @@ public class LocationSpecificTest {
         );
         long end = System.currentTimeMillis();
 
-        System.out.println("\n *******************\nBounding box query result size: " + results.size());
+        System.out.println("\n*******************\nBounding box query result size: " + results.size());
         System.out.println("Execution time: " + (end - start) + " ms");
 
         Assertions.assertFalse(results.isEmpty(), "결과가 비어있으면 안 됩니다");
