@@ -15,13 +15,12 @@ public class Waste {
     // 2. activity_id의 PFK 선언
     // activity 1 : N waste
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("activityId")       // 괄호 안에는 activity table의 DB상 PK 명이 아니라 식별자 클래스의 이름을 기입
     @JoinColumn(
             name = "activity_id",
             nullable = false,
             foreignKey = @ForeignKey(name = "fk_waste_activity_id")
     )
-    private Activity activityId;
+    private Activity activity;
 
     // 3. 기타 속성들 선언
     @Column(name = "specific_type")
@@ -33,10 +32,10 @@ public class Waste {
     @Column(name = "picture_url")
     private String pictureUrl;
 
-    @Column(name = "weight_kg", precision = 10, scale = 2)
+    @Column(name = "weight_kg")
     private Double weightKg;
 
-    @Column(name = "volume_L", precision = 10, scale = 2)
+    @Column(name = "volume_L")
     private Double volumeL;
 
 }

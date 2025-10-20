@@ -20,16 +20,16 @@ public class Organization extends BaseTimeEntity {
 
     @OneToMany(
             mappedBy = "organization",
-            cascade = CascadeType.ALL
-    )
-    private List<User> users;
-
-    @OneToMany(
-            mappedBy = "orgActivityId",
             fetch = FetchType.LAZY,
             cascade = CascadeType.ALL
     )
     private List<HostedBy> hostedBys;
+
+    @OneToMany(
+            mappedBy = "organization",
+            cascade = CascadeType.ALL
+    )
+    private List<User> users;
 
     @Column(name="name")
     private String name;

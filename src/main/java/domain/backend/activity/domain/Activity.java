@@ -3,7 +3,7 @@ package domain.backend.activity.domain;
 import domain.backend.common.entity.BaseTimeEntity;
 import domain.backend.common.entity.Waste;
 import domain.backend.organization.domain.entity.HostedBy;
-import domain.backend.map.domain.Location;
+import domain.backend.location.domain.Location;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -41,7 +41,10 @@ public class Activity extends BaseTimeEntity {
     )
     private Location location;
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(
+            mappedBy = "activity",
+            fetch = FetchType.LAZY
+    )
     private List<ActivityPicture> activityPictures;
 
     // 3. 기타 속성
