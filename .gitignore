@@ -37,6 +37,8 @@ out/
 .vscode/
 
 
-### user custome ###
+### user custom ###
 *.properties
 
+### ignore frontend
+src/main/java/domain/frontend/

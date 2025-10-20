@@ -1,11 +1,10 @@
 package domain.backend.auth.domain.user;
 
 import domain.backend.common.entity.BaseTimeEntity;
-import domain.backend.organization.domain.Organization;
+import domain.backend.organization.domain.entity.Organization;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -30,7 +29,7 @@ public class User extends BaseTimeEntity {
     @Column(length = 255)
     private String address;
 
-    @Column(length = 30)
+    @Column(name = "phone_number", length = 30)
     private String phoneNumber;
 
         // Organization 연결
