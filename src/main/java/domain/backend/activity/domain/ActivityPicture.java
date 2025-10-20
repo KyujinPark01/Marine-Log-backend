@@ -28,7 +28,7 @@ public class ActivityPicture {
             name = "activity_picture_url",
             nullable = false
     )
-    private String activityPictureUrl;
+    private String pictureUrl;
 
     @Column(name = "summary")
     private String summary;
