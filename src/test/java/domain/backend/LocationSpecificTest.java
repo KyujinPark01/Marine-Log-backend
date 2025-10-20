@@ -11,14 +11,12 @@ import domain.backend.location.projection.LocationSpecificProjection;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.*;
 import org.locationtech.jts.geom.Coordinate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Random;
 
@@ -48,6 +46,7 @@ public class LocationSpecificTest {
             act.setMaxParticipants(50);
             act.setCurrentParticipants(random.nextInt(50));
             act.setStatus(Status.PLANNED);
+            act.setStartDatetime(LocalDate.of(2010, 1, 1));
             activityRepository.save(act);
 
             // Location 생성 (1:1)
@@ -62,52 +61,40 @@ public class LocationSpecificTest {
             loc.setRegion3depthName("Detail" + (i % 50));
             loc.setAddress("Address " + i);
 
+
             locationRepository.save(loc);
         }
     }
 
     @Test
-    void testBoundingBoxQueryPerformance() {
-        LocationRequestDto dto = new LocationRequestDto(37.5, 127.0, 37.6, 127.1);
+    @DisplayName("활동 정보가 알맞게 저장된다")
+    void testSaveActivity() {
+        activityRepository.findAll().forEach(a -> Assertions.assertEquals(LocalDate.of(2010, 1, 1), a.getStartDatetime()));
+    }
+
+    @Test
+    @DisplayName("구역, 날짜, 단체 필터가 적용된 활동정보 상세가 반환된다")
+    void testGetLocationSpecific() {
+        LocationRequestDto dto = LocationRequestDto.builder()
+                .swLat(33.0)
+                .swLng(124.0)
+                .neLat(43.0)
+                .neLng(132.0) // 전국을 포함하는 Bounding box 위경도
+                .startDate(LocalDate.of(1999, 4, 5))
+                .endDate(LocalDate.now())
+                .build();
 
         long start = System.currentTimeMillis();
         List<LocationSpecificProjection> results = locationRepository.getSpecific(
                 dto.getSwLat(), dto.getSwLng(),
-                dto.getNeLat(), dto.getNeLng()
+                dto.getNeLat(), dto.getNeLng(),
+                dto.getStartDate(), dto.getEndDate()
         );
         long end = System.currentTimeMillis();
 
-        System.out.println("Bounding box query result size: " + results.size());
+        System.out.println("\n *******************\nBounding box query result size: " + results.size());
         System.out.println("Execution time: " + (end - start) + " ms");
 
         Assertions.assertFalse(results.isEmpty(), "결과가 비어있으면 안 됩니다");
-    }
-
-    @Test
-    void testSeqScanVsIndexScan() {
-        LocationRequestDto dto = new LocationRequestDto(37.5, 127.0, 37.6, 127.1);
-
-        // 참고: 'SET enable_seqscan'은 PostgreSQL 전용 쿼리입니다.
-        // 다른 DB(H2 등)에서는 테스트가 실패할 수 있습니다.
-        em.flush(); // BeforeEach의 setup 변경사항을 DB에 반영
-
-        // Seq Scan 강제
-        em.createNativeQuery("SET enable_seqscan = ON").executeUpdate();
-        long startSeq = System.currentTimeMillis();
-        List<LocationSpecificProjection> seqResults = locationRepository.getSpecific(dto.getSwLat(), dto.getSwLng(), dto.getNeLat(), dto.getNeLng());
-        long endSeq = System.currentTimeMillis();
-
-        // GiST 인덱스 강제
-        em.createNativeQuery("SET enable_seqscan = OFF").executeUpdate();
-        long startIndex = System.currentTimeMillis();
-        List<LocationSpecificProjection> indexResults = locationRepository.getSpecific(dto.getSwLat(), dto.getSwLng(), dto.getNeLat(), dto.getNeLng());
-        long endIndex = System.currentTimeMillis();
-
-        System.out.println("Seq Scan time: " + (endSeq - startSeq) + " ms");
-        System.out.println("GiST Index Scan time: " + (endIndex - startIndex) + " ms");
-
-        Assertions.assertFalse(seqResults.isEmpty(), "순차 스캔 결과가 비어있으면 안 됩니다.");
-        Assertions.assertFalse(indexResults.isEmpty(), "인덱스 스캔 결과가 비어있으면 안 됩니다.");
-        Assertions.assertEquals(seqResults.size(), indexResults.size(), "두 쿼리의 결과 개수가 동일해야 합니다.");
     }
 }

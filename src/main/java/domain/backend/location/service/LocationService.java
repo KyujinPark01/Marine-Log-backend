@@ -7,17 +7,18 @@ import domain.backend.location.dto.LocationSpecificDto;
 import domain.backend.location.projection.LocationAggregationProjection;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class LocationService {
     private final LocationRepository locationRepository;
 
-
+    @Transactional(readOnly = true)
     public List<LocationAggregationDto> getAggregatedData(String bound) {
         List<LocationAggregationProjection> projections = switch (bound.toLowerCase()) {
             case "national" -> locationRepository.getAggregatedNational();
@@ -36,6 +37,7 @@ public class LocationService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public List<LocationSpecificDto> getSpecificData(LocationRequestDto locationRequestDto) {
         LocalDate startDate = (locationRequestDto.getStartDate() != null) ? locationRequestDto.getStartDate() : LocalDate.of(1900, 1, 1);
         LocalDate endDate = (locationRequestDto.getEndDate() != null) ? locationRequestDto.getEndDate() : LocalDate.now();

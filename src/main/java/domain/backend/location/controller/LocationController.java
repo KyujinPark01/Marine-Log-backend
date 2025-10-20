@@ -16,7 +16,7 @@ public class LocationController {
     private final LocationService locationService;
 
     @GetMapping("/activity/aggregate")
-    public List<LocationAggregationDto> getAggregated(@PathVariable String bound) {
+    public List<LocationAggregationDto> getAggregated(@RequestParam String bound) {
         return locationService.getAggregatedData(bound);
     }
 
