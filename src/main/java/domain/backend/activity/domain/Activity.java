@@ -60,19 +60,16 @@ public class Activity extends BaseTimeEntity {
     @Column(name="end_time")
     private LocalTime endTime;
 
-    @Column(name="max_participants")
-    private Integer maxParticipants;
-
-    @Column(name="current_participants")
-    private Integer currentParticipants;
+    @Column(name="participants")
+    private Integer participants;
 
     @Column(name="status")
     @Enumerated(EnumType.STRING)
     private Status status;
 
-    @Column(name="weight")
+    @Column(name="weight_kg")
     private double weightKg;
 
-    @Column(name="volume")
+    @Column(name="volume_L")
     private double volumeL;
 }
