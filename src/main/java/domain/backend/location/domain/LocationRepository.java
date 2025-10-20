@@ -54,7 +54,8 @@ public interface LocationRepository extends JpaRepository<Location, Activity> {
         JOIN activity a
         ON l.activity_id = a.id
         WHERE l.geometry && ST_MakeEnvelope(:swLng, :swLat, :neLng, :neLat, 4326)
-        AND a.start_datetime BETWEEN :startDate AND :endDate;
+        AND a.start_datetime BETWEEN :startDate AND :endDate
+        AND (:organizationId IS NULL) or a.organization_id = :organizationId;
     """, nativeQuery = true)
     List<LocationSpecificProjection> getSpecific(
             @Param("swLat") Double swLat,
@@ -62,5 +63,7 @@ public interface LocationRepository extends JpaRepository<Location, Activity> {
             @Param("neLat") Double neLat,
             @Param("neLng") Double neLng,
             @Param("startDate") LocalDate startDate,
-            @Param("endDate") LocalDate endDate);
+            @Param("endDate") LocalDate endDate,
+            @Param("organizationId") Long organizationId
+    );
 }

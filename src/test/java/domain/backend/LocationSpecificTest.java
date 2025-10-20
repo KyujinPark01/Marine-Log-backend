@@ -89,6 +89,7 @@ public class LocationSpecificTest {
                 dto.getSwLat(), dto.getSwLng(),
                 dto.getNeLat(), dto.getNeLng(),
                 dto.getStartDate(), dto.getEndDate()
+                ,null
         );
         long end = System.currentTimeMillis();
 
