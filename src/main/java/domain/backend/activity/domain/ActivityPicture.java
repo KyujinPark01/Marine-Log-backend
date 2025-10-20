@@ -25,7 +25,7 @@ public class ActivityPicture {
 
     // 3. 기타 속성들 선언
     @Column(
-            name = "activity_picture_url",
+            name = "picture_url",
             nullable = false
     )
     private String pictureUrl;

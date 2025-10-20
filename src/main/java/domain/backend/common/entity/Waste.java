@@ -3,9 +3,6 @@ package domain.backend.common.entity;
 import domain.backend.activity.domain.Activity;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.math.BigDecimal;
-
 @Entity
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class Waste {
@@ -37,9 +34,9 @@ public class Waste {
     private String pictureUrl;
 
     @Column(name = "weight_kg", precision = 10, scale = 2)
-    private BigDecimal weightKg;
+    private Double weightKg;
 
     @Column(name = "volume_L", precision = 10, scale = 2)
-    private BigDecimal volumeL;
+    private Double volumeL;
 
 }
