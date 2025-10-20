@@ -1,7 +1,6 @@
 package domain.backend.activity.domain;
 
 import domain.backend.common.entity.BaseTimeEntity;
-import domain.backend.common.entity.waste.AggWaste;
 import domain.backend.common.entity.waste.Waste;
 import domain.backend.organization.domain.entity.HostedBy;
 import domain.backend.map.domain.Location;
@@ -38,12 +37,6 @@ public class Activity extends BaseTimeEntity {
 
     @OneToOne(
             mappedBy = "activity",
-            fetch = FetchType.LAZY
-    )
-    private AggWaste aggWastes;
-
-    @OneToOne(
-            mappedBy = "activity",
             cascade = CascadeType.ALL
     )
     private Location location;
@@ -62,10 +55,10 @@ public class Activity extends BaseTimeEntity {
     private LocalDate activityDate;
 
     @Column(name="start_time")
-    private LocalTime startDatetime;
+    private LocalTime startTime;
 
     @Column(name="end_time")
-    private LocalTime endDatetime;
+    private LocalTime endTime;
 
     @Column(name="max_participants")
     private Integer maxParticipants;
@@ -76,4 +69,10 @@ public class Activity extends BaseTimeEntity {
     @Column(name="status")
     @Enumerated(EnumType.STRING)
     private Status status;
+
+    @Column(name="weight")
+    private double weightKg;
+
+    @Column(name="volume")
+    private double volumeL;
 }

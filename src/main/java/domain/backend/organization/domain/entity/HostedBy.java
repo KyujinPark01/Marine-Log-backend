@@ -1,15 +1,10 @@
 package domain.backend.organization.domain.entity;
 
 import domain.backend.activity.domain.Activity;
-import domain.backend.common.entity.waste.AggWaste;
-import domain.backend.common.entity.waste.Waste;
-import domain.backend.map.domain.Location;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
-
-import java.util.List;
 
 /*
  *  N:M 문제를 해결하기 위해 생성한 활동 참여 단체 엔티티

@@ -5,8 +5,6 @@ import domain.backend.common.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDate;
-
 @Entity
 @Table(name = "location")
 @Getter
@@ -14,7 +12,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Geography extends BaseTimeEntity{
+public class Location extends BaseTimeEntity{
 
     @Id
     private Long activityId;

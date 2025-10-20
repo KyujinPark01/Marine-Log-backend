@@ -9,16 +9,6 @@ import lombok.*;
 import java.math.BigDecimal;
 
 @Entity
-@Table(
-        name = "waste",
-        uniqueConstraints = {
-                // 한 활동당 하나의 자세한 waste만 있으므로 유니크 키로 선언
-                @UniqueConstraint(
-                        name="uk_waste_activity_id",
-                        columnNames={"activity_id", "specific_type"}
-                )
-        }
-)
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class Waste {
 
