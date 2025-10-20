@@ -1,15 +1,12 @@
 package domain.backend.auth.domain.user;
-
 import domain.backend.common.entity.BaseTimeEntity;
 import domain.backend.organization.domain.Organization;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name = "member")
+@Table(name = "users")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -33,6 +30,11 @@ public class User extends BaseTimeEntity {
     @Column(length = 30)
     private String phoneNumber;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private Role role;
+    @Column(name = "refresh_token", length = 500)
+    private String refreshToken;
         // Organization 연결
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "organization_id")
@@ -43,7 +45,4 @@ public class User extends BaseTimeEntity {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SocialLogin> socialLogins;
 
-    // 관리자 정보 (1:1)
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private AdminUser adminUser;
 }
