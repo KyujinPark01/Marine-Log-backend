@@ -1,11 +1,10 @@
 package domain.backend.auth.domain.user;
 
 import domain.backend.common.entity.BaseTimeEntity;
-import domain.backend.organization.domain.Organization;
+import domain.backend.organization.domain.entity.Organization;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -18,8 +17,9 @@ import java.util.List;
 public class User extends BaseTimeEntity {
 
     @Id
+    @Column(name = "user_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long userId;
 
     @Column(length = 255, unique = true)
     private String email;
@@ -30,7 +30,7 @@ public class User extends BaseTimeEntity {
     @Column(length = 255)
     private String address;
 
-    @Column(length = 30)
+    @Column(name = "phone_number", length = 30)
     private String phoneNumber;
 
         // Organization 연결
@@ -42,8 +42,4 @@ public class User extends BaseTimeEntity {
     // 소셜 로그인 정보 (1:N)
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SocialLogin> socialLogins;
-
-    // 관리자 정보 (1:1)
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private AdminUser adminUser;
 }

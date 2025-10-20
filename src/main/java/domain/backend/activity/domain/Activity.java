@@ -2,53 +2,74 @@ package domain.backend.activity.domain;
 
 import domain.backend.common.entity.BaseTimeEntity;
 import domain.backend.common.entity.Waste;
-import domain.backend.location.domain.Location;
-import domain.backend.notification.domain.Notification;
-import domain.backend.organization.domain.Organization;
+import domain.backend.organization.domain.entity.HostedBy;
+import domain.backend.map.domain.Location;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @Entity
 @Table(name = "activity")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class Activity extends BaseTimeEntity {
 
+    // 1. PK 선언
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long activityId;
 
+    // 2. Mappings
+    @OneToMany(
+            mappedBy = "activity",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL
+            )
+    private List<HostedBy> hostedBys;
+
+    @OneToMany(
+            mappedBy = "activity",
+            fetch = FetchType.LAZY
+    )
+    private List<Waste> wastes;
+
+    @OneToOne(
+            mappedBy = "activity",
+            cascade = CascadeType.ALL
+    )
+    private Location location;
+
+    @OneToMany(fetch = FetchType.LAZY)
+    private List<ActivityPicture> activityPictures;
+
+    // 3. 기타 속성
+    @Column(name="name")
     private String name;
-    private String description;
-    private LocalDate startDatetime;
-    private LocalDate endDatetime;
-    private Integer maxParticipants;
-    private Integer currentParticipants;
 
+    @Column(name="description")
+    private String description;
+
+    @Column(name="activity_date")
+    private LocalDate activityDate;
+
+    @Column(name="start_time")
+    private LocalTime startTime;
+
+    @Column(name="end_time")
+    private LocalTime endTime;
+
+    @Column(name="participants")
+    private Integer participants;
+
+    @Column(name="status")
     @Enumerated(EnumType.STRING)
     private Status status;
 
+    @Column(name="weight_kg")
+    private Double weightKg;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "organization_id")
-    private Organization organization;
-
-    @OneToMany(mappedBy = "activity", cascade = CascadeType.ALL)
-    private List<Waste> wastes;
-
-    @OneToMany(mappedBy = "activity", cascade = CascadeType.ALL)
-    private List<ActivityAttend> attends;
-
-    @OneToMany(mappedBy = "activity", cascade = CascadeType.ALL)
-    private List<Notification> notifications;
-
-    @OneToOne(mappedBy = "activity", cascade = CascadeType.ALL)
-    private Location geography;
-
+    @Column(name="volume_L")
+    private Double volumeL;
 }
