@@ -68,8 +68,8 @@ public class Activity extends BaseTimeEntity {
     private Status status;
 
     @Column(name="weight_kg")
-    private double weightKg;
+    private Double weightKg;
 
     @Column(name="volume_L")
-    private double volumeL;
+    private Double volumeL;
 }

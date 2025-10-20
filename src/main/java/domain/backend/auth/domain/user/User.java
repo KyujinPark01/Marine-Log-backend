@@ -42,8 +42,4 @@ public class User extends BaseTimeEntity {
     // 소셜 로그인 정보 (1:N)
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SocialLogin> socialLogins;
-
-    // 관리자 정보 (1:1)
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private AdminUser adminUser;
 }
