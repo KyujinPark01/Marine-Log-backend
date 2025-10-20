@@ -4,8 +4,6 @@ import domain.backend.activity.domain.Activity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.math.BigDecimal;
-
 /*
  *  N:M 문제를 해결하기 위해 생성한 활동 참여 단체 엔티티
  */
@@ -48,5 +46,5 @@ public class HostedBy {
 
     // 4. 기타 속성
     @Column(name="contribution")
-    private BigDecimal contribution;    // 각 단체의 기여도 ex) 0.33, 0.5 등 소수점 표기 방식
+    private Double contribution;    // 각 단체의 기여도 ex) 0.33, 0.5 등 소수점 표기 방식
 }
