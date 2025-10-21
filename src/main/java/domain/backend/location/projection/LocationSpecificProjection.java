@@ -1,11 +1,11 @@
 package domain.backend.location.projection;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 public interface LocationSpecificProjection {
     public Long getActivityId();
     public String getActivityName();
-    public LocalDateTime getActivityDate();
+    public LocalDate getActivityDate();
     public Double getLatitude();
     public Double getLongitude();
 }

@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 public class LocationSpecificDto {
     private Long activityId;
     private String activityName;
-    private LocalDateTime activityDate;
+    private LocalDate activityDate;
     private Double latitude;
     private Double longitude;
 }
