@@ -1,6 +1,7 @@
 package domain.backend.auth.repository;
 
-import org.apache.catalina.User;
+
+import domain.backend.auth.domain.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

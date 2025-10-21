@@ -1,11 +1,13 @@
 package domain.backend.auth.controller;
 
 import domain.backend.auth.controller.dto.response.AuthResponse;
+import domain.backend.auth.controller.dto.response.UserResponse;
+import domain.backend.auth.domain.user.User;
 import domain.backend.auth.repository.UserRepository;
 import domain.backend.common.security.jwt.JwtTokenProvider;
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.apache.catalina.User;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -31,7 +33,7 @@ public class AuthController {
 
         String access = jwtTokenProvider.createAccessToken(
                 email,
-                Map.of("uid", user.getId(), "name", user.getName(), "role", user.getRole().name())
+                Map.of("uid", user.getUserId(), "name", user.getName(), "role", user.getRole().name())
         );
 
         return ResponseEntity.ok(AuthResponse.builder()
@@ -60,7 +62,7 @@ public class AuthController {
         if (user == null) return ResponseEntity.status(401).build();
 
         return ResponseEntity.ok(UserResponse.builder()
-                .id(user.getId())
+                .id(user.getUserId())
                 .email(user.getEmail())
                 .name(user.getName())
                 .role(user.getRole())
