@@ -24,5 +24,5 @@ public class LocationRequestDto {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate endDate;
 
-    private Long organizationId;
+    private Long orgId;
 }

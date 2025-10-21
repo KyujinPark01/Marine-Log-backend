@@ -8,7 +8,6 @@ import domain.backend.location.domain.LocationRepository;
 import domain.backend.location.dto.LocationRequestDto;
 import domain.backend.location.projection.LocationSpecificProjection;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.*;
 import org.locationtech.jts.geom.Coordinate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,10 +19,12 @@ import java.util.Random;
 
 @SpringBootTest
 @Transactional
-@RequiredArgsConstructor
 public class LocationSpecificTest {
-    private final LocationRepository locationRepository;
-    private final ActivityRepository activityRepository;
+    @Autowired
+    private LocationRepository locationRepository;
+
+    @Autowired
+    private ActivityRepository activityRepository;
 
     private final Random random = new Random();
 

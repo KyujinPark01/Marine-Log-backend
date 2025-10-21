@@ -49,7 +49,7 @@ public class LocationService {
                 locationRequestDto.getNeLng(),
                 startDate,
                 endDate,
-                locationRequestDto.getOrganizationId()
+                locationRequestDto.getOrgId()
                 ).stream()
                 .map(repository -> LocationSpecificDto.builder()
                         .activityId(repository.getActivityId())
