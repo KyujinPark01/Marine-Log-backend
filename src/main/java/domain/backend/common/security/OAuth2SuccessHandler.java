@@ -37,7 +37,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             String access = jwtTokenProvider.createAccessToken(
                     customUser.getEmail(),
                     Map.of(
-                            "uid", customUser.getUser().getId(),
+                            "uid", customUser.getUser().getUserId(),
                             "name", customUser.getName(),
                             "role", role.name()
                     )

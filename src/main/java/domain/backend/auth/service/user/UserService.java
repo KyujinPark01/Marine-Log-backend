@@ -1,4 +1,5 @@
 package domain.backend.auth.service.user;
+
 import domain.backend.auth.domain.user.User;
 import domain.backend.auth.repository.SocialLoginRepository;
 import domain.backend.auth.repository.UserRepository;
@@ -6,10 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor

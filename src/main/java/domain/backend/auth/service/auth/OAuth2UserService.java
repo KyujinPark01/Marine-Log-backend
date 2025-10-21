@@ -1,23 +1,20 @@
 package domain.backend.auth.service.auth;
+import domain.backend.auth.domain.oauth.*;
 import domain.backend.auth.domain.user.Provider;
 import domain.backend.auth.domain.user.Role;
-import domain.backend.auth.domain.user.User;
-import domain.backend.auth.domain.oauth.GoogleUserInfo;
-import domain.backend.auth.domain.oauth.KakaoUserInfo;
-import domain.backend.auth.domain.oauth.NaverUserInfo;
-import domain.backend.auth.domain.oauth.Oauth2UserInfo;
 import domain.backend.auth.domain.user.SocialLogin;
+import domain.backend.auth.domain.user.User;
 import domain.backend.auth.repository.SocialLoginRepository;
 import domain.backend.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+
+import static domain.backend.auth.domain.user.Provider.*;
 
 @Slf4j
 @Service
@@ -51,16 +48,16 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
             userRepository.save(user);
 
             SocialLogin socialLogin = SocialLogin.builder()
-                    .provider(Provider.valueOf(provider.toUpperCase()))
+                    .provider(valueOf(provider.toUpperCase()))
                     .providerId(userInfo.getProviderId())
                     .user(user)
                     .build();
 
             socialLoginRepository.save(socialLogin);
-        }  boolean hasSocial = socialLoginRepository.findByUserAndProvider(user, Provider.valueOf(provider.toUpperCase())).isPresent();
+        }  boolean hasSocial = socialLoginRepository.findByUserAndProvider(user, valueOf(provider.toUpperCase())).isPresent();
         if (!hasSocial) {
             SocialLogin socialLogin = SocialLogin.builder()
-                    .provider(Provider.valueOf(provider.toUpperCase()))
+                    .provider(valueOf(provider.toUpperCase()))
                     .providerId(userInfo.getProviderId())
                     .user(user)
                     .build();
