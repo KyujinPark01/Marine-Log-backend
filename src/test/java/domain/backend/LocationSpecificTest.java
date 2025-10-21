@@ -7,9 +7,8 @@ import domain.backend.location.domain.Location;
 import domain.backend.location.domain.LocationRepository;
 import domain.backend.location.dto.LocationRequestDto;
 import domain.backend.location.projection.LocationSpecificProjection;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.*;
 import org.locationtech.jts.geom.Coordinate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,34 +20,26 @@ import java.util.Random;
 
 @SpringBootTest
 @Transactional
+@RequiredArgsConstructor
 public class LocationSpecificTest {
-    @Autowired
-    private LocationRepository locationRepository;
-
-    @Autowired
-    private ActivityRepository activityRepository;
-
-    @PersistenceContext
-    private EntityManager em;
+    private final LocationRepository locationRepository;
+    private final ActivityRepository activityRepository;
 
     private final Random random = new Random();
 
     @org.junit.jupiter.api.BeforeEach
     void setup() {
-        int numEntities = 10; // 생성할 Activity + Location 수
+        int numEntities = 10;
 
         for (int i = 0; i < numEntities; i++) {
-            // Activity 생성
             Activity act = new Activity();
             act.setName("Activity " + i);
             act.setDescription("Description " + i);
-            act.setMaxParticipants(50);
-            act.setCurrentParticipants(random.nextInt(50));
+            act.setParticipants(random.nextInt(50));
             act.setStatus(Status.PLANNED);
-            act.setStartDatetime(LocalDate.of(2010, 1, 1));
+            act.setActivityDate(LocalDate.of(2010, 1, 1));
             activityRepository.save(act);
 
-            // Location 생성 (1:1)
             double lat = 35 + random.nextDouble() * 3; // 예: 35~38
             double lng = 126 + random.nextDouble() * 3; // 예: 126~129
 
@@ -68,7 +59,7 @@ public class LocationSpecificTest {
     @Test
     @DisplayName("활동 정보가 알맞게 저장된다")
     void testSaveActivity() {
-        activityRepository.findAll().forEach(a -> Assertions.assertEquals(LocalDate.of(2010, 1, 1), a.getStartDatetime()));
+        activityRepository.findAll().forEach(a -> Assertions.assertEquals(LocalDate.of(2010, 1, 1), a.getActivityDate()));
     }
 
     @Test
