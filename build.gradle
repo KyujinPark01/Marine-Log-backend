@@ -56,11 +56,11 @@ sourceSets {
     main {
         java{
             exclude([
-                    'domain/backend/auth/controller/**'
-                    ,'domain/backend/auth/repository/**'
-                    ,'domain/backend/auth/service/**'
-                    ,'domain/backend/common/security/**'
-                    ,'domain/backend/common/config/**'
+                    //'domain/backend/auth/controller/**'
+                    //,'domain/backend/auth/repository/**'
+                    //,'domain/backend/auth/service/**'
+                    //,'domain/backend/common/security/**'
+                    //,'domain/backend/common/config/**'
             ])
         }
         resources {
