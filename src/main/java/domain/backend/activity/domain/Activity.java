@@ -22,30 +22,11 @@ public class Activity extends BaseTimeEntity {
     private Long activityId;
 
     // 2. Mappings
-    @OneToMany(
-            mappedBy = "activity",
-            fetch = FetchType.LAZY,
-            cascade = CascadeType.ALL
-            )
-    private List<HostedBy> hostedBys;
-
-    @OneToMany(
-            mappedBy = "activity",
-            fetch = FetchType.LAZY
-    )
-    private List<Waste> wastes;
-
     @OneToOne(
             mappedBy = "activity",
             cascade = CascadeType.ALL
     )
     private Location location;
-
-    @OneToMany(
-            mappedBy = "activity",
-            fetch = FetchType.LAZY
-    )
-    private List<ActivityPicture> activityPictures;
 
     // 3. 기타 속성
     @Column(name="name")
