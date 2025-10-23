@@ -1,15 +1,13 @@
 package domain.backend.activity.domain;
 
+import domain.backend.auth.domain.user.User;
 import domain.backend.common.entity.BaseTimeEntity;
-import domain.backend.common.entity.Waste;
-import domain.backend.organization.domain.entity.HostedBy;
 import domain.backend.location.domain.Location;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.List;
 
 @Entity
 @Table(name = "activity")
@@ -21,31 +19,17 @@ public class Activity extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long activityId;
 
+    // 2. 작성자 (User와 다대일 관계) - 활동 데이터 입력시 작성자 필수라고 생각하여 추가.
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by", nullable = false)
+    private User createdBy;
+
     // 2. Mappings
-    @OneToMany(
-            mappedBy = "activity",
-            fetch = FetchType.LAZY,
-            cascade = CascadeType.ALL
-            )
-    private List<HostedBy> hostedBys;
-
-    @OneToMany(
-            mappedBy = "activity",
-            fetch = FetchType.LAZY
-    )
-    private List<Waste> wastes;
-
     @OneToOne(
             mappedBy = "activity",
             cascade = CascadeType.ALL
     )
     private Location location;
-
-    @OneToMany(
-            mappedBy = "activity",
-            fetch = FetchType.LAZY
-    )
-    private List<ActivityPicture> activityPictures;
 
     // 3. 기타 속성
     @Column(name="name")
