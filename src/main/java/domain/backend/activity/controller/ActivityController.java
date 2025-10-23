@@ -91,9 +91,6 @@ public class ActivityController {
                 : status;
         return ResponseEntity.ok(activityService.listMine(me, filter, PageRequest.of(page, size)));
     }
-    /* Security 연동 후 대체 */
-    private User getCurrentUser() { return User.builder().userId(1L).name("테스트 유저").build(); }
-    private User getCurrentUserOrNull() { return getCurrentUser(); } // 비로그인 허용이면 null 리턴
-
+    
 }
 
