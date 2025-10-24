@@ -21,7 +21,11 @@ public class Activity extends BaseTimeEntity {
 
     // 2. 작성자 (User와 다대일 관계) - 활동 데이터 입력시 작성자 필수라고 생각하여 추가.
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "created_by", nullable = false)
+    @JoinColumn(
+            name = "user_id",
+            nullable = false,
+            foreignKey = @ForeignKey(name = "fk_activity_user_id")
+    )
     private User createdBy;
 
     // 2. Mappings
