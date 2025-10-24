@@ -26,9 +26,6 @@ public class SocialLogin extends BaseTimeEntity {
     private Provider provider; // ENUM(네이버, 카카오, 구글)
 
     @Column(length = 1000)
-    private String accessToken;
-
-    @Column(length = 1000)
     private String refreshToken;
 
     @Column(length = 255)
