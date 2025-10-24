@@ -11,10 +11,7 @@ import java.time.LocalDateTime;
                 @UniqueConstraint(columnNames = {"provider", "providerId"})
         })
 @Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SocialLogin extends BaseTimeEntity {
 
     @Id
@@ -25,19 +22,24 @@ public class SocialLogin extends BaseTimeEntity {
     @Column(nullable = false, length = 20)
     private Provider provider; // ENUM(네이버, 카카오, 구글)
 
-    @Column(length = 1000)
-    private String refreshToken;
-
     @Column(length = 255)
     private String providerId;
 
-    private LocalDateTime accessTokenExpiresAt;
     private LocalDateTime refreshTokenExpiresAt;
-
 
     // user 연관관계
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Builder
+    public SocialLogin(Provider provider,
+                       String providerId,
+                       LocalDateTime refreshTokenExpiresAt,
+                       User user) {
+        this.provider = provider;
+        this.providerId = providerId;
+        this.refreshTokenExpiresAt = refreshTokenExpiresAt;
+        this.user = user;
+    }
 }

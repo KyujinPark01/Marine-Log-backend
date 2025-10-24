@@ -15,7 +15,8 @@ import lombok.*;
                 columnNames={"activity_id","org_id"}
         )
 )
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class HostedBy {
 
     // 1. Embeddable을 사용한 PFK
@@ -31,6 +32,7 @@ public class HostedBy {
             nullable = false,
             foreignKey = @ForeignKey(name = "fk_org_activity_id")
     )
+    @Setter
     private Organization organization;
 
     // 3. activity의 FK 선언
@@ -47,4 +49,15 @@ public class HostedBy {
     // 4. 기타 속성
     @Column(name="contribution")
     private Double contribution;    // 각 단체의 기여도 ex) 0.33, 0.5 등 소수점 표기 방식
+
+    @Builder
+    public HostedBy(HostedById hostedById,
+                    Organization organization,
+                    Activity activity,
+                    Double contribution) {
+        this.hostedById = hostedById;
+        this.organization = organization;
+        this.activity = activity;
+        this.contribution = contribution;
+    }
 }

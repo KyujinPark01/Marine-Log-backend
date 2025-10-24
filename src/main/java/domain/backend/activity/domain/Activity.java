@@ -11,7 +11,8 @@ import java.time.LocalTime;
 
 @Entity
 @Table(name = "activity")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Activity extends BaseTimeEntity {
 
     // 1. PK 선언
@@ -63,4 +64,26 @@ public class Activity extends BaseTimeEntity {
 
     @Column(name="volume_L")
     private Double volumeL;
+
+    @Builder
+    public Activity(User createdBy,
+                    String name,
+                    String description,
+                    LocalDate activityDate,
+                    LocalTime startTime,
+                    LocalTime endTime,
+                    Integer participants,
+                    Status status,
+                    Double weightKg,
+                    Double volumeL) {
+        this.name = name;
+        this.description = description;
+        this.activityDate = activityDate;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.participants = participants;
+        this.status = status;
+        this.weightKg = weightKg;
+        this.volumeL = volumeL;
+    }
 }

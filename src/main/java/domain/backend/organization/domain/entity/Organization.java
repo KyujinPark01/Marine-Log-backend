@@ -10,9 +10,9 @@ import java.util.List;
 
 @Entity
 @Table(name = "organization")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Organization extends BaseTimeEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "org_id")
@@ -26,4 +26,21 @@ public class Organization extends BaseTimeEntity {
 
     @Column(name="description")
     private String description;
+
+    @Builder
+    public Organization(String name, String location, String description) {
+        this.name = name;
+        this.location = location;
+        this.description = description;
+    }
+
+    public void addUser(User user) {
+        this.users.add(user);
+        user.setOrganization(this);
+    }
+
+    public void addHostedBy(HostedBy hostedBy) {
+        this.hostedBys.add(hostedBy);
+        hostedBy.setOrganization(this);
+    }
 }
