@@ -6,6 +6,7 @@ import domain.backend.auth.domain.user.SocialLogin;
 import domain.backend.auth.domain.user.User;
 import domain.backend.auth.repository.SocialLoginRepository;
 import domain.backend.auth.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -19,6 +20,7 @@ import static domain.backend.auth.domain.user.Provider.*;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class OAuth2UserService extends DefaultOAuth2UserService {
     private final UserRepository userRepository;
     private final SocialLoginRepository socialLoginRepository;
