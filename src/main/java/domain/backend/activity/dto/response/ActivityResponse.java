@@ -21,9 +21,10 @@ public class ActivityResponse {
     private Integer participants;
     private Status status;        // "DRAFT" | "PUBLISHED" | "DELETED"
     private String createdByName;
-    /*LocationDto location,
-        List<PictureResp> pictures,
-        List<HostedByResp> hostedBy, - 후순위 */
+    /*후순위*/
+    // LocationDto location,
+    // List<PictureResp> pictures,
+    // List<HostedByResp> hostedBy
 
     public static ActivityResponse from(Activity a) {
         return ActivityResponse.builder()
