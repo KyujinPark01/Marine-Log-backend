@@ -17,4 +17,8 @@ public class ActivityUpdateRequest {
     private Integer participants;
     private Double weightKg;
     private Double volumeL;
+    /*후순위*/
+    //LocationDto location,
+    //List<String> pictureUrls,            // 사진 url
+    //List<HostedByDto> hostedBy           // 참여 단체
 }

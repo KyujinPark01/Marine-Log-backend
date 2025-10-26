@@ -21,7 +21,8 @@ public class ActivityCreateRequest {
         private Integer participants;
         private Double weightKg;
         private Double volumeL;
-        //LocationDto location,                // 후순위
+        /*후순위*/
+        //LocationDto location,
         //List<String> pictureUrls,            // 사진 url
         //List<HostedByDto> hostedBy           // 참여 단체
 }
