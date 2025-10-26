@@ -25,7 +25,10 @@ public class ActivityService {
 
     private final ActivityRepository activityRepository;
 
-    /* 공통 유틸 */
+    // ==================== Activity 공통 로직 ====================
+    // - 소유자 검증(getOwned)
+    // - 필드 유효성 검증(validateForPublish)
+    // - 부분 업데이트(applyPatch)
     private Activity getOwned(Long id, Long userId) {
         Activity a = activityRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("활동이 존재하지 않습니다. id=" + id));
@@ -125,7 +128,7 @@ public class ActivityService {
         a.setStatus(Status.DELETED);
     }
 
-    /* 조회 */
+    //조회
     public ActivityResponse getOne(Long id, Long userIdOrNull) {
         Activity a = activityRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("활동이 존재하지 않습니다. id=" + id));
