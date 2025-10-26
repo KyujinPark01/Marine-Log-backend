@@ -91,6 +91,21 @@ public class ActivityController {
                 : status;
         return ResponseEntity.ok(activityService.listMine(me, filter, PageRequest.of(page, size)));
     }
-    
+    /*[테스트 전용] Security 연동 후 대체 */
+    //로그인된 사용자 시뮬레이션
+    private User getCurrentUser() {
+        return User.builder().userId(1L)
+                   .name("테스트 유저").build();
+    }
+    //로그인하지 않은 사용자 (조회 허용)
+    private User getCurrentUserOrNull() {
+        boolean isGuestMode = false; // true -> 비회원 모드로 실행
+
+        if (isGuestMode) {
+            return null;  //로그인 안 한 사용자
+        }
+        return getCurrentUser(); // 로그인된 사용자
+    }
+
 }
 
