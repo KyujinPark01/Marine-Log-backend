@@ -1,4 +1,4 @@
-package domain.backend.location.dto;
+package domain.backend.location.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +11,7 @@ import java.time.LocalDate;
 @Setter
 @AllArgsConstructor
 @Builder
-public class LocationSpecificDto {
+public class LocationSpecific {
     private Long activityId;
     private String activityName;
     private LocalDate activityDate;

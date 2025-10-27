@@ -1,8 +1,10 @@
 package domain.backend.location.domain;
 
 import domain.backend.activity.domain.Activity;
+import domain.backend.location.dto.request.LocationWeightedRequest;
 import domain.backend.location.projection.LocationAggregationProjection;
 import domain.backend.location.projection.LocationSpecificProjection;
+import domain.backend.location.projection.LocationWeightedProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -66,4 +68,21 @@ public interface LocationRepository extends JpaRepository<Location, Activity> {
             @Param("endDate") LocalDate endDate,
             @Param("orgId") Long orgId
     );
+
+    @Query(value = """
+        SELECT
+            ST_X(grid.geom) AS longitude,
+            ST_Y(grid.geom) AS latitude,
+            COUNT(*) AS weight
+            FROM location l
+            JOIN (
+                SELECT DISTINCT (ST_SnapToGrid(geom, 0.01)) AS geom -- 1km 단위 그리드화
+                FROM location
+            ) grid ON ST_Equals(l.geom, grid.geom)
+        JOIN activity a
+        ON a.activity_id = l.activity_id
+        WHERE a.activity_date BETWEEN :startDate AND :endDate
+        GROUP BY grid.geom;
+""",  nativeQuery = true)
+    List<LocationWeightedProjection> getWeighted(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 }

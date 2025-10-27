@@ -5,7 +5,7 @@ import domain.backend.activity.domain.Activity;
 import domain.backend.activity.domain.Status;
 import domain.backend.location.domain.Location;
 import domain.backend.location.domain.LocationRepository;
-import domain.backend.location.dto.LocationRequestDto;
+import domain.backend.location.dto.request.LocationRequest;
 import domain.backend.location.projection.LocationSpecificProjection;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.*;
@@ -66,7 +66,7 @@ public class LocationSpecificTest {
     @Test
     @DisplayName("구역, 날짜, 단체 필터가 적용된 활동정보 상세가 반환된다")
     void testGetLocationSpecific() {
-        LocationRequestDto dto = LocationRequestDto.builder()
+        LocationRequest dto = LocationRequest.builder()
                 .swLat(33.0)
                 .swLng(124.0)
                 .neLat(43.0)

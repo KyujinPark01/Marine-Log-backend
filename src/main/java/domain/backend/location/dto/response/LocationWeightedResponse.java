@@ -1,19 +1,16 @@
-package domain.backend.location.dto;
+package domain.backend.location.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
-
 @Getter
 @Setter
 @AllArgsConstructor
 @Builder
-public class LocationAggregationDto {
-    private String region;
-    private Integer counts;
+public class LocationWeightedResponse {
     private double latitude;
     private double longitude;
+    private double weight;
 }

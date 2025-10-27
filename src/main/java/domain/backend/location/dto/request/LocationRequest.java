@@ -1,4 +1,4 @@
-package domain.backend.location.dto;
+package domain.backend.location.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @Setter
 @AllArgsConstructor
 @Builder
-public class LocationRequestDto {
+public class LocationRequest {
     private double swLat;
     private double swLng;
     private double neLat;
