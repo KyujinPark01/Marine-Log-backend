@@ -2,7 +2,6 @@ package domain.backend;
 
 
 import domain.backend.activity.domain.Activity;
-import domain.backend.activity.domain.ActivityRepository;
 import domain.backend.activity.domain.Status;
 import domain.backend.location.domain.Location;
 import domain.backend.location.domain.LocationRepository;

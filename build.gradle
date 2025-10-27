@@ -6,11 +6,11 @@ plugins {
 
 group = 'domain'
 version = '0.0.1-SNAPSHOT'
-description = 'backend'
+description =  'backend'
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(21)
     }
 }
 
@@ -50,4 +50,23 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+sourceSets {
+    main {
+        java{
+            exclude([
+                    //'domain/backend/auth/controller/**'
+                    //,'domain/backend/auth/repository/**'
+                    //,'domain/backend/auth/service/**'
+                    //,'domain/backend/common/security/**'
+                    //,'domain/backend/common/config/**'
+            ])
+        }
+        resources {
+            exclude([
+                    'schema.sql'
+            ])
+        }
+    }
 }
