@@ -4,17 +4,16 @@ import domain.backend.activity.domain.Activity;
 import domain.backend.common.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.PrecisionModel;
 
 @Entity
 @Table(name = "location")
 @Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class Location extends BaseTimeEntity{
-
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Location extends BaseTimeEntity {
     @Id
     private Long activityId;
 
@@ -29,4 +28,22 @@ public class Location extends BaseTimeEntity{
     @MapsId
     @JoinColumn(name = "activity_id")
     private Activity activity;
+
+    @Builder
+    public Location(Double latitude,
+                    Double longitude,
+                    String region1depthName,
+                    String region2depthName,
+                    String region3depthName,
+                    String address) {
+        if (latitude != null && longitude != null) {
+            GeometryFactory factory = new GeometryFactory(new PrecisionModel(), 4326);
+            this.geometry = factory.createPoint(new Coordinate(longitude, latitude));
+        }
+
+        this.region1depthName = region1depthName;
+        this.region2depthName = region2depthName;
+        this.region3depthName = region3depthName;
+        this.address = address;
+    }
 }

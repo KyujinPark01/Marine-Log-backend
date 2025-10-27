@@ -4,12 +4,13 @@ import domain.backend.activity.domain.Activity;
 import jakarta.persistence.*;
 import lombok.*;
 @Entity
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Waste {
-
     // 1. PK 생성
     @Id
     @Column(name = "waste_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long wasteId;
 
     // 2. activity_id의 PFK 선언
@@ -38,4 +39,18 @@ public class Waste {
     @Column(name = "volume_L")
     private Double volumeL;
 
+    @Builder
+    public Waste(Activity activity,
+                 String specificType,
+                 String type,
+                 String pictureUrl,
+                 Double weightKg,
+                 Double volumeL) {
+        this.activity = activity;
+        this.specificType = specificType;
+        this.type = type;
+        this.pictureUrl = pictureUrl;
+        this.weightKg = weightKg;
+        this.volumeL = volumeL;
+    }
 }

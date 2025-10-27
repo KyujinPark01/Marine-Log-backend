@@ -6,11 +6,14 @@ import lombok.*;
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "activity_picture") @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Table(name = "activity_picture")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ActivityPicture {
     // 1. PK 생성
     @Id
     @Column(name = "picture_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long pictureId;
 
     // 2. activity_id의 FK 선언
@@ -32,4 +35,11 @@ public class ActivityPicture {
 
     @Column(name = "summary")
     private String summary;
+
+    @Builder
+    public ActivityPicture(Activity activity, String pictureUrl, String summary) {
+        this.activity = activity;
+        this.pictureUrl = pictureUrl;
+        this.summary = summary;
+    }
 }
