@@ -34,13 +34,4 @@ public class Organization extends BaseTimeEntity {
         this.description = description;
     }
 
-    public void addUser(User user) {
-        this.users.add(user);
-        user.setOrganization(this);
-    }
-
-    public void addHostedBy(HostedBy hostedBy) {
-        this.hostedBys.add(hostedBy);
-        hostedBy.setOrganization(this);
-    }
 }
