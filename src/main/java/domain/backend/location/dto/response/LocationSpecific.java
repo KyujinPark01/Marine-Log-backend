@@ -1,20 +1,20 @@
-package domain.backend.location.dto;
+package domain.backend.location.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @Builder
-public class LocationSpecificDto {
+public class LocationSpecific {
     private Long activityId;
     private String activityName;
-    private LocalDateTime activityDate;
+    private LocalDate activityDate;
     private Double latitude;
     private Double longitude;
 }

@@ -1,9 +1,11 @@
 package domain.backend.location.service;
 
 import domain.backend.location.domain.LocationRepository;
-import domain.backend.location.dto.LocationAggregationDto;
-import domain.backend.location.dto.LocationRequestDto;
-import domain.backend.location.dto.LocationSpecificDto;
+import domain.backend.location.dto.request.LocationWeightedRequest;
+import domain.backend.location.dto.response.LocationAggregation;
+import domain.backend.location.dto.request.LocationRequest;
+import domain.backend.location.dto.response.LocationSpecific;
+import domain.backend.location.dto.response.LocationWeightedResponse;
 import domain.backend.location.projection.LocationAggregationProjection;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,7 +21,7 @@ public class LocationService {
     private final LocationRepository locationRepository;
 
     @Transactional(readOnly = true)
-    public List<LocationAggregationDto> getAggregatedData(String bound) {
+    public List<LocationAggregation> getAggregatedData(String bound) {
         List<LocationAggregationProjection> projections = switch (bound.toLowerCase()) {
             case "national" -> locationRepository.getAggregatedNational();
             case "broad" -> locationRepository.getAggregatedBroad();
@@ -28,35 +30,49 @@ public class LocationService {
         };
 
         return projections.stream()
-                .map(repository -> LocationAggregationDto.builder()
-                        .region(repository.getRegion())
-                        .counts(repository.getCounts())
-                        .latitude(repository.getLatitude())
-                        .longitude(repository.getLongitude())
+                .map(projection -> LocationAggregation.builder()
+                        .region(projection.getRegion())
+                        .counts(projection.getCounts())
+                        .latitude(projection.getLatitude())
+                        .longitude(projection.getLongitude())
                         .build())
                 .toList();
     }
 
     @Transactional(readOnly = true)
-    public List<LocationSpecificDto> getSpecificData(LocationRequestDto locationRequestDto) {
-        LocalDate startDate = (locationRequestDto.getStartDate() != null) ? locationRequestDto.getStartDate() : LocalDate.of(1900, 1, 1);
-        LocalDate endDate = (locationRequestDto.getEndDate() != null) ? locationRequestDto.getEndDate() : LocalDate.now();
+    public List<LocationSpecific> getSpecificData(LocationRequest locationRequest) {
+        LocalDate startDate = (locationRequest.getStartDate() != null) ? locationRequest.getStartDate() : LocalDate.of(1900, 1, 1);
+        LocalDate endDate = (locationRequest.getEndDate() != null) ? locationRequest.getEndDate() : LocalDate.now();
 
         return locationRepository.getSpecific(
-                locationRequestDto.getSwLat(),
-                locationRequestDto.getSwLng(),
-                locationRequestDto.getNeLat(),
-                locationRequestDto.getNeLng(),
+                locationRequest.getSwLat(),
+                locationRequest.getSwLng(),
+                locationRequest.getNeLat(),
+                locationRequest.getNeLng(),
                 startDate,
                 endDate,
-                locationRequestDto.getOrganizationId()
+                locationRequest.getOrgId()
                 ).stream()
-                .map(repository -> LocationSpecificDto.builder()
-                        .activityId(repository.getActivityId())
-                        .activityName(repository.getActivityName())
-                        .activityDate(repository.getActivityDate())
-                        .latitude(repository.getLatitude())
-                        .longitude(repository.getLongitude())
+                .map(projection -> LocationSpecific.builder()
+                        .activityId(projection.getActivityId())
+                        .activityName(projection.getActivityName())
+                        .activityDate(projection.getActivityDate())
+                        .latitude(projection.getLatitude())
+                        .longitude(projection.getLongitude())
+                        .build())
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<LocationWeightedResponse> getWeightedData(LocationWeightedRequest locationWeightedRequest) {
+        LocalDate startDate = (locationWeightedRequest.getStartDate() != null) ? locationWeightedRequest.getStartDate() : LocalDate.of(1900, 1, 1);
+        LocalDate endDate = (locationWeightedRequest.getEndDate() != null) ? locationWeightedRequest.getEndDate() : LocalDate.now();
+
+        return locationRepository.getWeighted(startDate, endDate).stream()
+                .map(projection -> LocationWeightedResponse.builder()
+                        .longitude(projection.getLongitude())
+                        .latitude(projection.getLatitude())
+                        .weight(projection.getWeight())
                         .build())
                 .toList();
     }
