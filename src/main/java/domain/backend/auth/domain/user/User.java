@@ -4,11 +4,8 @@ import domain.backend.common.entity.BaseTimeEntity;
 import domain.backend.organization.domain.entity.Organization;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.cglib.core.Local;
-
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
+
 
 @Entity
 @Table(name = "member")
@@ -42,14 +39,14 @@ public class User extends BaseTimeEntity {
 
     private LocalDateTime refreshTokenExpiresAt;
 
-        // Organization 연결
     @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "organization_id")
     private Organization organization;
 
     @Builder
-    public User (String email,
+    public User (Long userId,
+                 String email,
                  String name,
                  String address,
                  String phoneNumber,
@@ -58,6 +55,7 @@ public class User extends BaseTimeEntity {
                  LocalDateTime refreshTokenExpiresAt,
                  Organization organization
                  ) {
+        this.userId = userId;
         this.email = email;
         this.name = name;
         this.address = address;
@@ -67,5 +65,22 @@ public class User extends BaseTimeEntity {
         this.refreshTokenExpiresAt = refreshTokenExpiresAt;
         this.organization = organization;
     }
+
+    public User updateRefreshToken(String refreshToken)
+    {
+        return User.builder()
+                .userId(this.userId)
+                .email(this.email)
+                .name(this.name)
+                .address(this.address)
+                .phoneNumber(this.phoneNumber)
+                .role(this.role)
+                .refreshToken(refreshToken)
+                .refreshTokenExpiresAt(this.refreshTokenExpiresAt)
+                .build();
+
+
+    }
+
 
 }

@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class UserService {
     private final UserRepository userRepository;
-    private final SocialLoginRepository socialLoginRepository;
 
 //        카카오나 구글, 네이버에 추가적인 정보가 필요하면 메소드 필요
 //        public void upsertSocialTokens(User user, Provider provider, String socialAccessToken, Instant socialAccessTokenExpiresAt, String socialRefreshToken, Instant socialRefreshTokenExpiresAt) {
@@ -35,8 +34,7 @@ public class UserService {
 //        }
     public void updateRefreshToken(String email, String refreshToken) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다: " + email));
-        user.setRefreshToken(refreshToken);
-        userRepository.save(user);
+        userRepository.save(user.updateRefreshToken(refreshToken));
     }
 
 

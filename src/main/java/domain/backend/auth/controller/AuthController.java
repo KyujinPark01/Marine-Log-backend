@@ -1,8 +1,8 @@
 package domain.backend.auth.controller;
 
-import domain.backend.auth.controller.dto.response.AuthResponse;
-import domain.backend.auth.controller.dto.response.UserResponse;
 import domain.backend.auth.domain.user.User;
+import domain.backend.auth.dto.response.AuthResponse;
+import domain.backend.auth.dto.response.UserResponse;
 import domain.backend.auth.repository.UserRepository;
 import domain.backend.common.security.jwt.JwtTokenProvider;
 import io.jsonwebtoken.Claims;
@@ -54,12 +54,12 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@RequestBody(required = false) Map<String, String> body) {
+    public ResponseEntity<Void> logout() {
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/me")
-    public ResponseEntity<UserResponse> me(HttpServletRequest request, @RequestHeader(value = "Authorization", required = false) String auth) {
+    public ResponseEntity<UserResponse> me( @RequestHeader(value = "Authorization", required = false) String auth) {
         if (auth == null || !auth.startsWith("Bearer "))
             return ResponseEntity.status(401).build();
         String token = auth.substring(7);
