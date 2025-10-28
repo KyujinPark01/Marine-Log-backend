@@ -3,10 +3,16 @@ package domain.backend;
 
 import domain.backend.activity.domain.Activity;
 import domain.backend.activity.domain.Status;
+import domain.backend.activity.repository.ActivityRepository;
+import domain.backend.auth.domain.user.Role;
+import domain.backend.auth.domain.user.User;
+import domain.backend.auth.repository.UserRepository;
 import domain.backend.location.domain.Location;
 import domain.backend.location.domain.LocationRepository;
 import domain.backend.location.dto.request.LocationRequest;
+import domain.backend.location.dto.request.LocationWeightedRequest;
 import domain.backend.location.projection.LocationSpecificProjection;
+import domain.backend.location.projection.LocationWeightedProjection;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.*;
 import org.locationtech.jts.geom.Coordinate;
@@ -26,32 +32,48 @@ public class LocationSpecificTest {
     @Autowired
     private ActivityRepository activityRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
     private final Random random = new Random();
 
     @org.junit.jupiter.api.BeforeEach
     void setup() {
-        int numEntities = 10;
+        int numEntities = 50;
 
         for (int i = 0; i < numEntities; i++) {
-            Activity act = new Activity();
-            act.setName("Activity " + i);
-            act.setDescription("Description " + i);
-            act.setParticipants(random.nextInt(50));
-            act.setStatus(Status.PLANNED);
-            act.setActivityDate(LocalDate.of(2010, 1, 1));
+            User user = User.builder()
+                    .name("User" + i)
+                    .address("address" + i)
+                    .email("email" + i)
+                    .role(Role.USER)
+                    .phoneNumber("phoneNumber" + i)
+                    .refreshToken("refreshToken" + i)
+                    .build();
+
+            userRepository.save(user);
+
+            Activity act = Activity.builder()
+                    .name("Activity " + i)
+                    .description("Description " + i)
+                    .participants(random.nextInt(50))
+                    .status(Status.PUBLISHED)
+                    .activityDate(LocalDate.of(2010, 1, 1))
+                    .createdBy(user)
+                    .build();
             activityRepository.save(act);
 
-            double lat = 35 + random.nextDouble() * 3; // 예: 35~38
-            double lng = 126 + random.nextDouble() * 3; // 예: 126~129
+            double lat = 35 + random.nextDouble(); // 예: 35~36
+            double lng = 126 + random.nextDouble(); // 예: 126~127
 
-            Location loc = new Location();
-            loc.setActivity(act);
-            loc.setGeometry(new org.locationtech.jts.geom.GeometryFactory().createPoint(new Coordinate(lng, lat)));
-            loc.setRegion1depthName("Region" + (i % 10));
-            loc.setRegion2depthName("SubRegion" + (i % 20));
-            loc.setRegion3depthName("Detail" + (i % 50));
-            loc.setAddress("Address " + i);
-
+            Location loc = Location.builder()
+                    .activity(act)
+                    .geometry(new org.locationtech.jts.geom.GeometryFactory().createPoint(new Coordinate(lng, lat)))
+                    .region1depthName("Region" + (i % 10))
+                    .region2depthName("SubRegion" + (i % 20))
+                    .region3depthName("Detail" + (i % 50))
+                    .address("Address " + i)
+                    .build();
 
             locationRepository.save(loc);
         }
@@ -88,5 +110,20 @@ public class LocationSpecificTest {
         System.out.println("Execution time: " + (end - start) + " ms");
 
         Assertions.assertFalse(results.isEmpty(), "결과가 비어있으면 안 됩니다");
+    }
+
+    @Test
+    @DisplayName("")
+    void testGetLocationWeighted() {
+        LocationWeightedRequest request = LocationWeightedRequest.builder()
+                .startDate(LocalDate.of(2000, 1, 1))
+                .endDate(LocalDate.now())
+                .build();
+
+        List<LocationWeightedProjection> results = locationRepository.getWeighted(request.getStartDate(), request.getEndDate());
+
+        Assertions.assertFalse(results.isEmpty(), "결과가 비어있으면 안 됩니다");
+
+        results.forEach(System.out::println);
     }
 }

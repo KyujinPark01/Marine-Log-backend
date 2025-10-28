@@ -70,19 +70,21 @@ public interface LocationRepository extends JpaRepository<Location, Activity> {
     );
 
     @Query(value = """
-        SELECT
-            ST_X(grid.geom) AS longitude,
-            ST_Y(grid.geom) AS latitude,
-            COUNT(*) AS weight
+        WITH grid AS (
+            SELECT DISTINCT ST_SnapToGrid(l.geometry, 0.1) AS geometry
             FROM location l
-            JOIN (
-                SELECT DISTINCT (ST_SnapToGrid(geom, 0.01)) AS geom -- 1km 단위 그리드화
-                FROM location
-            ) grid ON ST_Equals(l.geom, grid.geom)
+        )
+        SELECT
+            ST_X(grid.geometry) AS longitude,
+            ST_Y(grid.geometry) AS latitude,
+            COUNT(*) AS weight
+        FROM location l
+        JOIN grid
+            ON ST_SnapToGrid(l.geometry, 0.1) = grid.geometry
         JOIN activity a
-        ON a.activity_id = l.activity_id
+            ON a.activity_id = l.activity_id
         WHERE a.activity_date BETWEEN :startDate AND :endDate
-        GROUP BY grid.geom;
+        GROUP BY grid.geometry;
 """,  nativeQuery = true)
     List<LocationWeightedProjection> getWeighted(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 }
