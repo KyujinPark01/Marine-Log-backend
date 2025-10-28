@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface SocialLoginRepository extends JpaRepository<SocialLogin, String> {
+public interface SocialLoginRepository extends JpaRepository<SocialLogin, Long> {
     Optional<SocialLogin> findByUserAndProvider(User user, Provider provider);
 
 
