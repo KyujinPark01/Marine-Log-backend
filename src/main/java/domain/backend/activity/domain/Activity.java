@@ -76,7 +76,7 @@ public class Activity extends BaseTimeEntity {
                     Status status,
                     Double weightKg,
                     Double volumeL) {
-        this.createdBy = createdBy;     //작성자 누락으로 추가.
+        this.createdBy = createdBy;     //작성자 누락으로 추가
         this.name = name;
         this.description = description;
         this.activityDate = activityDate;
