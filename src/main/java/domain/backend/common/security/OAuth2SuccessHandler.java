@@ -1,7 +1,6 @@
 package domain.backend.common.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import domain.backend.auth.controller.dto.response.AuthResponse;
 import domain.backend.auth.domain.oauth.CustomOAuth2User;
 import domain.backend.auth.domain.user.Role;
 import domain.backend.auth.domain.user.User;
