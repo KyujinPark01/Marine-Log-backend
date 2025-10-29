@@ -96,6 +96,7 @@ public class ActivityController {
     //로그인된 사용자 시뮬레이션
     private User getCurrentUser() {
         return new User(
+                3L,
                 "test@email.com",
                 "테스트 유저",
                 "서울시 어딘가",
