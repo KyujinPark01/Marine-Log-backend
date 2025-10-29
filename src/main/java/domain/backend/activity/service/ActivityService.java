@@ -45,14 +45,7 @@ public class ActivityService {
         if (!cond) throw new IllegalStateException(msg);
     }
     private void applyPatch(Activity a, ActivityUpdateRequest d) {
-        if (d.getName() != null) a.setName(d.getName());
-        if (d.getDescription() != null) a.setDescription(d.getDescription());
-        if (d.getActivityDate() != null) a.setActivityDate(d.getActivityDate());
-        if (d.getStartTime() != null) a.setStartTime(d.getStartTime());
-        if (d.getEndTime() != null) a.setEndTime(d.getEndTime());
-        if (d.getParticipants() != null) a.setParticipants(d.getParticipants());
-        if (d.getWeightKg() != null) a.setWeightKg(d.getWeightKg());
-        if (d.getVolumeL() != null) a.setVolumeL(d.getVolumeL());
+        a.updateField(d);
     }
     private void validateForPublish(Activity a) {
         //핵심 필드(제목,날짜) 검증
@@ -78,7 +71,7 @@ public class ActivityService {
                 .build();
 
         validateForPublish(a);
-        a.setStatus(Status.PUBLISHED);
+        a.publish();
         return ActivityResponse.from(activityRepository.save(a));
     }
 
@@ -106,7 +99,7 @@ public class ActivityService {
         Activity a = getOwned(id, userId);
         ensure(a.getStatus() == Status.DRAFT, "초안만 게시할 수 있습니다.");
         validateForPublish(a);
-        a.setStatus(Status.PUBLISHED);
+        a.publish();
         return ActivityResponse.from(a);
     }
 
@@ -125,7 +118,7 @@ public class ActivityService {
     public void delete(Long id, Long userId) {
         Activity a = getOwned(id, userId);
         ensure(a.getStatus() != Status.DELETED, "이미 삭제된 글입니다.");
-        a.setStatus(Status.DELETED);
+        a.softDelete();
     }
 
     //조회

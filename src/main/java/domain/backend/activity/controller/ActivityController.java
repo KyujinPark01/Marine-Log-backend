@@ -5,6 +5,7 @@ import domain.backend.activity.dto.request.ActivityCreateRequest;
 import domain.backend.activity.dto.request.ActivityUpdateRequest;
 import domain.backend.activity.dto.response.ActivityResponse;
 import domain.backend.activity.service.ActivityService;
+import domain.backend.auth.domain.user.Role;
 import domain.backend.auth.domain.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -94,18 +95,23 @@ public class ActivityController {
     /*[테스트 전용] Security 연동 후 대체 */
     //로그인된 사용자 시뮬레이션
     private User getCurrentUser() {
-        return User.builder().userId(1L)
-                   .name("테스트 유저").build();
+        return new User(
+                "test@email.com",
+                "테스트 유저",
+                "서울시 어딘가",
+                "010-1234-5678",
+                Role.USER,
+                null,
+                null,
+                null
+        );
     }
-    //로그인하지 않은 사용자 (조회 허용)
+
+    // 비회원 일 때
     private User getCurrentUserOrNull() {
-        boolean isGuestMode = false; // true -> 비회원 모드로 실행
-
-        if (isGuestMode) {
-            return null;  //로그인 안 한 사용자
-        }
-        return getCurrentUser(); // 로그인된 사용자
+        boolean guestMode = false; // true면 비회원 모드
+        return guestMode ? null : getCurrentUser();
     }
-
 }
+
 
