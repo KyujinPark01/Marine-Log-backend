@@ -9,6 +9,7 @@ import java.time.LocalDate;
 public class DashboardFilter {
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate start;
+
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate end;
     private Long orgId;

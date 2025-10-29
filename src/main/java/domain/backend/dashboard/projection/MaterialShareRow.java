@@ -1,4 +1,4 @@
-package domain.backend.dashboard.dto;
+package domain.backend.dashboard.projection;
 
 public interface MaterialShareRow {
     String material();

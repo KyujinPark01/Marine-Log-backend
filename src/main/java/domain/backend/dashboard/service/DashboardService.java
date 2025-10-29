@@ -1,5 +1,6 @@
 package domain.backend.dashboard.service;
 
+import domain.backend.dashboard.projection.MaterialShareRow;
 import domain.backend.dashboard.projection.SumWasteView;
 import domain.backend.dashboard.dto.*;
 import domain.backend.dashboard.repository.ActivityDashRepository;
