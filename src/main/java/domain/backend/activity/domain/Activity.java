@@ -1,5 +1,6 @@
 package domain.backend.activity.domain;
 
+import domain.backend.activity.dto.request.ActivityUpdateRequest;
 import domain.backend.auth.domain.user.User;
 import domain.backend.common.entity.BaseTimeEntity;
 import domain.backend.location.domain.Location;
@@ -87,4 +88,18 @@ public class Activity extends BaseTimeEntity {
         this.weightKg = weightKg;
         this.volumeL = volumeL;
     }
+    // 게시글 수정 - 추가된 메소드
+    public void updateField(ActivityUpdateRequest request) {
+        this.name = request.getName() != null ? request.getName() : this.name;
+        this.description = request.getDescription() != null ? request.getDescription() : this.description;
+        this.activityDate = request.getActivityDate() != null ? request.getActivityDate() : this.activityDate;
+        this.startTime = request.getStartTime() != null ? request.getStartTime() : this.startTime;
+        this.endTime = request.getEndTime() != null ? request.getEndTime() : this.endTime;
+        this.participants = request.getParticipants() != null ? request.getParticipants() : this.participants;
+        this.weightKg = request.getWeightKg() != null ? request.getWeightKg() : this.weightKg;
+        this.volumeL = request.getVolumeL() != null ? request.getVolumeL() : this.volumeL;
+    }
+
+    public void publish() { this.status = Status.PUBLISHED; }
+    public void softDelete() { this.status = Status.DELETED; }
 }
