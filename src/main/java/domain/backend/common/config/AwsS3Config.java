@@ -16,6 +16,8 @@ public class AwsS3Config {
     @Value("${aws.s3.secret.key}")
     private String awsS3SecretKey;
 
+    private final String regionName = "";
+
     @Bean
     public S3Client s3Client() {
         AwsBasicCredentials awsBasicCredentials = AwsBasicCredentials.create(
@@ -24,7 +26,7 @@ public class AwsS3Config {
         );
 
         return S3Client.builder()
-                .region(Region.of("")) // have to find region name
+                .region(Region.of(regionName)) // have to find region name
                 .credentialsProvider(StaticCredentialsProvider.create(awsBasicCredentials))
                 .build();
     }
