@@ -16,18 +16,15 @@ import java.util.List;
 class DashboardController {
     private final DashboardService dashboardService;
 
-
     @GetMapping("/summary")
     public DashboardSummaryDto summary(DashboardFilter filter) {
         return dashboardService.getSummary(filter);
     }
 
-
     @GetMapping("/timeseries")
     public List<MonthlySeriesDto> timeseries(DashboardFilter filter) {
         return dashboardService.getTimeSeries(filter);
     }
-
 
     @GetMapping("/material-breakdown")
     public List<MaterialShareDto> material(DashboardFilter filter) {

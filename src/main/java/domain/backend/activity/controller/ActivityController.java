@@ -94,8 +94,10 @@ public class ActivityController {
     }
     /*[테스트 전용] Security 연동 후 대체 */
     //로그인된 사용자 시뮬레이션
+    // ToDo: 현재 실험적으로 구현한 상태 (1L은 최초 등록한 사람만 로그인하여 활동을 기록할 수 있게 함)
     private User getCurrentUser() {
         return new User(
+                1L,
                 "test@email.com",
                 "테스트 유저",
                 "서울시 어딘가",
