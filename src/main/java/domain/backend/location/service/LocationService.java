@@ -25,7 +25,6 @@ public class LocationService {
         List<LocationAggregationProjection> projections = switch (bound.toLowerCase()) {
             case "national" -> locationRepository.getAggregatedNational();
             case "broad" -> locationRepository.getAggregatedBroad();
-            case "regional" -> locationRepository.getAggregatedRegional();
             default -> throw new IllegalArgumentException("Invalid bound");
         };
 
