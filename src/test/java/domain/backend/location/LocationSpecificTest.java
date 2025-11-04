@@ -1,4 +1,4 @@
-package domain.backend;
+package domain.backend.location;
 
 
 import domain.backend.activity.domain.Activity;
@@ -67,8 +67,8 @@ public class LocationSpecificTest {
             double lng = 126 + random.nextDouble(); // 예: 126~127
 
             Location loc = Location.builder()
-                    .activity(act)
-                    .geometry(new org.locationtech.jts.geom.GeometryFactory().createPoint(new Coordinate(lng, lat)))
+                    .latitude(lat)
+                    .longitude(lng)
                     .region1depthName("Region" + (i % 10))
                     .region2depthName("SubRegion" + (i % 20))
                     .region3depthName("Detail" + (i % 50))
