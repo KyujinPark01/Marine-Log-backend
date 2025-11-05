@@ -1,6 +1,6 @@
 package domain.backend.report.service;
 
-import domain.backend.aws.s3.ImageUploadService;
+import domain.backend.common.image.service.ImageUploadService;
 import domain.backend.report.domain.ActivityReport;
 import domain.backend.report.domain.ActivityStatus;
 import domain.backend.report.dto.ActivityReportCreateRequest;
@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,7 +24,11 @@ public class ActivityReportService {
 
     @Transactional
     public Long createActivityReport(ActivityReportCreateRequest request, MultipartFile photo) {
-        String photoUrl = imageUploadService.uploadImage(photo);
+        try {
+            String photoUrl = imageUploadService.uploadImage(photo);
+        } catch (IOException e){
+            System.err.println("An IOException occurred: " + e.getMessage());
+        }
 
         ActivityReport report = ActivityReport.builder()
                 .latitude(request.getLatitude())
@@ -31,7 +36,7 @@ public class ActivityReportService {
                 .reportedReason(request.getReportedReason())
                 .reporterOccupation(request.getReportedOccupation())
                 .status(ActivityStatus.REPORTED)
-                .photoUrl(photoUrl)
+                //.photoUrl(photoUrl)
                 .title(request.getReportedReason()) // Or create a more sophisticated title
                 .build();
 
