@@ -11,7 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/activity-report")
+@RequestMapping("/activity-report")
 @RequiredArgsConstructor
 public class ActivityReportController {
 

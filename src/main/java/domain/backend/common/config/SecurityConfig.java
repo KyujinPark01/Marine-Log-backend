@@ -61,7 +61,7 @@ public class SecurityConfig {
                         .requestMatchers("/login/**", "/oauth2/**", "/login/oauth2/**").permitAll()
                         .requestMatchers("/location/**", "/key/**").permitAll()   // ToDo: map related request is all permitted for now
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/activity-report").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/activity-report").permitAll()
                         .requestMatchers(HttpMethod.GET, "/actuator/health").permitAll()
                         .anyRequest().authenticated()
                 )
