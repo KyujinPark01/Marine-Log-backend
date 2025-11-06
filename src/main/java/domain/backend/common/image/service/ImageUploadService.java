@@ -18,7 +18,7 @@ public class ImageUploadService {
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
-    
+
     public String uploadImage(MultipartFile file) throws IOException {
         String originalFilename = file.getOriginalFilename();
         String extension = "";

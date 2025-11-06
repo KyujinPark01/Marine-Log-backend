@@ -31,10 +31,7 @@ public class Activity extends BaseTimeEntity {
     private User createdBy;
 
     // 2. Mappings
-    @OneToOne(
-            mappedBy = "activity",
-            cascade = CascadeType.ALL
-    )
+    @OneToOne(mappedBy = "activity", cascade = CascadeType.ALL, orphanRemoval = true)
     private Location location;
 
     // 3. 기타 속성
@@ -99,6 +96,10 @@ public class Activity extends BaseTimeEntity {
         this.weightKg = request.getWeightKg() != null ? request.getWeightKg() : this.weightKg;
         this.volumeL = request.getVolumeL() != null ? request.getVolumeL() : this.volumeL;
     }
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
 
     public void publish() { this.status = Status.PUBLISHED; }
     public void softDelete() { this.status = Status.DELETED; }

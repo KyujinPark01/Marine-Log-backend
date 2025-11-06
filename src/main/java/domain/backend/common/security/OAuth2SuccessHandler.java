@@ -5,7 +5,7 @@ import domain.backend.auth.domain.oauth.CustomOAuth2User;
 import domain.backend.auth.domain.user.Role;
 import domain.backend.auth.domain.user.User;
 import domain.backend.auth.repository.UserRepository;
-import domain.backend.auth.service.user.UserService;
+import domain.backend.auth.service.auth.TokenService;
 import domain.backend.common.security.jwt.JwtTokenProvider;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -25,7 +25,7 @@ import java.util.Map;
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final JwtTokenProvider jwtTokenProvider;
-    private final UserService userService;
+    private final TokenService tokenService;
     private final UserRepository userRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -61,7 +61,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             // 없거나 만료된 경우 → 새로 발급 및 DB 갱신
             else {
                 refreshToken = jwtTokenProvider.createRefreshToken(email);
-                userService.updateRefreshToken(email, refreshToken);
+                tokenService.updateRefreshToken(email, refreshToken);
             }
 
             ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)

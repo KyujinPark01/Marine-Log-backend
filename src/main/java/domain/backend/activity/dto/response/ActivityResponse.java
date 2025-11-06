@@ -21,9 +21,9 @@ public class ActivityResponse {
     private Integer participants;
     private Status status;        // "DRAFT" | "PUBLISHED" | "DELETED"
     private String createdByName;
+    private String coverUrl;
     /*후순위*/
     // LocationDto location,
-    // List<PictureResp> pictures,
     // List<HostedByResp> hostedBy
 
     public static ActivityResponse from(Activity a) {
@@ -37,6 +37,20 @@ public class ActivityResponse {
                 .participants(a.getParticipants())
                 .status(a.getStatus())
                 .createdByName(a.getCreatedBy().getName())
+                .build();
+    }
+    public static ActivityResponse fromWithCover(Activity a, String coverUrl) {
+        return ActivityResponse.builder()
+                .id(a.getActivityId())
+                .name(a.getName())
+                .description(a.getDescription())
+                .activityDate(a.getActivityDate())
+                .startTime(a.getStartTime())
+                .endTime(a.getEndTime())
+                .participants(a.getParticipants())
+                .status(a.getStatus())
+                .createdByName(a.getCreatedBy().getName())
+                .coverUrl(coverUrl)  // ✅ 대표사진 추가
                 .build();
     }
 }

@@ -46,4 +46,8 @@ public class Location extends BaseTimeEntity {
         this.region3depthName = region3depthName;
         this.address = address;
     }
+
+    public void setActivity(Activity activity) {
+        this.activity = activity;
+    }
 }

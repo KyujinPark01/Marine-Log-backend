@@ -47,7 +47,13 @@ dependencies {
 
     implementation 'software.amazon.awssdk:s3:2.37.2'
     implementation 'net.coobird:thumbnailator:0.4.19'
-    implementation 'commons-io:commons-io:2.20.0'
+    implementation 'commons-io:commons-io:2.20.0'// 버전은 최신으로 맞춰도 됨
+    implementation 'software.amazon.awssdk:auth:2.25.32'
+    implementation 'software.amazon.awssdk:regions:2.25.32'
+
+
+
+
 }
 
 tasks.named('test') {

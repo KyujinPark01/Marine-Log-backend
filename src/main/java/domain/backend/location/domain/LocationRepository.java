@@ -12,61 +12,62 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDate;
 import java.util.List;
 
-
 public interface LocationRepository extends JpaRepository<Location, Activity> {
+
     @Query(value = """
-        SELECT l.region1depth_name as region,
+        SELECT 
+            l.region1depth_name AS region,
             COUNT(*) AS counts,
             AVG(ST_X(l.geometry)) AS longitude,
             AVG(ST_Y(l.geometry)) AS latitude
         FROM location l
-        JOIN activity a
-        ON l.activity_id = a.activity_id
+        JOIN activity a ON l.activity_id = a.activity_id
         WHERE a.status = 'PUBLISHED'
-        GROUP BY l.region1depth_name;
-            """, nativeQuery = true)
+        GROUP BY l.region1depth_name
+        """, nativeQuery = true)
     List<LocationAggregationProjection> getAggregatedNational();
 
     @Query(value = """
-        SELECT l.region2depth_name as region,
+        SELECT 
+            l.region2depth_name AS region,
             COUNT(*) AS counts,
             AVG(ST_X(l.geometry)) AS longitude,
             AVG(ST_Y(l.geometry)) AS latitude
         FROM location l
-        JOIN activity a
-        ON l.activity_id = a.activity_id
+        JOIN activity a ON l.activity_id = a.activity_id
         WHERE a.status = 'PUBLISHED'
-        GROUP BY l.region2depth_name;
-    """, nativeQuery = true)
+        GROUP BY l.region2depth_name
+        """, nativeQuery = true)
     List<LocationAggregationProjection> getAggregatedBroad();
 
     @Deprecated(forRemoval = true)
     @Query(value = """
-        SELECT region3depth_name as region,
+        SELECT 
+            region3depth_name AS region,
             COUNT(*) AS counts,
             AVG(ST_X(geometry)) AS longitude,
             AVG(ST_Y(geometry)) AS latitude
         FROM location
-        GROUP BY region3depth_name;
-    """, nativeQuery = true)
+        GROUP BY region3depth_name
+        """, nativeQuery = true)
     List<LocationAggregationProjection> getAggregatedRegional();
 
+    // ✅ 위도/경도 좌표 제대로 반환하도록 수정
     @Query(value = """
-        SELECT a.activity_id AS activityId,
+        SELECT 
+            a.activity_id AS activityId,
             a.name AS activityName,
             a.activity_date AS activityDate,
-            ST_X(l.geometry) AS longitude,
-            ST_Y(l.geometry) AS latitude
+            ST_Y(l.geometry) AS latitude,      -- ✅ 위도
+            ST_X(l.geometry) AS longitude      -- ✅ 경도
         FROM location l
-        JOIN activity a
-        ON l.activity_id = a.activity_id
-        LEFT JOIN hosted_by h
-        ON h.activity_id = a.activity_id
+        JOIN activity a ON l.activity_id = a.activity_id
+        LEFT JOIN hosted_by h ON h.activity_id = a.activity_id
         WHERE l.geometry && ST_MakeEnvelope(:swLng, :swLat, :neLng, :neLat, 4326)
-        AND a.status = 'PUBLISHED'
-        AND a.activity_date BETWEEN :startDate AND :endDate
-        AND (:orgId IS NULL OR h.org_id = :orgId);
-    """, nativeQuery = true)
+          AND a.status = 'PUBLISHED'
+          AND a.activity_date BETWEEN :startDate AND :endDate
+          AND (:orgId IS NULL OR h.org_id = :orgId)
+        """, nativeQuery = true)
     List<LocationSpecificProjection> getSpecific(
             @Param("swLat") Double swLat,
             @Param("swLng") Double swLng,
@@ -104,7 +105,10 @@ public interface LocationRepository extends JpaRepository<Location, Activity> {
                 WHEN stats.max_w = stats.min_w THEN 5
                 ELSE 1 + 9 * (total_weight - stats.min_w) / (stats.max_w - stats.min_w)
             END AS weight
-        FROM grid, stats;
-""",  nativeQuery = true)
-    List<LocationWeightedProjection> getWeighted(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+        FROM grid, stats
+        """, nativeQuery = true)
+    List<LocationWeightedProjection> getWeighted(
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
+    );
 }

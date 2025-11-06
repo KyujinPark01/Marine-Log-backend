@@ -1,7 +1,6 @@
-package domain.backend.auth.service.user;
+package domain.backend.auth.service.auth;
 
 import domain.backend.auth.domain.user.User;
-import domain.backend.auth.repository.SocialLoginRepository;
 import domain.backend.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -11,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class UserService {
+public class TokenService {
     private final UserRepository userRepository;
 
 //        카카오나 구글, 네이버에 추가적인 정보가 필요하면 메소드 필요

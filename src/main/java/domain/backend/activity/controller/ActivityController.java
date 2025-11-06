@@ -1,9 +1,12 @@
 package domain.backend.activity.controller;
 
+import domain.backend.activity.domain.Activity;
+import domain.backend.activity.domain.ActivityPicture;
 import domain.backend.activity.domain.Status;
 import domain.backend.activity.dto.request.ActivityCreateRequest;
 import domain.backend.activity.dto.request.ActivityUpdateRequest;
 import domain.backend.activity.dto.response.ActivityResponse;
+import domain.backend.activity.service.ActivityPictureService;
 import domain.backend.activity.service.ActivityService;
 import domain.backend.auth.domain.user.Role;
 import domain.backend.auth.domain.user.User;
@@ -13,7 +16,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 
@@ -23,6 +28,7 @@ import java.util.List;
 public class ActivityController {
 
     private final ActivityService activityService;
+    private final ActivityPictureService activityPictureService;
 
     // 1. 게시(바로 게시)
     @PostMapping
@@ -70,6 +76,9 @@ public class ActivityController {
     @GetMapping("/{id}")
     public ResponseEntity<ActivityResponse> getOne(@PathVariable Long id) {
         User me = getCurrentUserOrNull();
+        System.out.println("📥 [ActivityController] GET /activities/" + id +
+                " userId=" + (me != null ? me.getUserId() : "null"));
+
         return ResponseEntity.ok(activityService.getOne(id, me != null ? me.getUserId() : null));
     }
 
@@ -92,6 +101,19 @@ public class ActivityController {
                 : status;
         return ResponseEntity.ok(activityService.listMine(me, filter, PageRequest.of(page, size)));
     }
+
+    @PostMapping("/{id}/pictures")
+    public ResponseEntity<List<String>> uploadPictures(
+            @PathVariable Long id,
+            @RequestParam("files") List<MultipartFile> files
+    ) throws IOException {
+        User me = getCurrentUser();
+        Activity activity = activityService.getOwnedEntity(id, me.getUserId());
+        List<ActivityPicture> saved = activityPictureService.uploadPictures(activity, files);
+        List<String> urls = saved.stream().map(ActivityPicture::getPictureUrl).toList();
+        return ResponseEntity.ok(urls);
+    }
+
     /*[테스트 전용] Security 연동 후 대체 */
     //로그인된 사용자 시뮬레이션
     // ToDo: 현재 실험적으로 구현한 상태 (1L은 최초 등록한 사람만 로그인하여 활동을 기록할 수 있게 함)
@@ -114,6 +136,8 @@ public class ActivityController {
         boolean guestMode = false; // true면 비회원 모드
         return guestMode ? null : getCurrentUser();
     }
+
+
 }
 
 
