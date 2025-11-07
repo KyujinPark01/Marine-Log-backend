@@ -11,6 +11,7 @@ import domain.backend.activity.repository.ActivityPictureRepository;
 import domain.backend.activity.repository.ActivityRepository;
 
 import domain.backend.auth.domain.user.User;
+import domain.backend.common.entity.Waste;
 import domain.backend.location.domain.Location;
 import domain.backend.location.service.LocationService;
 import domain.backend.organization.domain.entity.HostedBy;
@@ -108,6 +109,19 @@ public class ActivityService {
                 hostedByRepository.save(hostedBy); // ✅ 여기서 직접 저장
             }
         }
+        if (dto.getWastes() != null && !dto.getWastes().isEmpty()) {
+            List<Waste> wasteEntities = dto.getWastes().stream()
+                    .map(w -> Waste.builder()
+                            .activity(a)
+                            .type(w.getType())
+                            .pictureUrl(w.getPictureUrl())
+                            .weightKg(w.getWeightKg())
+                            .volumeL(w.getVolumeL())
+                            .build())
+                    .toList();
+
+            a.getWastes().addAll(wasteEntities);
+        }
 
         return ActivityResponse.from(activityRepository.save(a));
     }
@@ -179,15 +193,15 @@ public class ActivityService {
 
     //조회
     public ActivityResponse getOne(Long id, Long userIdOrNull) {
-        Activity a = activityRepository.findById(id)
+        Activity a = activityRepository.findByIdWithHostedBy(id)
                 .orElseThrow(() -> new IllegalArgumentException("활동이 존재하지 않습니다. id=" + id));
 
-        // 권한 정책: PUBLISHED는 모두 조회 가능, DRAFT/DELETED는 작성자만
         if (a.getStatus() != Status.PUBLISHED) {
             ensure(userIdOrNull != null && a.getCreatedBy().getUserId().equals(userIdOrNull),
                     "접근 권한이 없습니다.");
         }
-        return ActivityResponse.from(a);
+
+        return ActivityResponse.from(a); // ✅ 이제 hostedByList 포함됨
     }
 
     @Transactional(readOnly = true)

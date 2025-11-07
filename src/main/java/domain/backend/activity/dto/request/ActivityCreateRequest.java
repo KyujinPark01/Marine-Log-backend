@@ -1,6 +1,7 @@
 package domain.backend.activity.dto.request;
 
 import domain.backend.organization.dto.HostedByDto;
+import domain.backend.waste.dto.WasteRequest;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -27,5 +28,6 @@ public class ActivityCreateRequest {
 //    List<String> pictureUrls;
     private Double lat;
     private Double lng;
-    private List<HostedByDto> hostedByList;    // 참여 단체
+    private List<HostedByDto> hostedByList;
+    private List<WasteRequest> wastes;// 참여 단체
 }

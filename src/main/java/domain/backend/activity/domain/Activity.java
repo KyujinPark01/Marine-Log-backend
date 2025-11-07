@@ -3,12 +3,16 @@ package domain.backend.activity.domain;
 import domain.backend.activity.dto.request.ActivityUpdateRequest;
 import domain.backend.auth.domain.user.User;
 import domain.backend.common.entity.BaseTimeEntity;
+import domain.backend.common.entity.Waste;
 import domain.backend.location.domain.Location;
+import domain.backend.organization.domain.entity.HostedBy;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "activity")
@@ -84,7 +88,11 @@ public class Activity extends BaseTimeEntity {
         this.status = status;
         this.weightKg = weightKg;
         this.volumeL = volumeL;
-    }
+    }@OneToMany(mappedBy = "activity", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Waste> wastes = new ArrayList<>();
+    @OneToMany(mappedBy = "activity", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<HostedBy> hostedByList = new ArrayList<>();
+
     // 게시글 수정 - 추가된 메소드
     public void updateField(ActivityUpdateRequest request) {
         this.name = request.getName() != null ? request.getName() : this.name;
