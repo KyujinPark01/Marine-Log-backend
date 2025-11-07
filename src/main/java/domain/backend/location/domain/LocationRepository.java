@@ -83,6 +83,7 @@ public interface LocationRepository extends JpaRepository<Location, Activity> {
             FROM location l
             JOIN activity a ON a.activity_id = l.activity_id
             WHERE a.activity_date BETWEEN :startDate AND :endDate
+            AND a.weight_kg IS NOT NULL
         ),
         grid AS (
             SELECT
