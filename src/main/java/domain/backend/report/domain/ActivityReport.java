@@ -16,9 +16,11 @@ import org.locationtech.jts.geom.PrecisionModel;
 public class ActivityReport extends BaseTimeEntity {
 
     @Id
+    @Column(name = "activity_report_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long activityReportId;
 
+    // user 와 1 대 N으로 mapping되어 있음
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "reporter_user_id")
     private User reporter;
@@ -57,11 +59,11 @@ public class ActivityReport extends BaseTimeEntity {
         }
     }
 
-    public Double getLatitude() {
-        return this.location != null ? this.location.getY() : null;
-    }
-
     public Double getLongitude() {
         return this.location != null ? this.location.getX() : null;
+    }
+
+    public Double getLatitude() {
+        return this.location != null ? this.location.getY() : null;
     }
 }

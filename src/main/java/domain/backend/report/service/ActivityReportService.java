@@ -42,7 +42,7 @@ public class ActivityReportService {
 
         activityReportRepository.save(report);
 
-        return report.getId();
+        return report.getActivityReportId();
     }
 
     @Transactional(readOnly = true)

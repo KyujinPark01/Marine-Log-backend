@@ -15,7 +15,7 @@ public class ActivityReportResponse {
 
     public static ActivityReportResponse from(ActivityReport report) {
         return ActivityReportResponse.builder()
-                .id(report.getId())
+                .id(report.getActivityReportId())
                 .latitude(report.getLatitude())
                 .longitude(report.getLongitude())
                 .status(report.getStatus())
