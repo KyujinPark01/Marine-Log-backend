@@ -10,6 +10,7 @@ import domain.backend.dashboard.projection.MaterialShareRow;
 import domain.backend.dashboard.projection.SumWasteView;
 import domain.backend.dashboard.dto.*;
 import domain.backend.dashboard.repository.ActivityDashRepository;
+import domain.backend.dashboard.repository.RegionDashRepository;
 import domain.backend.dashboard.repository.WasteDashRepository;
 import domain.backend.dashboard.repository.OrgDashRepository;
 import domain.backend.waste.WasteRepository;
@@ -31,6 +32,7 @@ public class DashboardService {
     private final OrgDashRepository orgDashRepository;
     private final ActivityRepository activityRepository;
     private final WasteRepository wasteRepository;
+    private final RegionDashRepository regionDashRepository;
     public DashboardSummaryDto getSummary(DashboardFilter f) {
         Long activityCount = activityDashRepository.countActivities(f.getStart(), f.getEnd(), f.getOrgId());
         if (activityCount == null) activityCount = 0L;
@@ -108,6 +110,40 @@ public class DashboardService {
                 .activityName(activity.getName())
                 .totalWeightKg(totalWeightKg)
                 .wasteCount(wastes.size())
+                .materials(materials)
+                .trend(trend)
+                .build();
+    }
+
+    public RegionDashboardResponse getRegionDashboard(RegionRequest request) {
+        List<Long> activityIds = regionDashRepository.findActivityIdsInBounds(
+                request.getSwLat(), request.getSwLng(), request.getNeLat(), request.getNeLng()
+        );
+
+        if (activityIds.isEmpty()) {
+            return RegionDashboardResponse.builder()
+                    .totalWeightKg(0.0)
+                    .wasteCount(0)
+                    .materials(List.of())
+                    .trend(List.of())
+                    .build();
+        }
+
+        RegionDashRepository.WasteSummaryInRegion summary = regionDashRepository.getSummaryInActivities(activityIds);
+        List<RegionDashRepository.MaterialBreakdownInRegion> materialBreakdowns = regionDashRepository.getMaterialBreakdownInActivities(activityIds);
+        List<RegionDashRepository.MonthlyTrendInRegion> monthlyTrends = regionDashRepository.getMonthlyTrendInActivities(activityIds);
+
+        List<MaterialBreakdownDto> materials = materialBreakdowns.stream()
+                .map(m -> new MaterialBreakdownDto(m.getMaterialType(), m.getTotalKg()))
+                .collect(Collectors.toList());
+
+        List<MonthlyTrendDto> trend = monthlyTrends.stream()
+                .map(t -> new MonthlyTrendDto(t.getMonth(), t.getTotalKg()))
+                .collect(Collectors.toList());
+
+        return RegionDashboardResponse.builder()
+                .totalWeightKg(summary.getTotalWeightKg())
+                .wasteCount(summary.getWasteCount())
                 .materials(materials)
                 .trend(trend)
                 .build();

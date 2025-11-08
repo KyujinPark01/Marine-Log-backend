@@ -41,5 +41,11 @@ class DashboardController {
         ActivityDashboardResponse response = dashboardService.getActivityDashboard(activityId);
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/region")
+    public ResponseEntity<RegionDashboardResponse> getRegionDashboard(@RequestBody RegionRequest request) {
+        RegionDashboardResponse response = dashboardService.getRegionDashboard(request);
+        return ResponseEntity.ok(response);
+    }
 }
 
