@@ -25,8 +25,8 @@ public class ActivityStatusHistory extends BaseTimeEntity {
 
     /** 어떤 활동의 상태 변경인지 */
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "activity_id")
-    private Activity activity;
+    @JoinColumn(name = "activity_report_id")
+    private ActivityReport activityReport;
 
     /** 이전 상태 (처음이면 null 가능) */
     @Enumerated(EnumType.STRING)
