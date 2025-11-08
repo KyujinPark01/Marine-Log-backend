@@ -1,12 +1,11 @@
 package domain.backend.dashboard.controller;
 
 import domain.backend.dashboard.dto.*;
+import domain.backend.dashboard.dto.ActivityDashboardResponse;
 import domain.backend.dashboard.service.DashboardService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -35,6 +34,12 @@ class DashboardController {
     public List<OrgRankingDto> leaderboard(DashboardFilter filter,
                                            @RequestParam(defaultValue = "10") int limit) {
         return dashboardService.getOrgLeaderboard(filter, Math.max(1, limit));
+    }
+    @GetMapping("/activity/{activityId}")
+    public ResponseEntity<ActivityDashboardResponse> getActivityDashboard(
+            @PathVariable Long activityId) {
+        ActivityDashboardResponse response = dashboardService.getActivityDashboard(activityId);
+        return ResponseEntity.ok(response);
     }
 }
 

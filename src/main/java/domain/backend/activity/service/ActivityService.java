@@ -2,13 +2,24 @@ package domain.backend.activity.service;
 
 
 import domain.backend.activity.domain.Activity;
+import domain.backend.activity.domain.ActivityPicture;
 import domain.backend.activity.domain.Status;
 import domain.backend.activity.dto.request.ActivityCreateRequest;
 import domain.backend.activity.dto.request.ActivityUpdateRequest;
 import domain.backend.activity.dto.response.ActivityResponse;
+import domain.backend.activity.repository.ActivityPictureRepository;
 import domain.backend.activity.repository.ActivityRepository;
 
 import domain.backend.auth.domain.user.User;
+import domain.backend.common.entity.Waste;
+import domain.backend.location.domain.Location;
+import domain.backend.location.service.LocationService;
+import domain.backend.organization.domain.entity.HostedBy;
+import domain.backend.organization.domain.entity.HostedById;
+import domain.backend.organization.domain.entity.Organization;
+import domain.backend.organization.dto.HostedByDto;
+import domain.backend.organization.repository.HostedByRepository;
+import domain.backend.organization.repository.OrganizationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.file.AccessDeniedException;
 import java.util.Collection;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -24,7 +36,10 @@ import java.util.Collection;
 public class ActivityService {
 
     private final ActivityRepository activityRepository;
-
+    private final LocationService locationService;
+    private final ActivityPictureRepository activityPictureRepository;
+    private final OrganizationRepository organizationRepository;
+    private final HostedByRepository hostedByRepository;
     // ==================== Activity 공통 로직 ====================
     // - 소유자 검증(getOwned)
     // - 필드 유효성 검증(validateForPublish)
@@ -67,15 +82,51 @@ public class ActivityService {
                 .participants(dto.getParticipants())
                 .weightKg(dto.getWeightKg())
                 .volumeL(dto.getVolumeL())
-                .status(Status.DRAFT) // 생성 후 검증, 곧 PUBLISHED로 전환
+                .status(Status.DRAFT)
                 .build();
 
-        validateForPublish(a);
         a.publish();
+        activityRepository.save(a);
+
+        // ✅ 위치 저장
+        if (dto.getLat() != null && dto.getLng() != null) {
+            locationService.saveForActivity(a, dto.getLat(), dto.getLng());
+        }
+
+        // ✅ 참여 단체 저장 (Activity 수정 없이 Repository 직접 저장)
+        if (dto.getHostedByList() != null) {
+            for (HostedByDto h : dto.getHostedByList()) {
+                Organization org = organizationRepository.findById(h.getOrgId())
+                        .orElseThrow(() -> new IllegalArgumentException("단체가 존재하지 않습니다. id=" + h.getOrgId()));
+
+                HostedBy hostedBy = HostedBy.builder()
+                        .hostedById(new HostedById(a.getActivityId(), org.getOrgId()))
+                        .activity(a)
+                        .organization(org)
+                        .contribution(h.getContribution() != null ? h.getContribution() : 1.0)
+                        .build();
+
+                hostedByRepository.save(hostedBy); // ✅ 여기서 직접 저장
+            }
+        }
+        if (dto.getWastes() != null && !dto.getWastes().isEmpty()) {
+            List<Waste> wasteEntities = dto.getWastes().stream()
+                    .map(w -> Waste.builder()
+                            .activity(a)
+                            .type(w.getType())
+                            .pictureUrl(w.getPictureUrl())
+                            .weightKg(w.getWeightKg())
+                            .volumeL(w.getVolumeL())
+                            .build())
+                    .toList();
+
+            a.getWastes().addAll(wasteEntities);
+        }
+
         return ActivityResponse.from(activityRepository.save(a));
     }
 
-    // 2) 임시저장(초안 생성)
+    // ───────── 임시저장 ─────────
     @Transactional
     public ActivityResponse createDraft(ActivityCreateRequest dto, User author) {
         Activity a = Activity.builder()
@@ -90,7 +141,26 @@ public class ActivityService {
                 .volumeL(dto.getVolumeL())
                 .status(Status.DRAFT)
                 .build();
-        return ActivityResponse.from(activityRepository.save(a));
+
+        activityRepository.save(a);
+
+        if (dto.getHostedByList() != null) {
+            for (HostedByDto h : dto.getHostedByList()) {
+                Organization org = organizationRepository.findById(h.getOrgId())
+                        .orElseThrow(() -> new IllegalArgumentException("단체가 존재하지 않습니다. id=" + h.getOrgId()));
+
+                HostedBy hostedBy = HostedBy.builder()
+                        .hostedById(new HostedById(a.getActivityId(), org.getOrgId()))
+                        .activity(a)
+                        .organization(org)
+                        .contribution(h.getContribution() != null ? h.getContribution() : 1.0)
+                        .build();
+
+                hostedByRepository.save(hostedBy); // ✅ Activity 수정 없이 저장
+            }
+        }
+
+        return ActivityResponse.from(a);
     }
 
     // 3) 임시저장 -> 게시
@@ -123,20 +193,37 @@ public class ActivityService {
 
     //조회
     public ActivityResponse getOne(Long id, Long userIdOrNull) {
-        Activity a = activityRepository.findById(id)
+        Activity a = activityRepository.findByIdWithHostedBy(id)
                 .orElseThrow(() -> new IllegalArgumentException("활동이 존재하지 않습니다. id=" + id));
 
-        // 권한 정책: PUBLISHED는 모두 조회 가능, DRAFT/DELETED는 작성자만
         if (a.getStatus() != Status.PUBLISHED) {
             ensure(userIdOrNull != null && a.getCreatedBy().getUserId().equals(userIdOrNull),
                     "접근 권한이 없습니다.");
         }
-        return ActivityResponse.from(a);
+
+        return ActivityResponse.from(a); // ✅ 이제 hostedByList 포함됨
     }
+
+    @Transactional(readOnly = true)
+    public Activity getOwnedEntity(Long id, Long userId) {
+        return getOwned(id, userId);
+    }
+
+//    public Page<ActivityResponse> listPublished(Pageable pageable) {
+//        return activityRepository.findAllByStatus(Status.PUBLISHED, pageable)
+//                .map(ActivityResponse::from);
+//    }
 
     public Page<ActivityResponse> listPublished(Pageable pageable) {
         return activityRepository.findAllByStatus(Status.PUBLISHED, pageable)
-                .map(ActivityResponse::from);
+                .map(activity -> {
+                    // ✅ 대표 사진 1장 가져오기
+                    String coverUrl = activityPictureRepository
+                            .findFirstPictureUrlByActivityId(activity.getActivityId());
+
+                    // ✅ ActivityResponse로 변환
+                    return ActivityResponse.fromWithCover(activity, coverUrl);
+                });
     }
 
     public Page<ActivityResponse> listMine(User me, Collection<Status> statuses, Pageable pageable) {
