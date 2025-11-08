@@ -8,12 +8,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(
-        name = "activity_status_history",
-        indexes = {
-                @Index(name = "idx_hist_activity_changed_at", columnList = "activity_id, created_at")
-        }
-)
+@Table(name = "activity_status_history")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
