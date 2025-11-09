@@ -9,6 +9,7 @@ import domain.backend.report.repository.ActivityReportRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -51,5 +52,12 @@ public class ActivityReportService {
         return activityReportRepository.findByStatusIn(statuses).stream()
                 .map(ActivityReportResponse::from)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public ActivityReportResponse getSingleReport(Long activityReportId) {
+        ActivityReport report = activityReportRepository.findById(activityReportId)
+                .orElseThrow(() -> new IllegalArgumentException("ActivityReport not found with id: " + activityReportId));
+        return ActivityReportResponse.from(report);
     }
 }

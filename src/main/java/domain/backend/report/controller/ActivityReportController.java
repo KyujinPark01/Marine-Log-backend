@@ -29,4 +29,10 @@ public class ActivityReportController {
         List<ActivityReportResponse> reports = activityReportService.getAllReportsForMap();
         return ResponseEntity.ok(reports);
     }
+
+    @GetMapping("/{activityReportId}")
+    public ResponseEntity<ActivityReportResponse> getSingleReports(@PathVariable Long activityReportId) {
+        ActivityReportResponse report = activityReportService.getSingleReport(activityReportId);
+        return ResponseEntity.ok(report);
+    }
 }
