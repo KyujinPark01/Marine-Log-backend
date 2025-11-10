@@ -8,6 +8,7 @@ import domain.backend.report.domain.ActivityReport;
 import domain.backend.report.domain.ActivityStatus;
 import domain.backend.report.dto.ActivityReportCreateRequest;
 import domain.backend.report.dto.ActivityReportResponse;
+import domain.backend.report.dto.ActivityReportStatusUpdateRequest;
 import domain.backend.report.repository.ActivityReportRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -78,5 +79,18 @@ public class ActivityReportService {
 
         String message = sender.getName() + "님이 '" + report.getTitle() + "' 활동에 대한 연합 활동을 제안했습니다.";
         notificationService.send(target, sender, message, "UNION_SUGGESTION");
+    }
+
+    @Transactional
+    public ActivityReportResponse updateStatus(Long activityReportId, ActivityReportStatusUpdateRequest request) {
+        ActivityReport report = activityReportRepository.findById(activityReportId)
+                .orElseThrow(() -> new IllegalArgumentException("ActivityReport not found with id: " + activityReportId));
+
+        if (request.getStatus() == null) {
+            throw new IllegalArgumentException("Status must be provided");
+        }
+
+        report.setStatus(request.getStatus());
+        return ActivityReportResponse.from(report);
     }
 }

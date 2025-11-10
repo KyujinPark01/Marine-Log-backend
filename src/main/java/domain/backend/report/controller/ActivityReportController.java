@@ -3,6 +3,7 @@ package domain.backend.report.controller;
 import domain.backend.auth.domain.user.User;
 import domain.backend.report.dto.ActivityReportCreateRequest;
 import domain.backend.report.dto.ActivityReportResponse;
+import domain.backend.report.dto.ActivityReportStatusUpdateRequest;
 import domain.backend.report.service.ActivityReportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -43,6 +44,13 @@ public class ActivityReportController {
         User me = getCurrentUser();
         activityReportService.suggestUnionActivity(activityReportId, me);
         return ResponseEntity.ok().build();
+    }
+
+    // ToDo: Later add code for checking authority
+    @PatchMapping("/{activityReportId}/status")
+    public ResponseEntity<ActivityReportResponse> updateStatus(@PathVariable Long activityReportId,
+                                                               @RequestBody ActivityReportStatusUpdateRequest request) {
+        return ResponseEntity.ok(activityReportService.updateStatus(activityReportId, request));
     }
 
     /*[테스트 전용] Security 연동 후 대체 */

@@ -66,4 +66,8 @@ public class ActivityReport extends BaseTimeEntity {
     public Double getLatitude() {
         return this.location != null ? this.location.getY() : null;
     }
+
+    public void setStatus(ActivityStatus status) {
+        this.status = status;
+    }
 }
