@@ -31,6 +31,7 @@ public class SseEmitterService {
             emitters.remove(userId);
         });
 
+        // ToDo: test notification for sure (later)
         // Send a dummy event to establish the connection
         try {
             emitter.send(SseEmitter.event().name("connect").data("connected"));
