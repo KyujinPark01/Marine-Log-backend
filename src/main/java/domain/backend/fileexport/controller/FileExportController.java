@@ -1,6 +1,7 @@
 package domain.backend.fileexport.controller;
 
-import domain.backend.common.mq.MessageProducer;
+import domain.backend.fileexport.request.ExportRequest;
+import domain.backend.fileexport.service.ExportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -8,11 +9,10 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/export")
 @RequiredArgsConstructor
 public class FileExportController {
-    private final MessageProducer messageProducer;
+    private final ExportService exportService;
 
-    @GetMapping("/{message}")
-    public String send(@PathVariable String message) {
-        messageProducer.sendMessage(message);
-        return "done! " + message;
+    @PostMapping
+    public void queueDataExport(@RequestBody ExportRequest exportRequest) {
+        exportService.queueDataExport(exportRequest);
     }
 }

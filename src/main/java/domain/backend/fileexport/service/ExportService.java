@@ -1,22 +1,21 @@
-package domain.backend.common.mq;
+package domain.backend.fileexport.service;
 
 import domain.backend.common.config.RabbitMQConfig;
+import domain.backend.fileexport.request.ExportRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-@Component
+@Service
 @RequiredArgsConstructor
-public class MessageProducer {
+public class ExportService {
+
     private final RabbitTemplate rabbitTemplate;
 
-    public void sendMessage(String message) {
+    public void queueDataExport(ExportRequest exportRequest) {
         rabbitTemplate.convertAndSend(
                 RabbitMQConfig.EXCHANGE_NAME,
                 RabbitMQConfig.ROUTING_KEY,
-                message
-        );
-
-        // ToDo: 로그 추가하기
+                exportRequest);
     }
 }
