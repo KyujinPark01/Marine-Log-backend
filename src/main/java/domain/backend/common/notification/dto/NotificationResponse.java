@@ -14,6 +14,7 @@ public class NotificationResponse {
     private String type;
     private boolean isRead;
     private LocalDateTime createdAt;
+    private LocalDateTime readAt;
     private String senderName;
 
     public static NotificationResponse from(Notification notification) {
@@ -23,6 +24,7 @@ public class NotificationResponse {
                 .type(notification.getType())
                 .isRead(notification.isRead())
                 .createdAt(notification.getCreatedAt())
+                .readAt(notification.getReadAt())
                 .senderName(notification.getSentUser() != null ? notification.getSentUser().getName() : "시스템")
                 .build();
     }
