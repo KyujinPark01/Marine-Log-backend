@@ -1,6 +1,6 @@
-package domain.backend.waste;
+package domain.backend.waste.repository;
 
-import domain.backend.common.entity.Waste;
+import domain.backend.waste.domain.Waste;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

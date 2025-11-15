@@ -1,4 +1,4 @@
-package domain.backend.common.entity;
+package domain.backend.waste.domain;
 
 import domain.backend.activity.domain.Activity;
 import jakarta.persistence.*;

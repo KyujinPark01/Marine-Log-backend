@@ -1,4 +1,4 @@
-package domain.backend.report.dto;
+package domain.backend.report.dto.request;
 
 import domain.backend.report.domain.ActivityStatus;
 import lombok.Getter;

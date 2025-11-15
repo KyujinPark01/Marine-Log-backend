@@ -2,7 +2,7 @@ package domain.backend.dashboard.service;
 
 import domain.backend.activity.domain.Activity;
 import domain.backend.activity.repository.ActivityRepository;
-import domain.backend.common.entity.Waste;
+import domain.backend.waste.domain.Waste;
 import domain.backend.dashboard.dto.ActivityDashboardResponse;
 import domain.backend.dashboard.dto.activity.MaterialBreakdownDto;
 import domain.backend.dashboard.dto.activity.MonthlyTrendDto;
@@ -13,7 +13,7 @@ import domain.backend.dashboard.repository.ActivityDashRepository;
 import domain.backend.dashboard.repository.RegionDashRepository;
 import domain.backend.dashboard.repository.WasteDashRepository;
 import domain.backend.dashboard.repository.OrgDashRepository;
-import domain.backend.waste.WasteRepository;
+import domain.backend.waste.repository.WasteRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

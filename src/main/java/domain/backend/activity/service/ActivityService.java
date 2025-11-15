@@ -2,7 +2,6 @@ package domain.backend.activity.service;
 
 
 import domain.backend.activity.domain.Activity;
-import domain.backend.activity.domain.ActivityPicture;
 import domain.backend.activity.domain.Status;
 import domain.backend.activity.dto.request.ActivityCreateRequest;
 import domain.backend.activity.dto.request.ActivityUpdateRequest;
@@ -11,8 +10,7 @@ import domain.backend.activity.repository.ActivityPictureRepository;
 import domain.backend.activity.repository.ActivityRepository;
 
 import domain.backend.auth.domain.user.User;
-import domain.backend.common.entity.Waste;
-import domain.backend.location.domain.Location;
+import domain.backend.waste.domain.Waste;
 import domain.backend.location.service.LocationService;
 import domain.backend.organization.domain.entity.HostedBy;
 import domain.backend.organization.domain.entity.HostedById;

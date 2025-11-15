@@ -1,4 +1,4 @@
-package domain.backend.report.dto;
+package domain.backend.report.dto.request;
 
 import lombok.Getter;
 import lombok.Setter;

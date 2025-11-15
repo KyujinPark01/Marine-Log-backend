@@ -1,4 +1,4 @@
-package domain.backend.organization.dto;
+package domain.backend.organization.dto.response;
 
 import domain.backend.organization.domain.entity.HostedBy;
 import lombok.AllArgsConstructor;

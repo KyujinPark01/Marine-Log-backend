@@ -1,4 +1,4 @@
-package domain.backend.report.dto;
+package domain.backend.report.dto.response;
 
 import domain.backend.report.domain.ActivityReport;
 import domain.backend.report.domain.ActivityStatus;
