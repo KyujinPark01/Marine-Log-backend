@@ -1,6 +1,6 @@
-package domain.backend.common.notification.dto;
+package domain.backend.notification.dto;
 
-import domain.backend.common.notification.domain.Notification;
+import domain.backend.notification.domain.Notification;
 import lombok.Builder;
 import lombok.Getter;
 

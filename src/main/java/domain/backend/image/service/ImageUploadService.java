@@ -1,4 +1,4 @@
-package domain.backend.common.image.service;
+package domain.backend.image.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;

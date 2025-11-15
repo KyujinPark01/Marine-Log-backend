@@ -1,4 +1,4 @@
-package domain.backend.common.apikey.controller;
+package domain.backend.location.controller;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;

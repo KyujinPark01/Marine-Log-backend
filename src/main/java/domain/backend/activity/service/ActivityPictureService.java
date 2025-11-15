@@ -3,7 +3,7 @@ package domain.backend.activity.service;
 import domain.backend.activity.domain.Activity;
 import domain.backend.activity.domain.ActivityPicture;
 import domain.backend.activity.repository.ActivityPictureRepository;
-import domain.backend.common.image.service.ImageUploadService;
+import domain.backend.image.service.ImageUploadService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -1,6 +1,6 @@
-package domain.backend.common.image.controller;
+package domain.backend.image.controller;
 
-import domain.backend.common.image.service.ImageUploadService;
+import domain.backend.image.service.ImageUploadService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

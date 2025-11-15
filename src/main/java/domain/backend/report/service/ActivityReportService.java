@@ -2,8 +2,8 @@ package domain.backend.report.service;
 
 import domain.backend.auth.domain.user.User;
 import domain.backend.auth.repository.UserRepository;
-import domain.backend.common.image.service.ImageUploadService;
-import domain.backend.common.notification.service.NotificationService;
+import domain.backend.image.service.ImageUploadService;
+import domain.backend.notification.service.NotificationService;
 import domain.backend.report.domain.ActivityReport;
 import domain.backend.report.domain.ActivityStatus;
 import domain.backend.report.dto.request.ActivityReportCreateRequest;

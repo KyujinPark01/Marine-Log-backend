@@ -1,7 +1,7 @@
-package domain.backend.common.notification.repository;
+package domain.backend.notification.repository;
 
 import domain.backend.auth.domain.user.User;
-import domain.backend.common.notification.domain.Notification;
+import domain.backend.notification.domain.Notification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

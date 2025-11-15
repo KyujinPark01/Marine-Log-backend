@@ -1,4 +1,4 @@
-package domain.backend.common.notification.service;
+package domain.backend.notification.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

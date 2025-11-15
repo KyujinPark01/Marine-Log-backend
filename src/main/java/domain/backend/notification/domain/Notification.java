@@ -1,4 +1,4 @@
-package domain.backend.common.notification.domain;
+package domain.backend.notification.domain;
 
 import domain.backend.auth.domain.user.User;
 import domain.backend.common.entity.BaseTimeEntity;

@@ -1,9 +1,9 @@
-package domain.backend.common.notification.service;
+package domain.backend.notification.service;
 
 import domain.backend.auth.domain.user.User;
-import domain.backend.common.notification.domain.Notification;
-import domain.backend.common.notification.dto.NotificationResponse;
-import domain.backend.common.notification.repository.NotificationRepository;
+import domain.backend.notification.domain.Notification;
+import domain.backend.notification.dto.NotificationResponse;
+import domain.backend.notification.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
