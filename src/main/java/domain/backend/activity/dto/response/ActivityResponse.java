@@ -2,7 +2,7 @@ package domain.backend.activity.dto.response;
 
 import domain.backend.activity.domain.Activity;
 import domain.backend.activity.domain.Status;
-import domain.backend.organization.dto.HostedByResponse;
+import domain.backend.organization.dto.response.HostedByResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

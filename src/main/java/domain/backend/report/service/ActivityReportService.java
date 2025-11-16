@@ -2,18 +2,17 @@ package domain.backend.report.service;
 
 import domain.backend.auth.domain.user.User;
 import domain.backend.auth.repository.UserRepository;
-import domain.backend.common.image.service.ImageUploadService;
-import domain.backend.common.notification.service.NotificationService;
+import domain.backend.image.service.ImageUploadService;
+import domain.backend.notification.service.NotificationService;
 import domain.backend.report.domain.ActivityReport;
 import domain.backend.report.domain.ActivityStatus;
-import domain.backend.report.dto.ActivityReportCreateRequest;
-import domain.backend.report.dto.ActivityReportResponse;
-import domain.backend.report.dto.ActivityReportStatusUpdateRequest;
+import domain.backend.report.dto.request.ActivityReportCreateRequest;
+import domain.backend.report.dto.response.ActivityReportResponse;
+import domain.backend.report.dto.request.ActivityReportStatusUpdateRequest;
 import domain.backend.report.repository.ActivityReportRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;

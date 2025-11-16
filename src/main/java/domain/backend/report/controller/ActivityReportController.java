@@ -1,9 +1,9 @@
 package domain.backend.report.controller;
 
 import domain.backend.auth.domain.user.User;
-import domain.backend.report.dto.ActivityReportCreateRequest;
-import domain.backend.report.dto.ActivityReportResponse;
-import domain.backend.report.dto.ActivityReportStatusUpdateRequest;
+import domain.backend.report.dto.request.ActivityReportCreateRequest;
+import domain.backend.report.dto.response.ActivityReportResponse;
+import domain.backend.report.dto.request.ActivityReportStatusUpdateRequest;
 import domain.backend.report.service.ActivityReportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

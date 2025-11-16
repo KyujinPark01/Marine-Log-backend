@@ -3,7 +3,7 @@ package domain.backend.activity.domain;
 import domain.backend.activity.dto.request.ActivityUpdateRequest;
 import domain.backend.auth.domain.user.User;
 import domain.backend.common.entity.BaseTimeEntity;
-import domain.backend.common.entity.Waste;
+import domain.backend.waste.domain.Waste;
 import domain.backend.location.domain.Location;
 import domain.backend.organization.domain.entity.HostedBy;
 import jakarta.persistence.*;
