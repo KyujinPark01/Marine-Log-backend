@@ -52,14 +52,13 @@ public interface LocationRepository extends JpaRepository<Location, Activity> {
         """, nativeQuery = true)
     List<LocationAggregationProjection> getAggregatedRegional();
 
-    // ✅ 위도/경도 좌표 제대로 반환하도록 수정
     @Query(value = """
-        SELECT 
+        SELECT
             a.activity_id AS activityId,
             a.name AS activityName,
             a.activity_date AS activityDate,
-            ST_Y(l.geometry) AS latitude,      -- ✅ 위도
-            ST_X(l.geometry) AS longitude      -- ✅ 경도
+            ST_Y(l.geometry) AS latitude,
+            ST_X(l.geometry) AS longitude
         FROM location l
         JOIN activity a ON l.activity_id = a.activity_id
         LEFT JOIN hosted_by h ON h.activity_id = a.activity_id
