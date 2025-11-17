@@ -1,7 +1,7 @@
-package domain.backend.dashboard.dto;
+package domain.backend.dashboard.query.dto.response;
 
-import domain.backend.dashboard.dto.activity.MaterialBreakdownDto;
-import domain.backend.dashboard.dto.activity.MonthlyTrendDto;
+import domain.backend.dashboard.query.dto.MaterialBreakdownDto;
+import domain.backend.dashboard.query.dto.MonthlyTrendDto;
 import lombok.Builder;
 import lombok.Getter;
 

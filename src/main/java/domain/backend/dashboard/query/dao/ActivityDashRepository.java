@@ -1,7 +1,7 @@
-package domain.backend.dashboard.repository;
+package domain.backend.dashboard.query.dao;
 
 
-import domain.backend.dashboard.dto.MonthlyAggRow;
+import domain.backend.dashboard.query.dto.MonthlyAggRow;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

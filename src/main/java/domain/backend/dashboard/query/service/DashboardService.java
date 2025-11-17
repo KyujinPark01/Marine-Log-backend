@@ -1,18 +1,18 @@
-package domain.backend.dashboard.service;
+package domain.backend.dashboard.query.service;
 
 import domain.backend.activity.domain.Activity;
 import domain.backend.activity.repository.ActivityRepository;
+import domain.backend.dashboard.query.dto.request.RegionRequest;
+import domain.backend.dashboard.query.dto.response.RegionDashboardResponse;
+import domain.backend.dashboard.query.dto.*;
 import domain.backend.waste.domain.Waste;
-import domain.backend.dashboard.dto.ActivityDashboardResponse;
-import domain.backend.dashboard.dto.activity.MaterialBreakdownDto;
-import domain.backend.dashboard.dto.activity.MonthlyTrendDto;
-import domain.backend.dashboard.projection.MaterialShareRow;
-import domain.backend.dashboard.projection.SumWasteView;
-import domain.backend.dashboard.dto.*;
-import domain.backend.dashboard.repository.ActivityDashRepository;
-import domain.backend.dashboard.repository.RegionDashRepository;
-import domain.backend.dashboard.repository.WasteDashRepository;
-import domain.backend.dashboard.repository.OrgDashRepository;
+import domain.backend.dashboard.query.dto.response.ActivityDashboardResponse;
+import domain.backend.dashboard.query.dto.MaterialBreakdownDto;
+import domain.backend.dashboard.query.dto.MonthlyTrendDto;
+import domain.backend.dashboard.query.dao.ActivityDashRepository;
+import domain.backend.dashboard.query.dao.RegionDashRepository;
+import domain.backend.dashboard.query.dao.WasteDashRepository;
+import domain.backend.dashboard.query.dao.OrgDashRepository;
 import domain.backend.waste.repository.WasteRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -78,11 +78,11 @@ public class DashboardService {
                 .toList();
     }
     public ActivityDashboardResponse getActivityDashboard(Long activityId) {
-        // ✅ 활동 확인
+        // 활동 확인
         Activity activity = activityRepository.findById(activityId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 활동입니다."));
 
-        // ✅ 해당 활동에 속한 폐기물 전부 조회
+        // 해당 활동에 속한 폐기물 전부 조회
         List<Waste> wastes = wasteRepository.findByActivity_ActivityId(activityId);
 
         double totalWeightKg = wastes.stream()

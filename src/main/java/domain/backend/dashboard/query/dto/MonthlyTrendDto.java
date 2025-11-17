@@ -1,11 +1,11 @@
-package domain.backend.dashboard.dto.activity;
+package domain.backend.dashboard.query.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class MaterialBreakdownDto {
-    private String materialType;
+public class MonthlyTrendDto {
+    private String month;
     private Double totalKg;
 }
