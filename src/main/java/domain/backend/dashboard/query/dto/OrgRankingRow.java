@@ -1,4 +1,4 @@
-package domain.backend.dashboard.dto;
+package domain.backend.dashboard.query.dto;
 
 public interface OrgRankingRow {
     Long getOrgId();

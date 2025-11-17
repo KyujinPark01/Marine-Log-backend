@@ -1,4 +1,4 @@
-package domain.backend.dashboard.dto;
+package domain.backend.dashboard.query.dto.request;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

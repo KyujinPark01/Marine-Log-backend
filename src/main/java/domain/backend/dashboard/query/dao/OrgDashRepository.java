@@ -1,6 +1,6 @@
-package domain.backend.dashboard.repository;
+package domain.backend.dashboard.query.dao;
 
-import domain.backend.dashboard.dto.OrgRankingRow;
+import domain.backend.dashboard.query.dto.OrgRankingRow;
 import domain.backend.organization.domain.entity.Organization;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

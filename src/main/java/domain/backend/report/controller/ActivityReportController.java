@@ -58,6 +58,7 @@ public class ActivityReportController {
         return ResponseEntity.ok(activityReportService.updateStatus(activityReportId, request));
     }
 
+    // ToDo: replace it with Spring security & actual user
     /*[테스트 전용] Security 연동 후 대체 */
     private User getCurrentUser() {
         return new User(
