@@ -1,8 +1,10 @@
-package domain.backend.dashboard.controller;
+package domain.backend.dashboard.query.controller;
 
-import domain.backend.dashboard.dto.*;
-import domain.backend.dashboard.dto.ActivityDashboardResponse;
-import domain.backend.dashboard.service.DashboardService;
+import domain.backend.dashboard.query.dto.response.ActivityDashboardResponse;
+import domain.backend.dashboard.query.dto.request.RegionRequest;
+import domain.backend.dashboard.query.dto.response.RegionDashboardResponse;
+import domain.backend.dashboard.query.dto.*;
+import domain.backend.dashboard.query.service.DashboardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
