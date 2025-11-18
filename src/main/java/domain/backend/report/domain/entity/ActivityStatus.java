@@ -1,4 +1,4 @@
-package domain.backend.report.domain;
+package domain.backend.report.domain.entity;
 
 public enum ActivityStatus {
     REPORTED,     // 제보 등록

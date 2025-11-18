@@ -1,4 +1,4 @@
-package domain.backend.report.domain;
+package domain.backend.report.domain.entity;
 
 import domain.backend.auth.domain.user.User;
 import domain.backend.common.entity.BaseTimeEntity;
