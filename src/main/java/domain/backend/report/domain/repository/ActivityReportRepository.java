@@ -1,7 +1,7 @@
-package domain.backend.report.repository;
+package domain.backend.report.domain.repository;
 
-import domain.backend.report.domain.ActivityReport;
-import domain.backend.report.domain.ActivityStatus;
+import domain.backend.report.domain.entity.ActivityReport;
+import domain.backend.report.domain.entity.ActivityStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -4,24 +4,22 @@ import domain.backend.auth.domain.user.User;
 import domain.backend.auth.repository.UserRepository;
 import domain.backend.image.service.ImageUploadService;
 import domain.backend.notification.service.NotificationService;
-import domain.backend.report.domain.ActivityReport;
-import domain.backend.report.domain.ActivityStatus;
+import domain.backend.report.domain.entity.ActivityReport;
+import domain.backend.report.domain.entity.ActivityStatus;
 import domain.backend.report.dto.request.ActivityReportCreateRequest;
 import domain.backend.report.dto.response.ActivityReportResponse;
 import domain.backend.report.dto.request.ActivityReportStatusUpdateRequest;
-import domain.backend.report.repository.ActivityReportRepository;
+import domain.backend.report.domain.repository.ActivityReportRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class ActivityReportService {
+public class HandleActivityReportService {
 
     private final ActivityReportRepository activityReportRepository;
     private final ImageUploadService imageUploadService;
@@ -52,21 +50,6 @@ public class ActivityReportService {
         activityReportRepository.save(report);
 
         return report.getActivityReportId();
-    }
-
-    @Transactional(readOnly = true)
-    public List<ActivityReportResponse> getAllReportsForMap() {
-        List<ActivityStatus> statuses = List.of(ActivityStatus.APPROVED, ActivityStatus.SURVEYING, ActivityStatus.RECRUITING);
-        return activityReportRepository.findByStatusIn(statuses).stream()
-                .map(ActivityReportResponse::from)
-                .collect(Collectors.toList());
-    }
-
-    @Transactional(readOnly = true)
-    public ActivityReportResponse getSingleReport(Long activityReportId) {
-        ActivityReport report = activityReportRepository.findById(activityReportId)
-                .orElseThrow(() -> new IllegalArgumentException("ActivityReport not found with id: " + activityReportId));
-        return ActivityReportResponse.from(report);
     }
 
     @Transactional
