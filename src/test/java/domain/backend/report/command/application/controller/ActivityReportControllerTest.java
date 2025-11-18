@@ -15,4 +15,6 @@ class ActivityReportControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+
 }
