@@ -1,7 +1,6 @@
 package domain.backend.location.domain;
 
 import domain.backend.activity.domain.Activity;
-import domain.backend.activity.repository.ActivityPictureRepository;
 import domain.backend.common.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;

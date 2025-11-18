@@ -24,6 +24,4 @@ public class ApiKeyController {
     public ResponseEntity<MapInfoResponse> getGoogleMapsInfo() {
         return ResponseEntity.ok(new MapInfoResponse(googleApiKey, googleMapsId));
     }
-
-    public record MapInfoResponse(String apiKey, String mapId) {}
 }
