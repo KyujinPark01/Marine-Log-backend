@@ -5,27 +5,32 @@ import domain.backend.report.dto.request.ActivityReportCreateRequest;
 import domain.backend.report.dto.response.ActivityReportResponse;
 import domain.backend.report.dto.request.ActivityReportStatusUpdateRequest;
 import domain.backend.report.service.ActivityReportService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-
+@Tag(
+        name = "Activity Report API",
+        description = "활동 제보 등록 및 지도 표시용 제보 데이터 조회 API"
+)
 @RestController
 @RequestMapping("/activity-report")
 @RequiredArgsConstructor
 public class ActivityReportController {
 
     private final ActivityReportService activityReportService;
-
+    @Operation(summary = "활동 제보 등록", description = "활동 제보 데이터를 업로드하여 등록합니다.")
     @PostMapping
     public ResponseEntity<Long> createActivityReport(@RequestPart("request") ActivityReportCreateRequest request,
                                                      @RequestPart("photo") MultipartFile photo) {
         Long reportId = activityReportService.createActivityReport(request, photo);
         return ResponseEntity.ok(reportId);
     }
-
+    @Operation(summary = "지도 표시용 제보 조회", description = "지도로 표시할 모든 활동 제보 데이터를 조회합니다.")
     @GetMapping
     public ResponseEntity<List<ActivityReportResponse>> getAllReportsForMap() {
         List<ActivityReportResponse> reports = activityReportService.getAllReportsForMap();
