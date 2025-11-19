@@ -1,4 +1,4 @@
-package domain.backend.auth.domain.oauth;
+package domain.backend.common.security.oauth;
 
 import domain.backend.auth.domain.user.User;
 import lombok.Getter;

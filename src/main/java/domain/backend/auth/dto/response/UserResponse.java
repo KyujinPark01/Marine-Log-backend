@@ -1,10 +1,11 @@
 package domain.backend.auth.dto.response;
 
 import domain.backend.auth.domain.user.Role;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
 @Builder
 public class UserResponse {
     private Long id;

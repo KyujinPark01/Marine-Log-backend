@@ -11,10 +11,7 @@ public class NaverUserInfo implements Oauth2UserInfo {
         this.attributes = (Map<String, Object>) attributes.get("response");
     }
 
-    @Override
-    public String getProvider() {
-        return "naver";
-    }
+
 
     @Override
     public String getProviderId() {
@@ -31,8 +28,4 @@ public class NaverUserInfo implements Oauth2UserInfo {
         return (String) attributes.get("name");
     }
 
-    @Override
-    public Map<String, Object> getAttributes() {
-        return attributes;
-    }
 }

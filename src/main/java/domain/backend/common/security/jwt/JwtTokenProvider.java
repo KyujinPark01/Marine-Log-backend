@@ -1,5 +1,7 @@
 package domain.backend.common.security.jwt;
 
+import domain.backend.auth.domain.user.User;
+import domain.backend.auth.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -19,7 +21,7 @@ import java.util.Map;
 @Component
 @RequiredArgsConstructor
 public class JwtTokenProvider {
-
+    private final UserRepository userRepository;
     @Value("${jwt.secret}")
     private String secretBase64;
     @Value("${jwt.access-exp}")
@@ -65,8 +67,13 @@ public class JwtTokenProvider {
     public Claims getClaims(String token) {
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
     }
+    public void updateRefreshToken(String email, String refreshToken) {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다: " + email));
+        userRepository.save(user.updateRefreshToken(refreshToken));
+    }
 
     public String getSubject(String token) {
+
         return getClaims(token).getSubject();
     }
 }

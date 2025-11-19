@@ -1,14 +1,13 @@
 package domain.backend.common.config;
 
-import domain.backend.auth.service.auth.OAuth2UserService;
-import domain.backend.common.security.OAuth2SuccessHandler;
+import domain.backend.common.security.oauth.OAuth2UserService;
+import domain.backend.common.security.oauth.OAuth2SuccessHandler;
 import domain.backend.common.security.jwt.JwtAuthenticationFilter;
 import domain.backend.common.security.jwt.JwtTokenProvider;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -22,7 +21,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.beans.factory.annotation.Value;
 
-import java.util.Arrays;
 import java.util.List;
 
 
@@ -66,6 +64,11 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/activity-report").permitAll()
                         .requestMatchers(HttpMethod.GET, "/actuator/health").permitAll()
                         .requestMatchers("/activities/**").permitAll()
+                        .requestMatchers(
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/swagger-resources/**"
+                        ).permitAll()
                         .anyRequest().permitAll()
                 )
                 .oauth2Login(oauth2 -> oauth2
