@@ -1,7 +1,9 @@
 package domain.backend.dashboard.controller;
 
 import domain.backend.dashboard.dto.*;
-import domain.backend.dashboard.dto.ActivityDashboardResponse;
+import domain.backend.dashboard.dto.response.ActivityDashboardResponse;
+import domain.backend.dashboard.dto.response.RegionDashboardResponse;
+import domain.backend.dashboard.dto.request.RegionRequest;
 import domain.backend.dashboard.service.DashboardService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

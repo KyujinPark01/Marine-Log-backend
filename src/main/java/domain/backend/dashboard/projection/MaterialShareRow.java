@@ -1,4 +1,4 @@
-package domain.backend.dashboard.query.projection;
+package domain.backend.dashboard.projection;
 
 public interface MaterialShareRow {
     String getMaterial();

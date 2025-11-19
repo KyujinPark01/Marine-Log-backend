@@ -1,8 +1,8 @@
-package domain.backend.dashboard.query.dao;
+package domain.backend.dashboard.dao;
 
 
-import domain.backend.dashboard.query.projection.SumWasteView;
-import domain.backend.dashboard.query.projection.MaterialShareRow;
+import domain.backend.dashboard.projection.SumWasteView;
+import domain.backend.dashboard.projection.MaterialShareRow;
 import domain.backend.waste.domain.Waste;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

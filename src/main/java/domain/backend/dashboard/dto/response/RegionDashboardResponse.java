@@ -1,7 +1,7 @@
-package domain.backend.dashboard.query.dto.response;
+package domain.backend.dashboard.dto.response;
 
-import domain.backend.dashboard.query.dto.MaterialBreakdownDto;
-import domain.backend.dashboard.query.dto.TimeSeriesPointDto;
+import domain.backend.dashboard.dto.MaterialBreakdownDto;
+import domain.backend.dashboard.dto.TimeSeriesPointDto;
 
 import java.util.List;
 

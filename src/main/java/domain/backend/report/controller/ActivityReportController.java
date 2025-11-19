@@ -4,7 +4,7 @@ import domain.backend.auth.domain.user.User;
 import domain.backend.report.dto.request.ActivityReportCreateRequest;
 import domain.backend.report.dto.response.ActivityReportResponse;
 import domain.backend.report.dto.request.ActivityReportStatusUpdateRequest;
-import domain.backend.report.service.ActivityReportService;
+import domain.backend.report.service.ReadActivityReportService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -22,24 +22,24 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ActivityReportController {
 
-    private final ActivityReportService activityReportService;
+    private final ReadActivityReportService readActivityReportService;
     @Operation(summary = "활동 제보 등록", description = "활동 제보 데이터를 업로드하여 등록합니다.")
     @PostMapping
     public ResponseEntity<Long> createActivityReport(@RequestPart("request") ActivityReportCreateRequest request,
                                                      @RequestPart("photo") MultipartFile photo) {
-        Long reportId = activityReportService.createActivityReport(request, photo);
+        Long reportId = readActivityReportService.createActivityReport(request, photo);
         return ResponseEntity.ok(reportId);
     }
     @Operation(summary = "지도 표시용 제보 조회", description = "지도로 표시할 모든 활동 제보 데이터를 조회합니다.")
     @GetMapping
     public ResponseEntity<List<ActivityReportResponse>> getAllReportsForMap() {
-        List<ActivityReportResponse> reports = activityReportService.getAllReportsForMap();
+        List<ActivityReportResponse> reports = readActivityReportService.getAllReportsForMap();
         return ResponseEntity.ok(reports);
     }
 
     @GetMapping("/{activityReportId}")
     public ResponseEntity<ActivityReportResponse> getSingleReports(@PathVariable Long activityReportId) {
-        ActivityReportResponse report = activityReportService.getSingleReport(activityReportId);
+        ActivityReportResponse report = readActivityReportService.getSingleReport(activityReportId);
         return ResponseEntity.ok(report);
     }
 
@@ -47,7 +47,7 @@ public class ActivityReportController {
     public ResponseEntity<Void> suggestUnionActivity(@PathVariable Long activityReportId) {
         // ToDo: Get user from security context
         User me = getCurrentUser();
-        activityReportService.suggestUnionActivity(activityReportId, me);
+        readActivityReportService.suggestUnionActivity(activityReportId, me);
         return ResponseEntity.ok().build();
     }
 
@@ -55,7 +55,7 @@ public class ActivityReportController {
     @PatchMapping("/{activityReportId}/status")
     public ResponseEntity<ActivityReportResponse> updateStatus(@PathVariable Long activityReportId,
                                                                @RequestBody ActivityReportStatusUpdateRequest request) {
-        return ResponseEntity.ok(activityReportService.updateStatus(activityReportId, request));
+        return ResponseEntity.ok(readActivityReportService.updateStatus(activityReportId, request));
     }
 
     // ToDo: replace it with Spring security & actual user

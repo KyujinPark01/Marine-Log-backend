@@ -1,4 +1,4 @@
-package domain.backend.dashboard.query.dto;
+package domain.backend.dashboard.dto;
 
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
