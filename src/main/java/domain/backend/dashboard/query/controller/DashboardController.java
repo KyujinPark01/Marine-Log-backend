@@ -27,13 +27,13 @@ class DashboardController {
 
     @Operation(summary = "월별 시계열 통계", description = "월별 활동 추이를 시계열로 조회합니다.")
     @GetMapping("/timeseries")
-    public List<MonthlySeriesDto> timeseries(DashboardFilter filter) {
+    public List<TimeSeriesPointDto> timeseries(DashboardFilter filter) {
         return dashboardService.getTimeSeries(filter);
     }
 
     @Operation(summary = "재질별 비율", description = "수거된 폐기물의 재질별 비율 데이터를 조회합니다.")
     @GetMapping("/material-breakdown")
-    public List<MaterialShareDto> material(DashboardFilter filter) {
+    public List<MaterialBreakdownDto> material(DashboardFilter filter) {
         return dashboardService.getMaterialBreakdown(filter);
     }
     @Operation(summary = "단체 리더보드", description = "활동량 기준 단체 순위를 조회합니다.")
@@ -56,4 +56,3 @@ class DashboardController {
         return ResponseEntity.ok(response);
     }
 }
-
