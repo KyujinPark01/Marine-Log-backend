@@ -23,12 +23,12 @@ class DashboardController {
     }
 
     @GetMapping("/timeseries")
-    public List<MonthlySeriesDto> timeseries(DashboardFilter filter) {
+    public List<TimeSeriesPointDto> timeseries(DashboardFilter filter) {
         return dashboardService.getTimeSeries(filter);
     }
 
     @GetMapping("/material-breakdown")
-    public List<MaterialShareDto> material(DashboardFilter filter) {
+    public List<MaterialBreakdownDto> material(DashboardFilter filter) {
         return dashboardService.getMaterialBreakdown(filter);
     }
 
@@ -50,4 +50,3 @@ class DashboardController {
         return ResponseEntity.ok(response);
     }
 }
-

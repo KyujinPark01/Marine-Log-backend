@@ -7,13 +7,14 @@ import domain.backend.dashboard.query.dto.response.RegionDashboardResponse;
 import domain.backend.dashboard.query.dto.*;
 import domain.backend.waste.domain.Waste;
 import domain.backend.dashboard.query.dto.response.ActivityDashboardResponse;
-import domain.backend.dashboard.query.dto.MaterialBreakdownDto;
-import domain.backend.dashboard.query.dto.MonthlyTrendDto;
 import domain.backend.dashboard.query.dao.ActivityDashRepository;
 import domain.backend.dashboard.query.dao.RegionDashRepository;
 import domain.backend.dashboard.query.dao.WasteDashRepository;
 import domain.backend.dashboard.query.dao.OrgDashRepository;
 import domain.backend.waste.repository.WasteRepository;
+import domain.backend.dashboard.query.projection.MaterialShareRow;
+import domain.backend.dashboard.query.projection.MonthlyAggRow;
+import domain.backend.dashboard.query.projection.SumWasteView;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,10 +48,10 @@ public class DashboardService {
     }
 
 
-    public List<MonthlySeriesDto> getTimeSeries(DashboardFilter f) {
+    public List<TimeSeriesPointDto> getTimeSeries(DashboardFilter f) {
         List<MonthlyAggRow> rows = activityDashRepository.monthlySeries(f.getStart(), f.getEnd(), f.getOrgId());
         return rows.stream()
-                .map(r -> new MonthlySeriesDto(
+                .map(r -> new TimeSeriesPointDto(
                         String.format("%04d-%02d", r.getActivityYear(), r.getActivityMonth()),
                         r.getTotalKg() == null ? 0.0 : r.getTotalKg(),
                         r.getActivityCount() == null ? 0L : r.getActivityCount()
@@ -58,14 +59,14 @@ public class DashboardService {
                 .toList();
     }
 
-    public List<MaterialShareDto> getMaterialBreakdown(DashboardFilter f) {
+    public List<MaterialBreakdownDto> getMaterialBreakdown(DashboardFilter f) {
         List<MaterialShareRow> rows = wasteDashRepository.materialBreakdown(f.getStart(), f.getEnd(), f.getOrgId());
         double total = rows.stream().mapToDouble(r -> r.getKg() == null ? 0.0 : r.getKg()).sum();
         return rows.stream()
                 .map(r -> {
                     double kg = r.getKg() == null ? 0.0 : r.getKg();
                     double ratio = total == 0.0 ? 0.0 : kg / total;
-                    return new MaterialShareDto(r.getMaterial(), kg, ratio);
+                    return new MaterialBreakdownDto(r.getMaterial(), kg, ratio);
                 })
                 .toList ();
     }
@@ -96,23 +97,27 @@ public class DashboardService {
                 ));
 
         List<MaterialBreakdownDto> materials = groupedByType.entrySet().stream()
-                .map(e -> new MaterialBreakdownDto(e.getKey(), e.getValue()))
+                .map(e -> new MaterialBreakdownDto(
+                        e.getKey(),
+                        e.getValue() == null ? 0.0 : e.getValue(),
+                        null
+                ))
                 .collect(Collectors.toList());
 
         String month = activity.getActivityDate() != null
                 ? activity.getActivityDate().getYear() + "-" + String.format("%02d", activity.getActivityDate().getMonthValue())
                 : "unknown";
 
-        List<MonthlyTrendDto> trend = List.of(new MonthlyTrendDto(month, totalWeightKg));
+        List<TimeSeriesPointDto> trend = List.of(new TimeSeriesPointDto(month, totalWeightKg, null));
 
-        return ActivityDashboardResponse.builder()
-                .activityId(activityId)
-                .activityName(activity.getName())
-                .totalWeightKg(totalWeightKg)
-                .wasteCount(wastes.size())
-                .materials(materials)
-                .trend(trend)
-                .build();
+        return new ActivityDashboardResponse(
+                activityId,
+                activity.getName(),
+                totalWeightKg,
+                wastes.size(),
+                materials,
+                trend
+        );
     }
 
     public RegionDashboardResponse getRegionDashboard(RegionRequest request) {
@@ -121,12 +126,7 @@ public class DashboardService {
         );
 
         if (activityIds.isEmpty()) {
-            return RegionDashboardResponse.builder()
-                    .totalWeightKg(0.0)
-                    .wasteCount(0)
-                    .materials(List.of())
-                    .trend(List.of())
-                    .build();
+            return new RegionDashboardResponse(0.0, 0, List.of(), List.of());
         }
 
         RegionDashRepository.WasteSummaryInRegion summary = regionDashRepository.getSummaryInActivities(activityIds);
@@ -134,18 +134,26 @@ public class DashboardService {
         List<RegionDashRepository.MonthlyTrendInRegion> monthlyTrends = regionDashRepository.getMonthlyTrendInActivities(activityIds);
 
         List<MaterialBreakdownDto> materials = materialBreakdowns.stream()
-                .map(m -> new MaterialBreakdownDto(m.getMaterialType(), m.getTotalKg()))
+                .map(m -> new MaterialBreakdownDto(
+                        m.getMaterialType(),
+                        m.getTotalKg() == null ? 0.0 : m.getTotalKg(),
+                        null
+                ))
                 .collect(Collectors.toList());
 
-        List<MonthlyTrendDto> trend = monthlyTrends.stream()
-                .map(t -> new MonthlyTrendDto(t.getMonth(), t.getTotalKg()))
+        List<TimeSeriesPointDto> trend = monthlyTrends.stream()
+                .map(t -> new TimeSeriesPointDto(
+                        t.getMonth(),
+                        t.getTotalKg() == null ? 0.0 : t.getTotalKg(),
+                        null
+                ))
                 .collect(Collectors.toList());
 
-        return RegionDashboardResponse.builder()
-                .totalWeightKg(summary.getTotalWeightKg())
-                .wasteCount(summary.getWasteCount())
-                .materials(materials)
-                .trend(trend)
-                .build();
+        return new RegionDashboardResponse(
+                summary.getTotalWeightKg(),
+                summary.getWasteCount(),
+                materials,
+                trend
+        );
     }
 }
