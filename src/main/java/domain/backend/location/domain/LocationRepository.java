@@ -1,7 +1,5 @@
 package domain.backend.location.domain;
 
-import domain.backend.activity.domain.Activity;
-import domain.backend.location.dto.request.LocationWeightedRequest;
 import domain.backend.location.projection.LocationAggregationProjection;
 import domain.backend.location.projection.LocationSpecificProjection;
 import domain.backend.location.projection.LocationWeightedProjection;
@@ -12,7 +10,7 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDate;
 import java.util.List;
 
-public interface LocationRepository extends JpaRepository<Location, Activity> {
+public interface LocationRepository extends JpaRepository<Location, Long> {
 
     @Query(value = """
         SELECT 
@@ -39,18 +37,6 @@ public interface LocationRepository extends JpaRepository<Location, Activity> {
         GROUP BY l.region2depth_name
         """, nativeQuery = true)
     List<LocationAggregationProjection> getAggregatedBroad();
-
-    @Deprecated(forRemoval = true)
-    @Query(value = """
-        SELECT 
-            region3depth_name AS region,
-            COUNT(*) AS counts,
-            AVG(ST_X(geometry)) AS longitude,
-            AVG(ST_Y(geometry)) AS latitude
-        FROM location
-        GROUP BY region3depth_name
-        """, nativeQuery = true)
-    List<LocationAggregationProjection> getAggregatedRegional();
 
     @Query(value = """
         SELECT
