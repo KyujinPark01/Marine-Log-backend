@@ -16,6 +16,7 @@ import domain.backend.dashboard.projection.MaterialShareRow;
 import domain.backend.dashboard.projection.MonthlyAggRow;
 import domain.backend.dashboard.projection.SumWasteView;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -73,7 +74,12 @@ public class DashboardService {
 
 
     public List<OrgRankingDto> getOrgLeaderboard(DashboardFilter f, int limit) {
-        return orgDashRepository.orgRanking(f.getStart(), f.getEnd(), f.getOrgId(), limit)
+        int pageSize = Math.max(1, limit);
+        return orgDashRepository.orgRanking(
+                        f.getStart(),
+                        f.getEnd(),
+                        f.getOrgId(),
+                        PageRequest.of(0, pageSize))
                 .stream()
                 .map(r -> new OrgRankingDto(r.getOrgId(), r.getOrgName(), r.getTotalKg() == null ? 0.0 : r.getTotalKg()))
                 .toList();
@@ -133,6 +139,10 @@ public class DashboardService {
         List<RegionDashRepository.MaterialBreakdownInRegion> materialBreakdowns = regionDashRepository.getMaterialBreakdownInActivities(activityIds);
         List<RegionDashRepository.MonthlyTrendInRegion> monthlyTrends = regionDashRepository.getMonthlyTrendInActivities(activityIds);
 
+        double totalWeightKg = summary.getTotalWeightKg() == null ? 0.0 : summary.getTotalWeightKg();
+        long wasteCountLong = summary.getWasteCount() == null ? 0L : summary.getWasteCount();
+        int wasteCount = (int) Math.min(Integer.MAX_VALUE, wasteCountLong);
+
         List<MaterialBreakdownDto> materials = materialBreakdowns.stream()
                 .map(m -> new MaterialBreakdownDto(
                         m.getMaterialType(),
@@ -150,8 +160,8 @@ public class DashboardService {
                 .collect(Collectors.toList());
 
         return new RegionDashboardResponse(
-                summary.getTotalWeightKg(),
-                summary.getWasteCount(),
+                totalWeightKg,
+                wasteCount,
                 materials,
                 trend
         );
