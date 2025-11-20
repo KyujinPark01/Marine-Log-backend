@@ -1,6 +1,6 @@
-package domain.backend.dashboard.dto;
+package domain.backend.dashboard.dto.response;
 
-public record DashboardSummaryDto(
+public record DashboardSummaryResponse(
         long activityCount,
         Double totalKg,
         Double totalL,

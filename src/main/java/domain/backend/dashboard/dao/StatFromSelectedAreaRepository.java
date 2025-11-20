@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface RegionDashRepository extends JpaRepository<Activity, Long> {
+public interface StatFromSelectedAreaRepository extends JpaRepository<Activity, Long> {
 
     @Query(value = """
         SELECT a.activity_id FROM activity a

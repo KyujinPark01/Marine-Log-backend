@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDate;
 import java.util.List;
 
-public interface OrgDashRepository extends JpaRepository<Organization, Long> {
+public interface OrgRankRepository extends JpaRepository<Organization, Long> {
 
     @Query(value = """
         SELECT  

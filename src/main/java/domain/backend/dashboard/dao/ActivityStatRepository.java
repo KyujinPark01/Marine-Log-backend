@@ -1,48 +1,47 @@
 package domain.backend.dashboard.dao;
 
 
-import domain.backend.dashboard.projection.SumWasteView;
-import domain.backend.dashboard.projection.MaterialShareRow;
-import domain.backend.waste.domain.Waste;
+import domain.backend.dashboard.projection.MonthlyAggRow;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import domain.backend.activity.domain.Activity;
 
 import java.time.LocalDate;
 import java.util.List;
 
-public interface WasteDashRepository extends JpaRepository<Waste, Long> {
+public interface ActivityStatRepository extends JpaRepository<Activity, Long> {
+
     @Query(value = """
-        SELECT 
-            COALESCE(SUM(w.weight_kg),0) AS totalKg, 
-            COALESCE(SUM(w.volume_l),0) AS totalL
-        FROM waste w
-        JOIN activity a ON a.activity_id = w.activity_id
+        SELECT COUNT(DISTINCT a.activity_id)
+        FROM activity a
         LEFT JOIN hosted_by hb ON hb.activity_id = a.activity_id
         WHERE (CAST(:start AS DATE) IS NULL OR a.activity_date >= :start)
           AND (CAST(:end AS DATE) IS NULL OR a.activity_date <= :end)
           AND (CAST(:orgId AS BIGINT) IS NULL OR hb.org_id = :orgId)
         """, nativeQuery = true)
-    SumWasteView sumWaste(
+    Long countActivities(
             @Param("start") LocalDate start,
             @Param("end") LocalDate end,
             @Param("orgId") Long orgId
     );
 
     @Query(value = """
-        SELECT 
-            COALESCE(w.type, 'UNKNOWN') AS material, 
-            COALESCE(SUM(w.weight_kg),0) AS kg
-        FROM waste w
-        JOIN activity a ON a.activity_id = w.activity_id
+        SELECT
+            EXTRACT(YEAR FROM a.activity_date) AS activityYear,
+            EXTRACT(MONTH FROM a.activity_date) AS activityMonth,
+            COALESCE(SUM(w.weight_kg), 0) AS totalKg,
+            COUNT(DISTINCT a.activity_id) AS activityCount
+        FROM activity a
+        LEFT JOIN waste w ON w.activity_id = a.activity_id
         LEFT JOIN hosted_by hb ON hb.activity_id = a.activity_id
         WHERE (CAST(:start AS DATE) IS NULL OR a.activity_date >= :start)
           AND (CAST(:end AS DATE) IS NULL OR a.activity_date <= :end)
           AND (CAST(:orgId AS BIGINT) IS NULL OR hb.org_id = :orgId)
-        GROUP BY COALESCE(w.type, 'UNKNOWN')
-        ORDER BY kg DESC
+        GROUP BY activityYear, activityMonth
+        ORDER BY activityYear, activityMonth
         """, nativeQuery = true)
-    List<MaterialShareRow> materialBreakdown(
+    List<MonthlyAggRow> monthlySeries(
             @Param("start") LocalDate start,
             @Param("end") LocalDate end,
             @Param("orgId") Long orgId
