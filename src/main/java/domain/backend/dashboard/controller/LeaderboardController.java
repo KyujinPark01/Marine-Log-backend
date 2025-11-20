@@ -1,6 +1,6 @@
 package domain.backend.dashboard.controller;
 
-import domain.backend.dashboard.dto.request.DashboardFilter;
+import domain.backend.dashboard.dto.request.StatFilterRequest;
 import domain.backend.dashboard.dto.response.OrgRankingResponse;
 import domain.backend.dashboard.service.OrgRankService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,7 +21,7 @@ public class LeaderboardController {
     private final OrgRankService orgRankService;
     @Operation(summary = "단체 리더보드", description = "활동량 기준 단체 순위를 조회합니다.")
     @GetMapping("/org-leaderboard")
-    public List<OrgRankingResponse> leaderboard(DashboardFilter filter,
+    public List<OrgRankingResponse> leaderboard(StatFilterRequest filter,
                                                 @RequestParam(defaultValue = "10") int limit) {
         return orgRankService.getOrgLeaderboard(filter, Math.max(1, limit));
     }

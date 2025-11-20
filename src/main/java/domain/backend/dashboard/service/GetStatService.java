@@ -5,7 +5,7 @@ import domain.backend.dashboard.dao.WasteStatRepository;
 import domain.backend.dashboard.dto.response.DashboardSummaryResponse;
 import domain.backend.dashboard.dto.response.MaterialBreakdownResponse;
 import domain.backend.dashboard.dto.response.TimeSeriesPointResponse;
-import domain.backend.dashboard.dto.request.DashboardFilter;
+import domain.backend.dashboard.dto.request.StatFilterRequest;
 import domain.backend.dashboard.projection.MaterialShareRow;
 import domain.backend.dashboard.projection.MonthlyAggRow;
 import domain.backend.dashboard.projection.SumWasteView;
@@ -24,7 +24,7 @@ public class GetStatService {
     private final WasteStatRepository wasteStatRepository;
 
     // 1. 총 폐기물 수거량
-    public DashboardSummaryResponse getSummary(DashboardFilter f) {
+    public DashboardSummaryResponse getSummary(StatFilterRequest f) {
         Long activityCount = activityDashRepository.countActivities(f.getStart(), f.getEnd(), f.getOrgId());
         if (activityCount == null) activityCount = 0L;
 
@@ -38,7 +38,7 @@ public class GetStatService {
     }
 
     // 2.월별 폐기물 수거량 추이
-    public List<TimeSeriesPointResponse> getTimeSeries(DashboardFilter f) {
+    public List<TimeSeriesPointResponse> getTimeSeries(StatFilterRequest f) {
         List<MonthlyAggRow> rows = activityDashRepository.monthlySeries(f.getStart(), f.getEnd(), f.getOrgId());
         return rows.stream()
                 .map(r -> new TimeSeriesPointResponse(
@@ -50,7 +50,7 @@ public class GetStatService {
     }
 
     // 3. 폐기물 분류 파이 차트
-    public List<MaterialBreakdownResponse> getMaterialBreakdown(DashboardFilter f) {
+    public List<MaterialBreakdownResponse> getMaterialBreakdown(StatFilterRequest f) {
         List<MaterialShareRow> rows = wasteStatRepository.materialBreakdown(f.getStart(), f.getEnd(), f.getOrgId());
         double total = rows.stream().mapToDouble(r -> r.getKg() == null ? 0.0 : r.getKg()).sum();
         return rows.stream()

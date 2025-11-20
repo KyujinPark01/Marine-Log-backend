@@ -1,7 +1,7 @@
 package domain.backend.dashboard.service;
 
 import domain.backend.dashboard.dao.OrgRankRepository;
-import domain.backend.dashboard.dto.request.DashboardFilter;
+import domain.backend.dashboard.dto.request.StatFilterRequest;
 import domain.backend.dashboard.dto.response.OrgRankingResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,7 +15,7 @@ import java.util.List;
 public class OrgRankService {
     private final OrgRankRepository orgDashRepository;
 
-    public List<OrgRankingResponse> getOrgLeaderboard(DashboardFilter f, int limit) {
+    public List<OrgRankingResponse> getOrgLeaderboard(StatFilterRequest f, int limit) {
         return orgDashRepository.orgRanking(
                         f.getStart(),
                         f.getEnd(),
