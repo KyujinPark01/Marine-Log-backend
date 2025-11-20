@@ -2,7 +2,7 @@ package domain.backend.dashboard.dto.response;
 
 import java.util.List;
 
-public record RegionDashboardResponse(
+public record RegionStatResponse(
         Double totalWeightKg,
         Integer wasteCount,
         List<MaterialBreakdownResponse> materials,

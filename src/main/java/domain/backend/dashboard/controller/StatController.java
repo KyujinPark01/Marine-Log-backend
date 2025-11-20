@@ -1,8 +1,8 @@
 package domain.backend.dashboard.controller;
 
-import domain.backend.dashboard.dto.response.DashboardSummaryResponse;
+import domain.backend.dashboard.dto.response.StatSummaryResponse;
 import domain.backend.dashboard.dto.response.MaterialBreakdownResponse;
-import domain.backend.dashboard.dto.response.RegionDashboardResponse;
+import domain.backend.dashboard.dto.response.RegionStatResponse;
 import domain.backend.dashboard.dto.request.RegionRequest;
 import domain.backend.dashboard.dto.response.TimeSeriesPointResponse;
 import domain.backend.dashboard.dto.request.StatFilterRequest;
@@ -27,7 +27,7 @@ public class StatController {
     private final GetStatService getStatService;
     @Operation(summary = "요약 통계", description = "전체 활동 요약 통계를 조회합니다.")
     @GetMapping("/summary")
-    public DashboardSummaryResponse summary(StatFilterRequest filter) {
+    public StatSummaryResponse summary(StatFilterRequest filter) {
         return getStatService.getSummary(filter);
     }
 
@@ -48,8 +48,8 @@ public class StatController {
     private final GetStatFromSelectedService getStatFromSelectedService;
     @Operation(summary = "지역별 대시보드", description = "선택한 지역의 통계 데이터를 조회합니다.")
     @PostMapping("/region")
-    public ResponseEntity<RegionDashboardResponse> getRegionDashboard(@RequestBody RegionRequest request) {
-        RegionDashboardResponse response = getStatFromSelectedService.getStat(request);
+    public ResponseEntity<RegionStatResponse> getRegionDashboard(@RequestBody RegionRequest request) {
+        RegionStatResponse response = getStatFromSelectedService.getStat(request);
         return ResponseEntity.ok(response);
     }
 

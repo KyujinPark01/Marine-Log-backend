@@ -2,7 +2,7 @@ package domain.backend.dashboard.service;
 
 import domain.backend.dashboard.dao.ActivityStatRepository;
 import domain.backend.dashboard.dao.WasteStatRepository;
-import domain.backend.dashboard.dto.response.DashboardSummaryResponse;
+import domain.backend.dashboard.dto.response.StatSummaryResponse;
 import domain.backend.dashboard.dto.response.MaterialBreakdownResponse;
 import domain.backend.dashboard.dto.response.TimeSeriesPointResponse;
 import domain.backend.dashboard.dto.request.StatFilterRequest;
@@ -24,7 +24,7 @@ public class GetStatService {
     private final WasteStatRepository wasteStatRepository;
 
     // 1. 총 폐기물 수거량
-    public DashboardSummaryResponse getSummary(StatFilterRequest f) {
+    public StatSummaryResponse getSummary(StatFilterRequest f) {
         Long activityCount = activityDashRepository.countActivities(f.getStart(), f.getEnd(), f.getOrgId());
         if (activityCount == null) activityCount = 0L;
 
@@ -34,7 +34,7 @@ public class GetStatService {
 
         Double avg = activityCount == 0 ? 0.0 : totalKg / activityCount;
 
-        return new DashboardSummaryResponse(activityCount, totalKg, totalL, avg);
+        return new StatSummaryResponse(activityCount, totalKg, totalL, avg);
     }
 
     // 2.월별 폐기물 수거량 추이

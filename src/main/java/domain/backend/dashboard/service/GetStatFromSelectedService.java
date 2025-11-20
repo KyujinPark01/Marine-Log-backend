@@ -4,7 +4,7 @@ import domain.backend.dashboard.dao.StatFromSelectedAreaRepository;
 import domain.backend.dashboard.dto.response.MaterialBreakdownResponse;
 import domain.backend.dashboard.dto.response.TimeSeriesPointResponse;
 import domain.backend.dashboard.dto.request.RegionRequest;
-import domain.backend.dashboard.dto.response.RegionDashboardResponse;
+import domain.backend.dashboard.dto.response.RegionStatResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,15 +19,16 @@ public class GetStatFromSelectedService {
     private final StatFromSelectedAreaRepository statFromSelectedAreaRepository;
 
     @Transactional(readOnly = true)
-    public RegionDashboardResponse getStat(RegionRequest request) {
+    public RegionStatResponse getStat(RegionRequest request) {
         List<Long> activityIds = statFromSelectedAreaRepository.findActivityIdsInBounds(
                 request.getSwLat(), request.getSwLng(), request.getNeLat(), request.getNeLng()
         );
 
         if (activityIds.isEmpty()) {
-            return new RegionDashboardResponse(0.0, 0, List.of(), List.of());
+            return new RegionStatResponse(0.0, 0, List.of(), List.of());
         }
 
+        // 1. 총 폐기물 수거량
         StatFromSelectedAreaRepository.WasteSummaryInRegion summary = statFromSelectedAreaRepository.getSummaryInActivities(activityIds);
         List<StatFromSelectedAreaRepository.MaterialBreakdownInRegion> materialBreakdowns = statFromSelectedAreaRepository.getMaterialBreakdownInActivities(activityIds);
         List<StatFromSelectedAreaRepository.MonthlyTrendInRegion> monthlyTrends = statFromSelectedAreaRepository.getMonthlyTrendInActivities(activityIds);
@@ -36,6 +37,7 @@ public class GetStatFromSelectedService {
         long wasteCountLong = summary.getWasteCount() == null ? 0L : summary.getWasteCount();
         int wasteCount = (int) Math.min(Integer.MAX_VALUE, wasteCountLong);
 
+        // 2. 폐기물 분류 파이 차트
         List<MaterialBreakdownResponse> materials = materialBreakdowns.stream()
                 .map(m -> new MaterialBreakdownResponse(
                         m.getMaterialType(),
@@ -44,6 +46,7 @@ public class GetStatFromSelectedService {
                 ))
                 .collect(Collectors.toList());
 
+        // 3. 월별 폐기물 수거량 추이
         List<TimeSeriesPointResponse> trend = monthlyTrends.stream()
                 .map(t -> new TimeSeriesPointResponse(
                         t.getMonth(),
@@ -52,7 +55,7 @@ public class GetStatFromSelectedService {
                 ))
                 .collect(Collectors.toList());
 
-        return new RegionDashboardResponse(
+        return new RegionStatResponse(
                 totalWeightKg,
                 wasteCount,
                 materials,
