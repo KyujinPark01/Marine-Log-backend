@@ -2,6 +2,8 @@ import subprocess
 import sys
 import os
 
+# 아래 테스트트 N 명의 가상 사용자가 k초동안 동시에 사용하는 시나리오 1개만 상정
+
 # 테스트할 서버 URL 목록
 TARGET_URLS = [
     "http://localhost:8080"
