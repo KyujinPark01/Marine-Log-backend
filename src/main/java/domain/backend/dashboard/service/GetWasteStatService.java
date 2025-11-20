@@ -20,12 +20,12 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class GetWasteStatService {
-    private final ActivityStatRepository activityDashRepository;
+    private final ActivityStatRepository activityStatRepository;
     private final WasteStatRepository wasteStatRepository;
 
     // 1. 총 폐기물 수거량
     public StatSummaryResponse getSummary(StatFilterRequest f) {
-        Long activityCount = activityDashRepository.countActivities(f.getStart(), f.getEnd(), f.getOrgId());
+        Long activityCount = activityStatRepository.countActivities(f.getStart(), f.getEnd(), f.getOrgId());
         if (activityCount == null) activityCount = 0L;
 
         SumWasteView sum = wasteStatRepository.sumWaste(f.getStart(), f.getEnd(), f.getOrgId());
@@ -39,7 +39,7 @@ public class GetWasteStatService {
 
     // 2.월별 폐기물 수거량 추이
     public List<TimeSeriesPointResponse> getTimeSeries(StatFilterRequest f) {
-        List<MonthlyAggRow> rows = activityDashRepository.monthlySeries(f.getStart(), f.getEnd(), f.getOrgId());
+        List<MonthlyAggRow> rows = activityStatRepository.monthlySeries(f.getStart(), f.getEnd(), f.getOrgId());
         return rows.stream()
                 .map(r -> new TimeSeriesPointResponse(
                         String.format("%04d-%02d", r.getActivityYear(), r.getActivityMonth()),
