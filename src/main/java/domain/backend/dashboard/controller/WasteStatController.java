@@ -6,7 +6,7 @@ import domain.backend.dashboard.dto.response.RegionStatResponse;
 import domain.backend.dashboard.dto.request.RegionRequest;
 import domain.backend.dashboard.dto.response.TimeSeriesPointResponse;
 import domain.backend.dashboard.dto.request.StatFilterRequest;
-import domain.backend.dashboard.service.GetStatService;
+import domain.backend.dashboard.service.GetWasteStatService;
 import domain.backend.dashboard.service.GetStatFromSelectedService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,26 +21,26 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/dashboard")
 @RequiredArgsConstructor
-public class StatController {
+public class WasteStatController {
 
     // 1. 기간 필터, 단체 필터 적용시 동작, 지역 상관없이 전체 통계 조회
-    private final GetStatService getStatService;
+    private final GetWasteStatService getWasteStatService;
     @Operation(summary = "요약 통계", description = "전체 활동 요약 통계를 조회합니다.")
     @GetMapping("/summary")
     public StatSummaryResponse summary(StatFilterRequest filter) {
-        return getStatService.getSummary(filter);
+        return getWasteStatService.getSummary(filter);
     }
 
     @Operation(summary = "월별 시계열 통계", description = "월별 활동 추이를 시계열로 조회합니다.")
     @GetMapping("/timeseries")
     public List<TimeSeriesPointResponse> timeseries(StatFilterRequest filter) {
-        return getStatService.getTimeSeries(filter);
+        return getWasteStatService.getTimeSeries(filter);
     }
 
     @Operation(summary = "재질별 비율", description = "수거된 폐기물의 재질별 비율 데이터를 조회합니다.")
     @GetMapping("/material-breakdown")
     public List<MaterialBreakdownResponse> material(StatFilterRequest filter) {
-        return getStatService.getMaterialBreakdown(filter);
+        return getWasteStatService.getMaterialBreakdown(filter);
     }
     //====================================================================================
 

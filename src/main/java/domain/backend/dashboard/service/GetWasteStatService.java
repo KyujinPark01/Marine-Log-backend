@@ -19,7 +19,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class GetStatService {
+public class GetWasteStatService {
     private final ActivityStatRepository activityDashRepository;
     private final WasteStatRepository wasteStatRepository;
 

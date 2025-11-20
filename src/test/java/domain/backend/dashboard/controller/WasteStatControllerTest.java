@@ -20,7 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Sql(scripts = {"/sql/dashboard/cleanup.sql", "/sql/dashboard/dashboard-data.sql"})
-public class StatControllerTest {
+public class WasteStatControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
