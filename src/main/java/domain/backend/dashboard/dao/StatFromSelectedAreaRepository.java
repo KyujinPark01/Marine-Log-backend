@@ -12,39 +12,50 @@ import java.util.List;
 public interface StatFromSelectedAreaRepository extends JpaRepository<Activity, Long> {
 
     @Query(value = """
-        SELECT a.activity_id FROM activity a
-        JOIN location l ON a.activity_id = l.activity_id
-        WHERE a.status = 'PUBLISHED'
-        AND l.geometry && ST_MakeEnvelope(:swLng, :swLat, :neLng, :neLat, 4326)
-    """, nativeQuery = true)
-    List<Long> findActivityIdsInBounds(@Param("swLat") Double swLat, @Param("swLng") Double swLng,
-                                       @Param("neLat") Double neLat, @Param("neLng") Double neLng);
-
-    @Query(value = """
+        WITH selected_activities AS (
+            SELECT a.activity_id FROM activity a
+            JOIN location l ON a.activity_id = l.activity_id
+            WHERE a.status = 'PUBLISHED'
+            AND l.geometry && ST_MakeEnvelope(:swLng, :swLat, :neLng, :neLat, 4326)
+        )
         SELECT COALESCE(SUM(w.weight_kg), 0.0) as totalWeightKg, COUNT(w.waste_id)::int as wasteCount
         FROM waste w
-        WHERE w.activity_id IN :activityIds
+        WHERE w.activity_id IN (SELECT activity_id FROM selected_activities)
     """, nativeQuery = true)
-    WasteSummaryInRegion getSummaryInActivities(@Param("activityIds") List<Long> activityIds);
+    WasteSummaryInRegion getSummaryInBounds(@Param("swLat") Double swLat, @Param("swLng") Double swLng,
+                                            @Param("neLat") Double neLat, @Param("neLng") Double neLng);
 
     @Query(value = """
+        WITH selected_activities AS (
+            SELECT a.activity_id FROM activity a
+            JOIN location l ON a.activity_id = l.activity_id
+            WHERE a.status = 'PUBLISHED'
+            AND l.geometry && ST_MakeEnvelope(:swLng, :swLat, :neLng, :neLat, 4326)
+        )
         SELECT w.type as materialType, COALESCE(SUM(w.weight_kg), 0.0) as totalKg
         FROM waste w
-        WHERE w.activity_id IN :activityIds AND w.type IS NOT NULL
+        WHERE w.activity_id IN (SELECT activity_id FROM selected_activities) AND w.type IS NOT NULL
         GROUP BY w.type
     """, nativeQuery = true)
-    List<MaterialBreakdownInRegion> getMaterialBreakdownInActivities(@Param("activityIds") List<Long> activityIds);
+    List<MaterialBreakdownInRegion> getMaterialBreakdownInBounds(@Param("swLat") Double swLat, @Param("swLng") Double swLng,
+                                                                 @Param("neLat") Double neLat, @Param("neLng") Double neLng);
 
     @Query(value = """
+        WITH selected_activities AS (
+            SELECT a.activity_id FROM activity a
+            JOIN location l ON a.activity_id = l.activity_id
+            WHERE a.status = 'PUBLISHED'
+            AND l.geometry && ST_MakeEnvelope(:swLng, :swLat, :neLng, :neLat, 4326)
+        )
         SELECT TO_CHAR(a.activity_date, 'YYYY-MM') as month, COALESCE(SUM(w.weight_kg), 0.0) as totalKg
         FROM waste w
         JOIN activity a ON w.activity_id = a.activity_id
-        WHERE w.activity_id IN :activityIds
+        WHERE w.activity_id IN (SELECT activity_id FROM selected_activities)
         GROUP BY TO_CHAR(a.activity_date, 'YYYY-MM')
         ORDER BY month
     """, nativeQuery = true)
-    List<MonthlyTrendInRegion> getMonthlyTrendInActivities(@Param("activityIds") List<Long> activityIds);
-
+    List<MonthlyTrendInRegion> getMonthlyTrendInBounds(@Param("swLat") Double swLat, @Param("swLng") Double swLng,
+                                                       @Param("neLat") Double neLat, @Param("neLng") Double neLng);
 
     interface WasteSummaryInRegion {
         Double getTotalWeightKg();

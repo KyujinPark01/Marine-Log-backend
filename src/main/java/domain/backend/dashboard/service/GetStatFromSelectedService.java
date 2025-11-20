@@ -20,21 +20,21 @@ public class GetStatFromSelectedService {
 
     @Transactional(readOnly = true)
     public RegionStatResponse getStat(RegionRequest request) {
-        List<Long> activityIds = statFromSelectedAreaRepository.findActivityIdsInBounds(
-                request.getSwLat(), request.getSwLng(), request.getNeLat(), request.getNeLng()
-        );
-
-        if (activityIds.isEmpty()) {
-            return new RegionStatResponse(0.0, 0, List.of(), List.of());
-        }
+        Double swLat = request.getSwLat();
+        Double swLng = request.getSwLng();
+        Double neLat = request.getNeLat();
+        Double neLng = request.getNeLng();
 
         // 1. 총 폐기물 수거량
-        StatFromSelectedAreaRepository.WasteSummaryInRegion summary = statFromSelectedAreaRepository.getSummaryInActivities(activityIds);
-        List<StatFromSelectedAreaRepository.MaterialBreakdownInRegion> materialBreakdowns = statFromSelectedAreaRepository.getMaterialBreakdownInActivities(activityIds);
-        List<StatFromSelectedAreaRepository.MonthlyTrendInRegion> monthlyTrends = statFromSelectedAreaRepository.getMonthlyTrendInActivities(activityIds);
+        StatFromSelectedAreaRepository.WasteSummaryInRegion summary =
+                statFromSelectedAreaRepository.getSummaryInBounds(swLat, swLng, neLat, neLng);
+        List<StatFromSelectedAreaRepository.MaterialBreakdownInRegion> materialBreakdowns =
+                statFromSelectedAreaRepository.getMaterialBreakdownInBounds(swLat, swLng, neLat, neLng);
+        List<StatFromSelectedAreaRepository.MonthlyTrendInRegion> monthlyTrends =
+                statFromSelectedAreaRepository.getMonthlyTrendInBounds(swLat, swLng, neLat, neLng);
 
-        double totalWeightKg = summary.getTotalWeightKg() == null ? 0.0 : summary.getTotalWeightKg();
-        long wasteCountLong = summary.getWasteCount() == null ? 0L : summary.getWasteCount();
+        double totalWeightKg = (summary == null || summary.getTotalWeightKg() == null) ? 0.0 : summary.getTotalWeightKg();
+        long wasteCountLong = (summary == null || summary.getWasteCount() == null) ? 0L : summary.getWasteCount();
         int wasteCount = (int) Math.min(Integer.MAX_VALUE, wasteCountLong);
 
         // 2. 폐기물 분류 파이 차트

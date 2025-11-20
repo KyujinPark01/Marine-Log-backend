@@ -20,10 +20,12 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class GetWasteStatService {
+
     private final ActivityStatRepository activityStatRepository;
     private final WasteStatRepository wasteStatRepository;
 
     // 1. 총 폐기물 수거량
+    // activity id에 따라
     public StatSummaryResponse getSummary(StatFilterRequest f) {
         Long activityCount = activityStatRepository.countActivities(f.getStart(), f.getEnd(), f.getOrgId());
         if (activityCount == null) activityCount = 0L;
@@ -37,19 +39,8 @@ public class GetWasteStatService {
         return new StatSummaryResponse(activityCount, totalKg, totalL, avg);
     }
 
-    // 2.월별 폐기물 수거량 추이
-    public List<TimeSeriesPointResponse> getTimeSeries(StatFilterRequest f) {
-        List<MonthlyAggRow> rows = activityStatRepository.monthlySeries(f.getStart(), f.getEnd(), f.getOrgId());
-        return rows.stream()
-                .map(r -> new TimeSeriesPointResponse(
-                        String.format("%04d-%02d", r.getActivityYear(), r.getActivityMonth()),
-                        r.getTotalKg() == null ? 0.0 : r.getTotalKg(),
-                        r.getActivityCount() == null ? 0L : r.getActivityCount()
-                ))
-                .toList();
-    }
-
-    // 3. 폐기물 분류 파이 차트
+    // 2. 폐기물 분류 파이 차트
+    // activity id에 따라
     public List<MaterialBreakdownResponse> getMaterialBreakdown(StatFilterRequest f) {
         List<MaterialShareRow> rows = wasteStatRepository.materialBreakdown(f.getStart(), f.getEnd(), f.getOrgId());
         double total = rows.stream().mapToDouble(r -> r.getKg() == null ? 0.0 : r.getKg()).sum();
@@ -62,4 +53,16 @@ public class GetWasteStatService {
                 .toList ();
     }
 
+    // 3.월별 폐기물 수거량 추이
+    // acitivity id에 따라
+    public List<TimeSeriesPointResponse> getTimeSeries(StatFilterRequest f) {
+        List<MonthlyAggRow> rows = activityStatRepository.monthlySeries(f.getStart(), f.getEnd(), f.getOrgId());
+        return rows.stream()
+                .map(r -> new TimeSeriesPointResponse(
+                        String.format("%04d-%02d", r.getActivityYear(), r.getActivityMonth()),
+                        r.getTotalKg() == null ? 0.0 : r.getTotalKg(),
+                        r.getActivityCount() == null ? 0L : r.getActivityCount()
+                ))
+                .toList();
+    }
 }
