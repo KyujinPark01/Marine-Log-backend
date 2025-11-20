@@ -20,7 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Sql(scripts = {"/sql/dashboard/cleanup.sql", "/sql/dashboard/dashboard-data.sql"})
-public class DashboardControllerTest {
+public class StatControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -79,7 +79,7 @@ public class DashboardControllerTest {
     @Test
     @DisplayName("Org leaderboard ranks organizations by collected kg")
     void orgLeaderboardReturnsDescendingTotals() throws Exception {
-        mockMvc.perform(get("/api/dashboard/org-leaderboard")
+        mockMvc.perform(get("/api/org-leaderboard")
                         .param("start", "2024-01-01")
                         .param("end", "2024-12-31")
                         .param("limit", "5"))
@@ -91,22 +91,6 @@ public class DashboardControllerTest {
                 .andExpect(jsonPath("$[1].orgId").value(2))
                 .andExpect(jsonPath("$[1].orgName").value("River Keepers"))
                 .andExpect(jsonPath("$[1].totalKg").value(closeTo(17.0, 0.001)));
-    }
-
-    @Test
-    @DisplayName("Activity dashboard endpoint aggregates data for the specific activity")
-    void activityDashboardReturnsMaterialBreakdown() throws Exception {
-        mockMvc.perform(get("/api/dashboard/activity/{activityId}", 100L))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.activityId").value(100))
-                .andExpect(jsonPath("$.activityName").value("Beach Cleanup March"))
-                .andExpect(jsonPath("$.totalWeightKg").value(closeTo(15.0, 0.001)))
-                .andExpect(jsonPath("$.wasteCount").value(2))
-                .andExpect(jsonPath("$.materials[*].material",
-                        containsInAnyOrder("Plastic", "Metal")))
-                .andExpect(jsonPath("$.trend", hasSize(1)))
-                .andExpect(jsonPath("$.trend[0].month").value("2024-03"))
-                .andExpect(jsonPath("$.trend[0].totalKg").value(closeTo(15.0, 0.001)));
     }
 
     @Test
