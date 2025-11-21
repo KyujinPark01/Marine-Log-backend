@@ -8,7 +8,6 @@ import domain.backend.dashboard.dto.response.TimeSeriesPointResponse;
 import domain.backend.dashboard.dto.request.StatFilterRequest;
 import domain.backend.dashboard.projection.MaterialShareRow;
 import domain.backend.dashboard.projection.MonthlyAggRow;
-import domain.backend.dashboard.projection.SumWasteView;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,24 +27,19 @@ public class GetWasteStatService {
     // activity id에 따라
     public StatSummaryResponse getSummary(StatFilterRequest request) {
 
-        // case 1
-        Long activityCount = activityStatRepository.countActivities(request.getStart(), request.getEnd(), request.getOrgId());
-        if (activityCount == null) activityCount = 0L;
+        StatSummaryResponse statSummaryResponse =
+                activityStatRepository.summarizedStat(request.getStart(), request.getEnd(), request.getOrgId());
 
-        SumWasteView sum = wasteStatRepository.sumWaste(request.getStart(), request.getEnd(), request.getOrgId());
-        Double totalKg = sum == null || sum.getTotalKg() == null ? 0.0 : sum.getTotalKg();
-        Double totalL = sum == null || sum.getTotalL() == null ? 0.0 : sum.getTotalL();
+        if (statSummaryResponse == null) {
+            return new StatSummaryResponse(0L, 0.0, 0.0, 0.0);
+        }
 
-
-        /*
-        // case 2
-        StatSummaryResponse statSummaryResponse = activityStatRepository.summarizedStat(request.getStart(), request.getEnd(), request.getOrgId());
-        Long activityCount = statSummaryResponse.activityCount();
+        long activityCount = statSummaryResponse.activityCount();
         Double totalKg = statSummaryResponse.totalKg() == null ? 0.0 : statSummaryResponse.totalKg();
-        Double totalL = statSummaryResponse.totalKg() == null ? 0.0 : statSummaryResponse.totalKg();
-s
-         */
-        Double avg = activityCount == 0 ? 0.0 : totalKg / activityCount;
+        Double totalL = statSummaryResponse.totalL() == null ? 0.0 : statSummaryResponse.totalL();
+        Double avg = statSummaryResponse.avgKgPerActivity() == null
+                ? (activityCount == 0 ? 0.0 : totalKg / activityCount)
+                : statSummaryResponse.avgKgPerActivity();
 
         return new StatSummaryResponse(activityCount, totalKg, totalL, avg);
     }
