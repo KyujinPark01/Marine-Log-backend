@@ -26,11 +26,11 @@ public class GetWasteStatService {
 
     // 1. 총 폐기물 수거량
     // activity id에 따라
-    public StatSummaryResponse getSummary(StatFilterRequest f) {
-        Long activityCount = activityStatRepository.countActivities(f.getStart(), f.getEnd(), f.getOrgId());
+    public StatSummaryResponse getSummary(StatFilterRequest request) {
+        Long activityCount = activityStatRepository.countActivities(request.getStart(), request.getEnd(), request.getOrgId());
         if (activityCount == null) activityCount = 0L;
 
-        SumWasteView sum = wasteStatRepository.sumWaste(f.getStart(), f.getEnd(), f.getOrgId());
+        SumWasteView sum = wasteStatRepository.sumWaste(request.getStart(), request.getEnd(), request.getOrgId());
         Double totalKg = sum == null || sum.getTotalKg() == null ? 0.0 : sum.getTotalKg();
         Double totalL = sum == null || sum.getTotalL() == null ? 0.0 : sum.getTotalL();
 
