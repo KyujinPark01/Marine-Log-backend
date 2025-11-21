@@ -27,6 +27,8 @@ public class GetWasteStatService {
     // 1. 총 폐기물 수거량
     // activity id에 따라
     public StatSummaryResponse getSummary(StatFilterRequest request) {
+
+        // case 1
         Long activityCount = activityStatRepository.countActivities(request.getStart(), request.getEnd(), request.getOrgId());
         if (activityCount == null) activityCount = 0L;
 
@@ -34,6 +36,15 @@ public class GetWasteStatService {
         Double totalKg = sum == null || sum.getTotalKg() == null ? 0.0 : sum.getTotalKg();
         Double totalL = sum == null || sum.getTotalL() == null ? 0.0 : sum.getTotalL();
 
+
+        /*
+        // case 2
+        StatSummaryResponse statSummaryResponse = activityStatRepository.summarizedStat(request.getStart(), request.getEnd(), request.getOrgId());
+        Long activityCount = statSummaryResponse.activityCount();
+        Double totalKg = statSummaryResponse.totalKg() == null ? 0.0 : statSummaryResponse.totalKg();
+        Double totalL = statSummaryResponse.totalKg() == null ? 0.0 : statSummaryResponse.totalKg();
+s
+         */
         Double avg = activityCount == 0 ? 0.0 : totalKg / activityCount;
 
         return new StatSummaryResponse(activityCount, totalKg, totalL, avg);

@@ -1,6 +1,7 @@
 package domain.backend.dashboard.repository;
 
 
+import domain.backend.dashboard.dto.response.StatSummaryResponse;
 import domain.backend.dashboard.projection.MonthlyAggRow;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -20,6 +21,20 @@ public interface ActivityStatRepository extends JpaRepository<Activity, Long> {
             AND hb.org_id = :orgId      
         """, nativeQuery = true)
     Long countActivities(
+            @Param("start") LocalDate start,
+            @Param("end") LocalDate end,
+            @Param("orgId") Long orgId
+    );
+
+    @Query(value = """
+        SELECT COUNT(DISTINCT a.activity_id)
+            COALESCE(SUM(w.weight_kg), 0) AS totalKg
+        FROM activity a
+        LEFT JOIN hosted_by hb ON hb.activity_id = a.activity_id
+        WHERE (a.activity_date BETWEEN :start AND :end)
+            AND hb.org_id = :orgId      
+        """, nativeQuery = true)
+    StatSummaryResponse summarizedStat(
             @Param("start") LocalDate start,
             @Param("end") LocalDate end,
             @Param("orgId") Long orgId

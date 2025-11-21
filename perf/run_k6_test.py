@@ -22,16 +22,6 @@ export default function() {{
     check(res1, {{
         "summary status 200": (r) => r.status === 200,
     }});
-
-    let res2 = http.get("{base}/api/dashboard/timeseries");
-    check(res2, {{
-        "timeseries status 200": (r) => r.status === 200,
-    }});
-
-    let res3 = http.get("{base}/api/dashboard/material-breakdown");
-    check(res3, {{
-        "material-breakdown status 200": (r) => r.status === 200,
-    }});
 }}
 """
 
@@ -40,7 +30,6 @@ def write_k6_script(base_url, file_name):
     with open(file_name, "w") as f:
         script = K6_TEMPLATE.format(base=base_url)
         f.write(script)
-
 
 def run_k6(script_path):
     # cmd configuration
@@ -52,7 +41,6 @@ def run_k6(script_path):
 
     # 실행
     subprocess.run(cmd)
-
 
 def main():
     for url in TARGET_URLS:
