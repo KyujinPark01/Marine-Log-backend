@@ -29,7 +29,7 @@ public class LocationController {
 
     private final LocationService locationService;
 
-    @Operation(summary = "지역별 집계 데이터", description = "지정한 범위 내의 지역별 활동 집계 데이터를 조회합니다.")
+    @Operation(summary = "행정구역별 집계 데이터", description = "지정한 행정구역별 활동 집계 데이터를 조회합니다.")
     @GetMapping("/location/aggregate")
     public ResponseEntity<ApiResponse<List<LocationAggregation>>> getAggregated(
             @NotBlank(message = "집계 행정구역 단위를 명시해야 합니다")
