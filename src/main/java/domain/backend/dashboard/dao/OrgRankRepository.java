@@ -21,7 +21,6 @@ public interface OrgRankRepository extends JpaRepository<Organization, Long> {
         JOIN activity a ON a.activity_id = hb.activity_id
         LEFT JOIN waste w ON w.activity_id = a.activity_id
         WHERE (a.activity_date BETWEEN :start AND :end)
-           AND o.org_id = :orgId
         GROUP BY o.org_id, o.name
         ORDER BY totalKg DESC
         LIMIT :limit
