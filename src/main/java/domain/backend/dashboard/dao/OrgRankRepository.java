@@ -28,7 +28,6 @@ public interface OrgRankRepository extends JpaRepository<Organization, Long> {
     List<OrgRankingRow> orgRanking(
             @Param("start") LocalDate start,
             @Param("end") LocalDate end,
-            @Param("orgId") Long orgId,
             @Param("limit") int limit
     );
 }
