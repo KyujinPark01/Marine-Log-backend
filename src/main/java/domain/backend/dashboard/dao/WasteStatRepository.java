@@ -19,9 +19,8 @@ public interface WasteStatRepository extends JpaRepository<Waste, Long> {
         FROM waste w
         JOIN activity a ON a.activity_id = w.activity_id
         LEFT JOIN hosted_by hb ON hb.activity_id = a.activity_id
-        WHERE (CAST(:start AS DATE) IS NULL OR a.activity_date >= :start)
-          AND (CAST(:end AS DATE) IS NULL OR a.activity_date <= :end)
-          AND (CAST(:orgId AS BIGINT) IS NULL OR hb.org_id = :orgId)
+        WHERE (a.activity_date BETWEEN :start AND :end)
+            AND hb.org_id = :orgId
         """, nativeQuery = true)
     SumWasteView sumWaste(
             @Param("start") LocalDate start,
@@ -36,9 +35,8 @@ public interface WasteStatRepository extends JpaRepository<Waste, Long> {
         FROM waste w
         JOIN activity a ON a.activity_id = w.activity_id
         LEFT JOIN hosted_by hb ON hb.activity_id = a.activity_id
-        WHERE (CAST(:start AS DATE) IS NULL OR a.activity_date >= :start)
-          AND (CAST(:end AS DATE) IS NULL OR a.activity_date <= :end)
-          AND (CAST(:orgId AS BIGINT) IS NULL OR hb.org_id = :orgId)
+        WHERE (a.activity_date BETWEEN :start AND :end)
+            AND hb.org_id = :orgId
         GROUP BY COALESCE(w.type, 'UNKNOWN')
         ORDER BY kg DESC
         """, nativeQuery = true)

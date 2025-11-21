@@ -20,9 +20,8 @@ public interface OrgRankRepository extends JpaRepository<Organization, Long> {
         JOIN hosted_by hb ON hb.org_id = o.org_id
         JOIN activity a ON a.activity_id = hb.activity_id
         LEFT JOIN waste w ON w.activity_id = a.activity_id
-        WHERE (CAST(:start AS DATE) IS NULL OR a.activity_date >= :start)
-          AND (CAST(:end AS DATE) IS NULL OR a.activity_date <= :end)
-          AND (CAST(:orgId AS BIGINT) IS NULL OR o.org_id = :orgId)
+        WHERE (a.activity_date BETWEEN :start AND :end)
+           AND o.org_id = :orgId
         GROUP BY o.org_id, o.name
         ORDER BY totalKg DESC
         LIMIT :limit

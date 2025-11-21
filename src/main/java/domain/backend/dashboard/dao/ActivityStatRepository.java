@@ -16,9 +16,8 @@ public interface ActivityStatRepository extends JpaRepository<Activity, Long> {
         SELECT COUNT(DISTINCT a.activity_id)
         FROM activity a
         LEFT JOIN hosted_by hb ON hb.activity_id = a.activity_id
-        WHERE (CAST(:start AS DATE) IS NULL OR a.activity_date >= :start)
-          AND (CAST(:end AS DATE) IS NULL OR a.activity_date <= :end)
-          AND (CAST(:orgId AS BIGINT) IS NULL OR hb.org_id = :orgId)
+        WHERE (a.activity_date BETWEEN :start AND :end)
+            AND hb.org_id = :orgId      
         """, nativeQuery = true)
     Long countActivities(
             @Param("start") LocalDate start,
@@ -35,9 +34,8 @@ public interface ActivityStatRepository extends JpaRepository<Activity, Long> {
         FROM activity a
         LEFT JOIN waste w ON w.activity_id = a.activity_id
         LEFT JOIN hosted_by hb ON hb.activity_id = a.activity_id
-        WHERE (CAST(:start AS DATE) IS NULL OR a.activity_date >= :start)
-          AND (CAST(:end AS DATE) IS NULL OR a.activity_date <= :end)
-          AND (CAST(:orgId AS BIGINT) IS NULL OR hb.org_id = :orgId)
+        WHERE a.activity_date BETWEEN :start AND :end
+            AND hb.org_id = :orgId
         GROUP BY activityYear, activityMonth
         ORDER BY activityYear, activityMonth
         """, nativeQuery = true)
