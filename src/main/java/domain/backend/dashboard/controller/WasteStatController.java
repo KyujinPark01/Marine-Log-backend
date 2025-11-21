@@ -23,8 +23,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class WasteStatController {
 
-    // 1. 기간 필터, 단체 필터 적용시 동작, 지역 상관없이 전체 통계 조회
+
     private final GetWasteStatService getWasteStatService;
+    private final GetStatFromSelectedService getStatFromSelectedService;
+
+    // 1. 기간 필터, 단체 필터 적용시 동작, 지역 상관없이 전체 통계 조회
     @Operation(summary = "요약 통계", description = "전체 활동 요약 통계를 조회합니다.")
     @GetMapping("/summary")
     public StatSummaryResponse summary(StatFilterRequest filter) {
@@ -45,7 +48,6 @@ public class WasteStatController {
     //====================================================================================
 
     // 2. 마우스로 드래그한 지역에 대한 상세 통계 조회
-    private final GetStatFromSelectedService getStatFromSelectedService;
     @Operation(summary = "지역별 대시보드", description = "선택한 지역의 통계 데이터를 조회합니다.")
     @PostMapping("/region")
     public ResponseEntity<RegionStatResponse> getRegionDashboard(@RequestBody RegionRequest request) {
