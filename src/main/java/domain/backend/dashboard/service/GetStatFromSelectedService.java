@@ -1,6 +1,6 @@
 package domain.backend.dashboard.service;
 
-import domain.backend.dashboard.dao.StatFromSelectedAreaRepository;
+import domain.backend.dashboard.repository.StatFromSelectedAreaRepository;
 import domain.backend.dashboard.dto.response.MaterialBreakdownResponse;
 import domain.backend.dashboard.dto.response.TimeSeriesPointResponse;
 import domain.backend.dashboard.dto.request.RegionRequest;

@@ -1,7 +1,7 @@
 package domain.backend.dashboard.service;
 
-import domain.backend.dashboard.dao.ActivityStatRepository;
-import domain.backend.dashboard.dao.WasteStatRepository;
+import domain.backend.dashboard.repository.ActivityStatRepository;
+import domain.backend.dashboard.repository.WasteStatRepository;
 import domain.backend.dashboard.dto.response.StatSummaryResponse;
 import domain.backend.dashboard.dto.response.MaterialBreakdownResponse;
 import domain.backend.dashboard.dto.response.TimeSeriesPointResponse;

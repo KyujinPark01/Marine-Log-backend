@@ -1,6 +1,6 @@
 package domain.backend.dashboard.service;
 
-import domain.backend.dashboard.dao.OrgRankRepository;
+import domain.backend.dashboard.repository.OrgRankRepository;
 import domain.backend.dashboard.dto.request.StatFilterRequest;
 import domain.backend.dashboard.dto.response.OrgRankingResponse;
 import lombok.RequiredArgsConstructor;

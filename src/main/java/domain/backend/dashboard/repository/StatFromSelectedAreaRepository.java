@@ -1,4 +1,4 @@
-package domain.backend.dashboard.dao;
+package domain.backend.dashboard.repository;
 
 import domain.backend.activity.domain.Activity;
 import org.springframework.data.jpa.repository.JpaRepository;
