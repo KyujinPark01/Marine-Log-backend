@@ -13,6 +13,7 @@ import java.util.List;
 
 public interface ActivityStatRepository extends JpaRepository<Activity, Long> {
 
+    // F
     @Query(value = """
         WITH filtered_activity AS (
             SELECT DISTINCT a.activity_id

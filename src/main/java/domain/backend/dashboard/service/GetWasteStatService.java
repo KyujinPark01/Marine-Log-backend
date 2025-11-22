@@ -1,5 +1,6 @@
 package domain.backend.dashboard.service;
 
+import domain.backend.dashboard.projection.SumWasteView;
 import domain.backend.dashboard.repository.ActivityStatRepository;
 import domain.backend.dashboard.repository.WasteStatRepository;
 import domain.backend.dashboard.dto.response.StatSummaryResponse;
@@ -8,6 +9,8 @@ import domain.backend.dashboard.dto.response.TimeSeriesPointResponse;
 import domain.backend.dashboard.dto.request.StatFilterRequest;
 import domain.backend.dashboard.projection.MaterialShareRow;
 import domain.backend.dashboard.projection.MonthlyAggRow;
+import domain.backend.dashboard.repository.testing.Case2TestRepository;
+import domain.backend.dashboard.repository.testing.Case3TestRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,10 +26,18 @@ public class GetWasteStatService {
     private final ActivityStatRepository activityStatRepository;
     private final WasteStatRepository wasteStatRepository;
 
+    // for testing
+    private final Case2TestRepository case2TestRepository;
+    private final Case3TestRepository case3TestRepository;
+
     // 1. 총 폐기물 수거량
     // activity id에 따라
     public StatSummaryResponse getSummary(StatFilterRequest request) {
 
+        /*
+        // case 1:
+        // Using a single aggregated query
+        // Using With queries, or CTE(Common Table Expressions)
         StatSummaryResponse statSummaryResponse =
                 activityStatRepository.summarizedStat(request.getStart(), request.getEnd(), request.getOrgId());
 
@@ -37,11 +48,41 @@ public class GetWasteStatService {
         long activityCount = statSummaryResponse.activityCount();
         Double totalKg = statSummaryResponse.totalKg() == null ? 0.0 : statSummaryResponse.totalKg();
         Double totalL = statSummaryResponse.totalL() == null ? 0.0 : statSummaryResponse.totalL();
-        Double avg = statSummaryResponse.avgKgPerActivity() == null
+        Double avgKg = statSummaryResponse.avgKgPerActivity() == null
                 ? (activityCount == 0 ? 0.0 : totalKg / activityCount)
                 : statSummaryResponse.avgKgPerActivity();
 
+        return new StatSummaryResponse(activityCount, totalKg, totalL, avgKg);
+
+
+        // case 2.
+        // Using a single aggregated query
+        // But not using With queries
+        StatSummaryResponse statSummaryResponse = case2TestRepository.summarizedStat(request.getStart(), request.getEnd(), request.getOrgId());
+        Long activityCount = statSummaryResponse.activityCount();
+        Double totalKg = statSummaryResponse.totalKg() == null ? 0.0 : statSummaryResponse.totalKg();
+        Double totalL = statSummaryResponse.totalL() == null ? 0.0 : statSummaryResponse.totalL();
+
+        Double avg = activityCount == 0 ? 0.0 : totalKg / activityCount;
+
         return new StatSummaryResponse(activityCount, totalKg, totalL, avg);
+
+
+        */
+
+        // case 3.
+        // Using two queries
+        Long activityCount = case3TestRepository.countActivities(request.getStart(), request.getEnd(), request.getOrgId());
+        if (activityCount == null) activityCount = 0L;
+
+        SumWasteView sum = case3TestRepository.sumWaste(request.getStart(), request.getEnd(), request.getOrgId());
+        Double totalKg = sum == null || sum.getTotalKg() == null ? 0.0 : sum.getTotalKg();
+        Double totalL = sum == null || sum.getTotalL() == null ? 0.0 : sum.getTotalL();
+
+        Double avg = activityCount == 0 ? 0.0 : totalKg / activityCount;
+        return new StatSummaryResponse(activityCount, totalKg, totalL, avg);
+
+
     }
 
     // 2. 폐기물 분류 파이 차트
