@@ -29,7 +29,7 @@ import java.util.List;
         description = "활동(정화 기록) 생성, 조회, 수정, 삭제 관련 API"
 )
 @RestController
-@RequestMapping("/activities")
+@RequestMapping("api/v1/activities")
 @RequiredArgsConstructor
 public class ActivityController {
 
