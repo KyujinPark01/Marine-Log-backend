@@ -34,7 +34,7 @@ public class GetWasteStatService {
     // activity id에 따라
     public StatSummaryResponse getSummary(StatFilterRequest request) {
 
-        /*
+
         // case 1:
         // Using a single aggregated query
         // Using With queries, or CTE(Common Table Expressions)
@@ -54,7 +54,7 @@ public class GetWasteStatService {
 
         return new StatSummaryResponse(activityCount, totalKg, totalL, avgKg);
 
-
+        /*
         // case 2.
         // Using a single aggregated query
         // But not using With queries
@@ -68,8 +68,6 @@ public class GetWasteStatService {
         return new StatSummaryResponse(activityCount, totalKg, totalL, avg);
 
 
-        */
-
         // case 3.
         // Using two queries
         Long activityCount = case3TestRepository.countActivities(request.getStart(), request.getEnd(), request.getOrgId());
@@ -82,7 +80,7 @@ public class GetWasteStatService {
         Double avg = activityCount == 0 ? 0.0 : totalKg / activityCount;
         return new StatSummaryResponse(activityCount, totalKg, totalL, avg);
 
-
+        */
     }
 
     // 2. 폐기물 분류 파이 차트
