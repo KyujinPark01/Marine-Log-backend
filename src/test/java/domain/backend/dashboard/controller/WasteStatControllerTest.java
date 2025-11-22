@@ -33,10 +33,10 @@ public class WasteStatControllerTest {
                         .param("end", "2024-12-31")
                         .param("orgId", "1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.activityCount").value(2))
-                .andExpect(jsonPath("$.totalKg").value(closeTo(40.0, 0.001)))
-                .andExpect(jsonPath("$.totalL").value(closeTo(12.5, 0.001)))
-                .andExpect(jsonPath("$.avgKgPerActivity").value(closeTo(20.0, 0.001)));
+                .andExpect(jsonPath("$.data.activityCount").value(2))
+                .andExpect(jsonPath("$.data.totalKg").value(closeTo(40.0, 0.001)))
+                .andExpect(jsonPath("$.data.totalL").value(closeTo(12.5, 0.001)))
+                .andExpect(jsonPath("$.data.avgKgPerActivity").value(closeTo(20.0, 0.001)));
     }
 
     @Test
@@ -47,13 +47,13 @@ public class WasteStatControllerTest {
                         .param("end", "2024-12-31")
                         .param("orgId", "1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].month").value("2024-03"))
-                .andExpect(jsonPath("$[0].totalKg").value(closeTo(15.0, 0.001)))
-                .andExpect(jsonPath("$[0].activityCount").value(1))
-                .andExpect(jsonPath("$[1].month").value("2024-04"))
-                .andExpect(jsonPath("$[1].totalKg").value(closeTo(25.0, 0.001)))
-                .andExpect(jsonPath("$[1].activityCount").value(1));
+                .andExpect(jsonPath("$.data", hasSize(2)))
+                .andExpect(jsonPath("$.data[0].month").value("2024-03"))
+                .andExpect(jsonPath("$.data[0].totalKg").value(closeTo(15.0, 0.001)))
+                .andExpect(jsonPath("$.data[0].activityCount").value(1))
+                .andExpect(jsonPath("$.data[1].month").value("2024-04"))
+                .andExpect(jsonPath("$.data[1].totalKg").value(closeTo(25.0, 0.001)))
+                .andExpect(jsonPath("$.data[1].activityCount").value(1));
     }
 
     @Test
@@ -64,16 +64,16 @@ public class WasteStatControllerTest {
                         .param("end", "2024-12-31")
                         .param("orgId", "1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(3)))
-                .andExpect(jsonPath("$[0].material").value("Plastic"))
-                .andExpect(jsonPath("$[0].kg").value(closeTo(25.0, 0.001)))
-                .andExpect(jsonPath("$[0].ratio").value(closeTo(0.625, 0.0001)))
-                .andExpect(jsonPath("$[1].material").value("Glass"))
-                .andExpect(jsonPath("$[1].kg").value(closeTo(10.0, 0.001)))
-                .andExpect(jsonPath("$[1].ratio").value(closeTo(0.25, 0.0001)))
-                .andExpect(jsonPath("$[2].material").value("Metal"))
-                .andExpect(jsonPath("$[2].kg").value(closeTo(5.0, 0.001)))
-                .andExpect(jsonPath("$[2].ratio").value(closeTo(0.125, 0.0001)));
+                .andExpect(jsonPath("$.data", hasSize(3)))
+                .andExpect(jsonPath("$.data[0].material").value("Plastic"))
+                .andExpect(jsonPath("$.data[0].kg").value(closeTo(25.0, 0.001)))
+                .andExpect(jsonPath("$.data[0].ratio").value(closeTo(0.625, 0.0001)))
+                .andExpect(jsonPath("$.data[1].material").value("Glass"))
+                .andExpect(jsonPath("$.data[1].kg").value(closeTo(10.0, 0.001)))
+                .andExpect(jsonPath("$.data[1].ratio").value(closeTo(0.25, 0.0001)))
+                .andExpect(jsonPath("$.data[2].material").value("Metal"))
+                .andExpect(jsonPath("$.data[2].kg").value(closeTo(5.0, 0.001)))
+                .andExpect(jsonPath("$.data[2].ratio").value(closeTo(0.125, 0.0001)));
     }
 
     @Test
@@ -84,13 +84,13 @@ public class WasteStatControllerTest {
                         .param("end", "2024-12-31")
                         .param("limit", "5"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].orgId").value(1))
-                .andExpect(jsonPath("$[0].orgName").value("Ocean Savers"))
-                .andExpect(jsonPath("$[0].totalKg").value(closeTo(40.0, 0.001)))
-                .andExpect(jsonPath("$[1].orgId").value(2))
-                .andExpect(jsonPath("$[1].orgName").value("River Keepers"))
-                .andExpect(jsonPath("$[1].totalKg").value(closeTo(17.0, 0.001)));
+                .andExpect(jsonPath("$.data", hasSize(2)))
+                .andExpect(jsonPath("$.data[0].orgId").value(1))
+                .andExpect(jsonPath("$.data[0].orgName").value("Ocean Savers"))
+                .andExpect(jsonPath("$.data[0].totalKg").value(closeTo(40.0, 0.001)))
+                .andExpect(jsonPath("$.data[1].orgId").value(2))
+                .andExpect(jsonPath("$.data[1].orgName").value("River Keepers"))
+                .andExpect(jsonPath("$.data[1].totalKg").value(closeTo(17.0, 0.001)));
     }
 
     @Test
@@ -109,12 +109,12 @@ public class WasteStatControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(boundsJson))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.totalWeightKg").value(closeTo(40.0, 0.001)))
-                .andExpect(jsonPath("$.wasteCount").value(4))
-                .andExpect(jsonPath("$.materials[*].material",
+                .andExpect(jsonPath("$.data.totalWeightKg").value(closeTo(40.0, 0.001)))
+                .andExpect(jsonPath("$.data.wasteCount").value(4))
+                .andExpect(jsonPath("$.data.materials[*].material",
                         containsInAnyOrder("Plastic", "Metal", "Glass")))
-                .andExpect(jsonPath("$.trend", hasSize(2)))
-                .andExpect(jsonPath("$.trend[0].month").value("2024-03"))
-                .andExpect(jsonPath("$.trend[1].month").value("2024-04"));
+                .andExpect(jsonPath("$.data.trend", hasSize(2)))
+                .andExpect(jsonPath("$.data.trend[0].month").value("2024-03"))
+                .andExpect(jsonPath("$.data.trend[1].month").value("2024-04"));
     }
 }

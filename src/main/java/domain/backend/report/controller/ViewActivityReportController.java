@@ -1,9 +1,11 @@
 package domain.backend.report.controller;
 
+import domain.backend.common.dto.ApiResponse;
 import domain.backend.report.dto.response.ActivityReportResponse;
 import domain.backend.report.service.ReadActivityReportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,19 +23,20 @@ import java.util.List;
 @RestController
 @RequestMapping("/activity-report")
 @RequiredArgsConstructor
+@Validated
 public class ViewActivityReportController {
 
     private final ReadActivityReportService readActivityReportService;
 
     @GetMapping
-    public ResponseEntity<List<ActivityReportResponse>> getAllReportsForMap() {
+    public ResponseEntity<ApiResponse<List<ActivityReportResponse>>> getAllReportsForMap() {
         List<ActivityReportResponse> reports = readActivityReportService.getAllReportsForMap();
-        return ResponseEntity.ok(reports);
+        return ResponseEntity.ok(ApiResponse.ok(reports));
     }
 
     @GetMapping("/{activityReportId}")
-    public ResponseEntity<ActivityReportResponse> getSingleReports(@PathVariable Long activityReportId) {
+    public ResponseEntity<ApiResponse<ActivityReportResponse>> getSingleReports(@PathVariable Long activityReportId) {
         ActivityReportResponse report = readActivityReportService.getSingleReport(activityReportId);
-        return ResponseEntity.ok(report);
+        return ResponseEntity.ok(ApiResponse.ok(report));
     }
 }

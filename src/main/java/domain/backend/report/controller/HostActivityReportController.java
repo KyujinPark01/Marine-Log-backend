@@ -3,13 +3,20 @@ package domain.backend.report.controller;
 
 import domain.backend.auth.domain.user.Role;
 import domain.backend.auth.domain.user.User;
+import domain.backend.common.dto.ApiResponse;
 import domain.backend.report.dto.request.ActivityReportStatusUpdateRequest;
 import domain.backend.report.dto.response.ActivityReportResponse;
 import domain.backend.report.service.HandleActivityReportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /*
  * 단체장 권한을 위한 기능 구현
@@ -21,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/activity-report")
 @RequiredArgsConstructor
+@Validated
 public class HostActivityReportController {
 
     private final HandleActivityReportService handleActivityReportService;
@@ -31,7 +39,7 @@ public class HostActivityReportController {
 
     // ToDo: refactor theses codes, they have repeating pattern
     @PostMapping("/{activityReportId}/suggest-union")
-    public ResponseEntity<Void> suggestUnionActivity(@PathVariable Long activityReportId) {
+    public ResponseEntity<ApiResponse<Void>> suggestUnionActivity(@PathVariable Long activityReportId) {
 
         User me = getCurrentUser();
 
@@ -39,14 +47,14 @@ public class HostActivityReportController {
         if (checkHostRole(me)) {
             // 1-1. authorized for those with HOST role
             handleActivityReportService.suggestUnionActivity(activityReportId, me);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(ApiResponse.ok(null));
         }
         // 1-2. unauthorized for those without HOST role
-        else  return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        else  return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error("UNAUTHORIZED"));
     }
 
     @PatchMapping("/{activityReportId}/")
-    public ResponseEntity<ActivityReportResponse> acceptActivityReport(@PathVariable Long activityReportId,
+    public ResponseEntity<ApiResponse<ActivityReportResponse>> acceptActivityReport(@PathVariable Long activityReportId,
                                                                @RequestBody ActivityReportStatusUpdateRequest request) {
 
         User me = getCurrentUser();
@@ -54,11 +62,11 @@ public class HostActivityReportController {
         // 1. check the user's role
         if (checkHostRole(me)) {
             // 1-1. authorized for those with HOST role
-            handleActivityReportService.updateStatus(activityReportId, request);
-            return ResponseEntity.ok(handleActivityReportService.updateStatus(activityReportId, request));
+            ActivityReportResponse response = handleActivityReportService.updateStatus(activityReportId, request);
+            return ResponseEntity.ok(ApiResponse.ok(response));
         }
         // 1-2. unauthorized for those without HOST role
-        else  return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        else  return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error("UNAUTHORIZED"));
 
     }
 
