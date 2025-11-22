@@ -13,6 +13,7 @@ import domain.backend.auth.domain.user.User;
 import domain.backend.common.dto.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -42,7 +43,7 @@ public class ActivityController {
     @Operation(summary = "활동 게시", description = "활동을 즉시 게시 상태로 등록합니다.")
     @PostMapping
     public ResponseEntity<ApiResponse<ActivityResponse>>  createAndPublish(
-            @RequestBody ActivityCreateRequest dto) {
+            @Valid @RequestBody ActivityCreateRequest dto) {
         User me = getCurrentUser();
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.ok(activityService.createAndPublish(dto, me)));
@@ -71,7 +72,7 @@ public class ActivityController {
     @PatchMapping("/{id}")
     public ResponseEntity<ApiResponse<ActivityResponse>> updatePublished(
             @PathVariable Long id,
-            @RequestBody ActivityUpdateRequest dto) {
+            @Valid @RequestBody ActivityUpdateRequest dto) {
         User me = getCurrentUser();
         return ResponseEntity.ok(ApiResponse.ok(activityService.updatePublished(id, dto, me.getUserId())));
     }
