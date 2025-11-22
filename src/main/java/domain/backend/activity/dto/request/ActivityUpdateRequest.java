@@ -1,6 +1,8 @@
 package domain.backend.activity.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import domain.backend.organization.dto.HostedByDto;
+import domain.backend.waste.dto.WasteRequest;
 import jakarta.validation.constraints.Positive;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,6 +10,7 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -30,7 +33,10 @@ public class ActivityUpdateRequest {
     private Double volumeL;
 
     /*후순위*/
-    //LocationDto location,
     //List<String> pictureUrls,            // 사진 url
-    //List<HostedByDto> hostedBy           // 참여 단체
+
+    private Double lat;
+    private Double lng;
+    private List<HostedByDto> hostedByList; // 참여 단체
+    private List<WasteRequest> wastes;
 }

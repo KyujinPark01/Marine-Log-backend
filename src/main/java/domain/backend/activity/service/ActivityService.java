@@ -12,12 +12,6 @@ import domain.backend.activity.repository.ActivityRepository;
 import domain.backend.auth.domain.user.User;
 import domain.backend.waste.domain.Waste;
 import domain.backend.location.service.LocationService;
-import domain.backend.organization.domain.entity.HostedBy;
-import domain.backend.organization.domain.entity.HostedById;
-import domain.backend.organization.domain.entity.Organization;
-import domain.backend.organization.dto.HostedByDto;
-import domain.backend.organization.repository.HostedByRepository;
-import domain.backend.organization.repository.OrganizationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -38,8 +32,7 @@ public class ActivityService {
     private final ActivityRepository activityRepository;
     private final LocationService locationService;
     private final ActivityPictureRepository activityPictureRepository;
-    private final OrganizationRepository organizationRepository;
-    private final HostedByRepository hostedByRepository;
+    private final ActivityOrganizationService activityOrganizationService;
     // ==================== Activity 공통 로직 ====================
     // - 소유자 검증(getOwned)
     // - 필드 유효성 검증(validateForPublish)
@@ -90,27 +83,14 @@ public class ActivityService {
         a.publish();
         activityRepository.save(a);
 
-        // ✅ 위치 저장
+        // 위치 저장
         if (dto.getLat() != null && dto.getLng() != null) {
             locationService.saveForActivity(a, dto.getLat(), dto.getLng());
         }
 
-        // ✅ 참여 단체 저장 (Activity 수정 없이 Repository 직접 저장)
-        if (dto.getHostedByList() != null) {
-            for (HostedByDto h : dto.getHostedByList()) {
-                Organization org = organizationRepository.findById(h.getOrgId())
-                        .orElseThrow(() -> new IllegalArgumentException("단체가 존재하지 않습니다. id=" + h.getOrgId()));
+        // 참여 단체 저장
+        activityOrganizationService.saveHostedOrganizations(a, dto.getHostedByList());
 
-                HostedBy hostedBy = HostedBy.builder()
-                        .hostedById(new HostedById(a.getActivityId(), org.getOrgId()))
-                        .activity(a)
-                        .organization(org)
-                        .contribution(h.getContribution() != null ? h.getContribution() : 1.0)
-                        .build();
-
-                hostedByRepository.save(hostedBy); // ✅ 여기서 직접 저장
-            }
-        }
         if (dto.getWastes() != null && !dto.getWastes().isEmpty()) {
             List<Waste> wasteEntities = dto.getWastes().stream()
                     .map(w -> Waste.builder()
@@ -147,21 +127,8 @@ public class ActivityService {
 
         activityRepository.save(a);
 
-        if (dto.getHostedByList() != null) {
-            for (HostedByDto h : dto.getHostedByList()) {
-                Organization org = organizationRepository.findById(h.getOrgId())
-                        .orElseThrow(() -> new IllegalArgumentException("단체가 존재하지 않습니다. id=" + h.getOrgId()));
+        activityOrganizationService.saveHostedOrganizations(a, dto.getHostedByList());
 
-                HostedBy hostedBy = HostedBy.builder()
-                        .hostedById(new HostedById(a.getActivityId(), org.getOrgId()))
-                        .activity(a)
-                        .organization(org)
-                        .contribution(h.getContribution() != null ? h.getContribution() : 1.0)
-                        .build();
-
-                hostedByRepository.save(hostedBy); // ✅ Activity 수정 없이 저장
-            }
-        }
         log.info("✔ 활동 임시저장 완료 - activityId={}", a.getActivityId());
         return ActivityResponse.from(a);
     }
