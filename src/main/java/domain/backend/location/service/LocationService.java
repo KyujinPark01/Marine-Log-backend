@@ -34,7 +34,7 @@ public class LocationService {
     private final LocationRepository locationRepository;
     private final GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
 
-    @Value("${google.api.keys}")
+    @Value("${google.api.key}")
     private String googleApiKey;
     private final RestTemplate restTemplate = new RestTemplate();
 
