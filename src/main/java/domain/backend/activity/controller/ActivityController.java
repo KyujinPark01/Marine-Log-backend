@@ -14,6 +14,7 @@ import domain.backend.common.dto.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -28,6 +29,7 @@ import java.util.List;
         name = "Activity API",
         description = "활동(정화 기록) 생성, 조회, 수정, 삭제 관련 API"
 )
+@Slf4j
 @RestController
 @RequestMapping("api/v1/activities")
 @RequiredArgsConstructor
@@ -88,8 +90,8 @@ public class ActivityController {
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<ActivityResponse>> getOne(@PathVariable Long id) {
         User me = getCurrentUserOrNull();
-        System.out.println("📥 [ActivityController] GET /activities/" + id +
-                " userId=" + (me != null ? me.getUserId() : "null"));
+        log.info("📥 [ActivityController] GET /api/v1/activities/{} userId={}", id,
+                (me != null ? me.getUserId() : "anonymous"));
 
         return ResponseEntity.ok(ApiResponse.ok(activityService.getOne(id, me != null ? me.getUserId() : null)));
     }
