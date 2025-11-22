@@ -44,6 +44,6 @@ public class ActivityCreateRequest {
 
     private Double lat;
     private Double lng;
-    private List<HostedByDto> hostedByList;
-    private List<WasteRequest> wastes;// 참여 단체
+    private List<HostedByDto> hostedByList; // 참여 단체
+    private List<WasteRequest> wastes;
 }
