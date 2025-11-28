@@ -7,59 +7,79 @@ on:
     types: [opened, synchronize]
 
 permissions:
-  contents: read
-  pull-requests: write
+  contents: read           # 코드 체크아웃 및 diff에 필요
+  pull-requests: write     # PR에 댓글을 달기 위해 필요
 
 jobs:
   code-review:
     runs-on: ubuntu-latest
     steps:
-      # 1. 소스 코드 체크아웃
-      - name: Checkout Repository
+      # 1. 소스 코드 체크아웃 (오류 방지 설정 적용)
+      - name: Checkout Head Branch
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.PAT_OF_JIWON_CHOI }}
-          fetch-depth: 0
+          # 👇 GITHUB_TOKEN 사용
+          token: ${{ secrets.GITHUB_TOKEN }}
+          # 👇 Base가 아닌 Head 브랜치만 가져오도록 명시 (오류 유발 참조 페치 방지)
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 10 # 전체 히스토리 대신 필요한 최소 깊이만 가져옴
+          
+      # 1.5. PR diff를 위해 Base 브랜치 내용을 수동으로 가져옴
+      - name: Fetch Base Branch for Diff
+        run: |
+          # 기본 GITHUB_TOKEN을 사용하여 Base 브랜치를 fetch합니다.
+          # Base SHA와 Head SHA가 모두 로컬에 있어야 git diff가 정상 작동합니다.
+          git fetch origin ${{ github.event.pull_request.base.ref }}
 
-      # 2. PR의 코드 변경사항(diff) 추출
+      # 2. PR의 코드 변경사항(diff) 추출 (멀티라인 출력 문제 해결)
       - name: Get PR Diff
         id: diff
         run: |
           DIFF_CONTENT=$(git diff ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }})
-          ESCAPED_DIFF=$(echo "$DIFF_CONTENT" | jq -s -R .)
-          echo "diff_content=${ESCAPED_DIFF}" >> "$GITHUB_OUTPUT"
+          
+          # 👇 멀티라인 문자열을 안전하게 전달하기 위해 EOT 구분자 사용
+          echo "diff_content<<EOF_DIFF" >> "$GITHUB_OUTPUT"
+          echo "$DIFF_CONTENT" >> "$GITHUB_OUTPUT"
+          echo "EOF_DIFF" >> "$GITHUB_OUTPUT"
 
-      # 3. Gemini API 호출
+      # 3. Gemini API 호출 (JSON 포맷팅 오류 해결)
       - name: Call Gemini for Code Review
         id: review
         env:
-          DIFF_CONTENT: ${{ steps.diff.outputs.diff_content }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          # env로 output을 받는 대신, run 스크립트에서 직접 output 참조
         run: |
+          # 셸 변수에 DIFF 내용 안전하게 저장
+          DIFF_CONTENT=$(echo "${{ steps.diff.outputs.diff_content }}")
           API_URL="https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=$GEMINI_API_KEY"
 
-          # PROMPT 생성 (멀티라인 안전)
-          PROMPT="당신은 시니어 소프트웨어 엔지니어입니다. 아래 git diff 형식의 코드 변경사항을 리뷰해주세요. 개선점, 잠재적인 버그, 코드 스타일, 베스트 프랙티스 준수 여부를 분석하고 리뷰 결과를 마크다운 형식으로 작성해주세요. 중요한 순서대로 핵심만 요약해서 알려주세요. 코드 변경사항: $DIFF_CONTENT"
+          PROMPT_TEMPLATE="당신은 시니어 소프트웨어 엔지니어입니다. 아래 git diff 형식의 코드 변경사항을 리뷰해주세요. 개선점, 잠재적인 버그, 코드 스타일, 베스트 프랙티스 준수 여부를 분석하고 리뷰 결과를 마크다운 형식으로 작성해주세요. 중요한 순서대로 핵심만 요약해서 알려주세요. 코드 변경사항:"
 
-          # jq로 JSON 안전하게 생성
-          REQUEST_BODY=$(jq -n --arg text "$PROMPT" '{contents:[{parts:[{text:$text}]}]}')
+          # jq로 JSON 안전하게 생성 (멀티라인을 JSON 값으로 안전하게 삽입)
+          REQUEST_BODY=$(jq -n \
+            --arg prompt "$PROMPT_TEMPLATE" \
+            --arg diff "$DIFF_CONTENT" \
+            '{contents:[{parts:[{text: ($prompt + "\n\n```diff\n" + $diff + "\n```")}]}]}')
 
-          # Gemini API 호출
           API_RESPONSE=$(curl -s -H "Content-Type: application/json" -X POST -d "$REQUEST_BODY" "$API_URL")
-
-          # 리뷰 결과 추출
           REVIEW_COMMENT=$(echo "$API_RESPONSE" | jq -r '.candidates[0].content.parts[0].text')
-          ESCAPED_COMMENT=$(echo "$REVIEW_COMMENT" | jq -s -R .)
-          echo "comment=${ESCAPED_COMMENT}" >> "$GITHUB_OUTPUT"
+          
+          # 👇 리뷰 결과를 안전하게 GITHUB_OUTPUT에 전달
+          echo "comment<<EOF_COMMENT" >> "$GITHUB_OUTPUT"
+          echo "$REVIEW_COMMENT" >> "$GITHUB_OUTPUT"
+          echo "EOF_COMMENT" >> "$GITHUB_OUTPUT"
 
-      # 4. PR에 리뷰 코멘트 등록
+      # 4. PR에 리뷰 코멘트 등록 (출력 전달 오류 및 JSON 포맷팅 수정)
       - name: Post Review Comment to PR
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_ISSUE_URL: ${{ github.event.pull_request.issue_url }}
+          REVIEW_COMMENT: ${{ steps.review.outputs.comment }}
         run: |
+          COMMENT_BODY=$(echo "$REVIEW_COMMENT")
+          
           curl -s -X POST \
             -H "Authorization: token $GITHUB_TOKEN" \
             -H "Accept: application/vnd.github.v3+json" \
             "$PR_ISSUE_URL/comments" \
-            -d "{\"body\": \"### 🤖 AI 코드 리뷰 요약\n\n${{ steps.review.outputs.comment }}\"}"
+            -d "$(jq -n --arg body_text "### 🤖 AI 코드 리뷰 요약\n\n$COMMENT_BODY" '{body: $body_text}')"
