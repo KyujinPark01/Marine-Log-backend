@@ -1,9 +1,10 @@
 package domain.backend.auth.dto.response;
 
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
 @Builder
 public class AuthResponse {
     private String accessToken;

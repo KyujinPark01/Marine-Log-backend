@@ -1,4 +1,5 @@
-package domain.backend.auth.service.auth;
+package domain.backend.common.security.oauth;
+
 import domain.backend.auth.domain.oauth.*;
 import domain.backend.auth.domain.user.Provider;
 import domain.backend.auth.domain.user.Role;
@@ -15,28 +16,28 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
-import static domain.backend.auth.domain.user.Provider.*;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class OAuth2UserService extends DefaultOAuth2UserService {
+
     private final UserRepository userRepository;
     private final SocialLoginRepository socialLoginRepository;
 
     @Override
+    @Transactional
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
+
         OAuth2User oAuth2User = super.loadUser(userRequest);
-        String provider = userRequest.getClientRegistration().getRegistrationId();
-        log.info("시작 {} ", provider);
+
+        String providerId = userRequest.getClientRegistration().getRegistrationId();
+        Provider provider = Provider.valueOf(providerId.toUpperCase());
+
         Oauth2UserInfo userInfo = switch (provider) {
-            case "google" -> new GoogleUserInfo(oAuth2User.getAttributes());
-            case "naver" -> new NaverUserInfo(oAuth2User.getAttributes());
-            case "kakao" -> new KakaoUserInfo(oAuth2User.getAttributes());
-            default -> throw new IllegalArgumentException("정해지지 않은 provider" + provider);
+            case GOOGLE -> new GoogleUserInfo(oAuth2User.getAttributes());
+            case NAVER -> new NaverUserInfo(oAuth2User.getAttributes());
+            case KAKAO -> new KakaoUserInfo(oAuth2User.getAttributes());
         };
-        log.info("userInfo : {}", userInfo);
 
         User user = userRepository.findByEmail(userInfo.getEmail()).orElse(null);
         boolean isNewUser = false;
@@ -49,24 +50,31 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
                     .build();
             userRepository.save(user);
 
-            SocialLogin socialLogin = SocialLogin.builder()
-                    .provider(valueOf(provider.toUpperCase()))
-                    .providerId(userInfo.getProviderId())
-                    .user(user)
-                    .build();
+            isNewUser = true;
 
-            socialLoginRepository.save(socialLogin);
-        }  boolean hasSocial = socialLoginRepository.findByUserAndProvider(user, valueOf(provider.toUpperCase())).isPresent();
-        if (!hasSocial) {
-            SocialLogin socialLogin = SocialLogin.builder()
-                    .provider(valueOf(provider.toUpperCase()))
-                    .providerId(userInfo.getProviderId())
-                    .user(user)
-                    .build();
-            socialLoginRepository.save(socialLogin);
+            saveSocialLogin(user, provider, userInfo.getProviderId());
+
+            return new CustomOAuth2User(user, oAuth2User.getAttributes(), isNewUser);
         }
 
+        boolean hasSocial = socialLoginRepository
+                .findByUserAndProvider(user, provider)
+                .isPresent();
+
+        if (!hasSocial) {
+            saveSocialLogin(user, provider, userInfo.getProviderId());
+        }
 
         return new CustomOAuth2User(user, oAuth2User.getAttributes(), isNewUser);
+    }
+
+    private void saveSocialLogin(User user, Provider provider, String providerId) {
+        SocialLogin socialLogin = SocialLogin.builder()
+                .provider(provider)
+                .providerId(providerId)
+                .user(user)
+                .build();
+
+        socialLoginRepository.save(socialLogin);
     }
 }
