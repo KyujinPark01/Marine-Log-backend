@@ -38,6 +38,7 @@ public class LocationService {
         }
 
         GeocodeResponse.Document regions = getRegion(lat, lng).getDocuments().getFirst();
+        // Todo: 외부 api 요청은 transaction 외부에 있는 것이 권장됨. 리팩토링 필요
 
         Location location = Location.builder()
                 .activity(activity)
