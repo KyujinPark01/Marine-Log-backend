@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 @Tag(
         name = "Location API",
-        description = "지역별 활동 통계 및 위치 데이터 관련 API"
+        description = "지역별 활동 관련 통계 및 위치 데이터 관련 API"
 )
 @Validated
 @RestController
