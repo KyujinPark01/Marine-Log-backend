@@ -30,7 +30,7 @@ public class LocationController {
     private final LocationService locationService;
 
     @Operation(summary = "행정구역별 집계 데이터", description = "지정한 행정구역별 활동 집계 데이터를 조회합니다.")
-    @GetMapping("/location/aggregate")
+    @GetMapping("/v1/location/aggregate")
     public ResponseEntity<ApiResponse<List<LocationAggregation>>> getAggregated(
             @NotBlank(message = "집계 행정구역 단위를 명시해야 합니다")
             @RequestParam String bound
@@ -39,7 +39,7 @@ public class LocationController {
     }
 
     @Operation(summary = "세부 위치 데이터", description = "입력한 조건에 따른 세부 위치 데이터를 조회합니다.")
-    @PostMapping("/location/specific")
+    @PostMapping("/v1/location/specific")
     public ResponseEntity<ApiResponse<List<LocationSpecific>>> getAggregatedSpecific(
             @Valid
             @RequestBody LocationRequest locationRequestDto
@@ -48,7 +48,7 @@ public class LocationController {
     }
 
     @Operation(summary = "가중치 기반 히트맵 데이터", description = "활동 밀도를 시각화하기 위한 가중치 데이터를 조회합니다.")
-    @PostMapping("/location/weighted")
+    @PostMapping("/v1/location/weighted")
     public ResponseEntity<ApiResponse<List<LocationWeightedResponse>>> getWeighted(
             @Valid
             @RequestBody LocationWeightedRequest locationWeightedRequest

@@ -22,7 +22,7 @@ public class ApiKeyController {
     @Value("${google.maps.id}")
     private String googleMapsId;
     @Operation(summary = "Google Maps 설정 조회", description = "Google Maps 초기화를 위한 API Key와 Map ID를 제공합니다.")
-    @GetMapping("/key/google-maps-config")
+    @GetMapping("/v1/key/google-maps-config")
     public ResponseEntity<ApiResponse<MapInfoResponse>> getGoogleMapsInfo() {
         return ResponseEntity.ok(ApiResponse.ok(new MapInfoResponse(googleApiKey, googleMapsId)));
     }

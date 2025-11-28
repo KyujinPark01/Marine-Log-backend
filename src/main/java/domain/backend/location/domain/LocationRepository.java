@@ -13,7 +13,7 @@ import java.util.List;
 public interface LocationRepository extends JpaRepository<Location, Long> {
 
     @Query(value = """
-        SELECT 
+        SELECT
             l.region1depth_name AS region,
             COUNT(*) AS counts,
             AVG(ST_X(l.geometry)) AS longitude,
@@ -26,7 +26,7 @@ public interface LocationRepository extends JpaRepository<Location, Long> {
     List<LocationAggregationProjection> getAggregatedNational();
 
     @Query(value = """
-        SELECT 
+        SELECT
             l.region2depth_name AS region,
             COUNT(*) AS counts,
             AVG(ST_X(l.geometry)) AS longitude,
