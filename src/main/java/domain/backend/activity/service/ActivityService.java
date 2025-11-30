@@ -137,7 +137,7 @@ public class ActivityService {
             throw new IllegalArgumentException("초안만 게시할 수 있습니다.");
         }
 
-        // 게시 전 핵심 필드 유효성 검증
+        // 게시 전 활동명, 활동 날짜 필드 유효성 검증
         if (a.getName() == null || a.getName().isBlank()) {
             throw new IllegalArgumentException("활동명은 필수입니다.");
         }
@@ -164,7 +164,7 @@ public class ActivityService {
 
         applyPatch(a, dto);
 
-        // 업데이트된 최종 Activity 객체의 핵심 필드를 검증합니다.
+        // 수정된 최종 활동 입력 데이터의 활동명,활동 날짜 필드를 검증
         if (a.getName() == null || a.getName().isBlank()) {
             throw new IllegalArgumentException("활동명은 필수입니다.");
         }

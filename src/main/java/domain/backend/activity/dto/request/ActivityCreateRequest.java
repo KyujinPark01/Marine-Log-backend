@@ -39,9 +39,6 @@ public class ActivityCreateRequest {
     @Positive(message = "수거 부피(L)는 0보다 커야 합니다.")
     private Double volumeL;
 
-    /*후순위*/
-//    List<String> pictureUrls;
-
     private Double lat;
     private Double lng;
     private List<HostedByDto> hostedByList; // 참여 단체
