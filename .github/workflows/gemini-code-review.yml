@@ -1,62 +1,42 @@
-name: Gemini AI Code Review
+name: Gemini AI Code Reviewer
 
-# PR이 열리거나, 동기화되거나, PR에 코멘트가 생성되었을 때 (특정 명령어로 트리거 가능하도록) 워크플로우 실행
 on:
-  pull_request:
-    types: [opened, synchronize]
-  # `/review` 또는 `/gemini review` 같은 특정 코멘트로 수동 실행하고 싶을 때 추가
   issue_comment:
     types: [created]
 
-# PR 코멘트를 작성하기 위해 'pull-requests: write' 권한이 필요합니다.
-permissions:
-  contents: read
-  pull-requests: write
+permissions: write-all
 
 jobs:
-  code-review:
-    # issue_comment 이벤트일 경우에만 특정 코멘트(`@gemini-code-review-bot review` 등)를 확인하여 실행
-    if: |
-      github.event_name == 'pull_request' || 
-      (github.event_name == 'issue_comment' && 
-       github.event.issue.pull_request && 
-       contains(github.event.comment.body, '/review'))
-       
+  gemini-code-review:
     runs-on: ubuntu-latest
-    
+    if: |
+      github.event.issue.pull_request &&
+      contains(github.event.comment.body, '/review')
     steps:
-      - name: ⬇️ Checkout Repository
-        uses: actions/checkout@v4
-        # PR의 전체 변경 내용을 가져오기 위해 fetch-depth를 0으로 설정하는 것이 유용할 수 있습니다.
+      - name: PR Info
+        run: |
+          echo "Comment: ${{ github.event.comment.body }}"
+          echo "Issue Number: ${{ github.event.issue.number }}"
+          echo "Repository: ${{ github.repository }}"
+
+      - name: Checkout Repo
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      - name: 🔎 Get PR Diff (Gemini API 입력으로 사용)
-        # Pull Request의 Diff를 가져와 환경 변수로 저장
-        id: pr_diff
+      - name: Get PR Details
+        id: pr
         run: |
-          DIFF=$(git diff ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }})
-          # Diff가 너무 클 경우를 대비하여 토큰 제한에 걸리지 않도록 적절히 처리해야 합니다.
-          # 하지만 이 예시에서는 단순화하여 전체 Diff를 가져옵니다.
-          echo "PR_DIFF<<EOF" >> $GITHUB_ENV
-          echo "$DIFF" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
+          PR_JSON=$(gh api repos/${{ github.repository }}/pulls/${{ github.event.issue.number }})
+          echo "head_sha=$(echo $PR_JSON | jq -r .head.sha)" >> $GITHUB_OUTPUT
+          echo "base_sha=$(echo $PR_JSON | jq -r .base.sha)" >> $GITHUB_OUTPUT
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: AI Code Review with Gemini
-        # 커뮤니티에서 제공하는 PR 리뷰 액션을 사용합니다. 
-        # (주의: 실제 마켓플레이스 액션 이름과 입력 변수는 다를 수 있습니다. 이 예시는 일반적인 패턴입니다.)
-        uses: somedev/gemini-code-review-action@v1 
+      - uses: Swisyn/gemini-ai-code-reviewer@v1.0.0
         with:
-          # GitHub Secret으로 저장된 API 키 사용
-          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
-          # PR 정보를 전달하여 리뷰 코멘트를 작성하도록 합니다.
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          # 코드 리뷰에 사용할 프롬프트 지정 (선택 사항)
-          # pull_request_diff: ${{ env.PR_DIFF }} # 액션 내부에서 diff를 처리하는 경우가 많아 생략 가능
-          review_prompt: |
-            You are a senior software engineer. 
-            Review the following code changes for quality, potential bugs, 
-            security issues, and adherence to best practices. 
-            Provide concise, actionable, and professional feedback as inline PR comments 
-            or a summary comment.
-          model: gemini-2.5-pro # 사용할 Gemini 모델 지정
+          GITHUB_API_URL: "https://github.mycompany.com/api/v3"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: gemini-2.5-pro-preview-05-06 # Optional, default is `gemini-2.0-flash-001`
+          EXCLUDE: "*.md,*.txt,package-lock.json,*.yml,*.yaml"
