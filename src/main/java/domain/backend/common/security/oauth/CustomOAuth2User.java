@@ -1,7 +1,7 @@
 package domain.backend.common.security.oauth;
 
 import domain.backend.auth.domain.user.User;
-import lombok.Getter;
+import domain.backend.common.security.auth.UserPrincipal;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -10,7 +10,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
-@Getter
 public class CustomOAuth2User implements OAuth2User {
 
     private final User user;
@@ -21,6 +20,21 @@ public class CustomOAuth2User implements OAuth2User {
         this.user = user;
         this.attributes = attributes;
         this.isNewUser = isNewUser;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public UserPrincipal toUserPrincipal() {
+        return UserPrincipal.builder()
+                .uuid(user.getUuid())
+                .email(user.getEmail())
+                .name(user.getName())
+                .role(user.getRole().name())
+                .refreshToken(user.getRefreshToken())
+                .refreshTokenExpiresAt(user.getRefreshTokenExpiresAt())
+                .build();
     }
 
     @Override
@@ -38,11 +52,7 @@ public class CustomOAuth2User implements OAuth2User {
         return user.getName();
     }
 
-    public String getEmail() {
-        return user.getEmail();
-    }
-
-    public String getRole() {
-        return user.getRole().name();
+    public boolean isNewUser() {
+        return isNewUser;
     }
 }
