@@ -5,6 +5,7 @@ import domain.backend.organization.domain.entity.Organization;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 
 @Entity
@@ -24,6 +25,8 @@ public class User extends BaseTimeEntity {
     @Column(length = 100)
     private String name;
 
+    private String password;
+
     @Column(length = 255)
     private String address;
 
@@ -36,17 +39,23 @@ public class User extends BaseTimeEntity {
 
     @Column(name = "refresh_token", length = 500)
     private String refreshToken;
-
+    @Column(name = "refresh_token_expires_at")
     private LocalDateTime refreshTokenExpiresAt;
+
+    @Column(unique = true, nullable = false, updatable = false)
+    private UUID uuid  = UUID.randomUUID();
 
     @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "organization_id")
     private Organization organization;
 
+
+
     @Builder
     public User (Long userId,
                  String email,
+                 String password,
                  String name,
                  String address,
                  String phoneNumber,
@@ -57,6 +66,7 @@ public class User extends BaseTimeEntity {
                  ) {
         this.userId = userId;
         this.email = email;
+        this.password = password;
         this.name = name;
         this.address = address;
         this.phoneNumber = phoneNumber;
@@ -66,20 +76,14 @@ public class User extends BaseTimeEntity {
         this.organization = organization;
     }
 
-    public User updateRefreshToken(String refreshToken)
-    {
-        return User.builder()
-                .userId(this.userId)
-                .email(this.email)
-                .name(this.name)
-                .address(this.address)
-                .phoneNumber(this.phoneNumber)
-                .role(this.role)
-                .refreshToken(refreshToken)
-                .refreshTokenExpiresAt(this.refreshTokenExpiresAt)
-                .build();
-
-
+    public void updateRefreshToken(String refreshToken, LocalDateTime expiresAt) {
+        this.refreshToken = refreshToken;
+        this.refreshTokenExpiresAt = expiresAt;
+    }
+    public void updateAdditionalInfo(Organization organization, String phoneNumber, String address) {
+        this.organization = organization;
+        this.phoneNumber = phoneNumber;
+        this.address = address;
     }
 
 
