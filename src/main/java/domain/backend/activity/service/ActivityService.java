@@ -2,6 +2,7 @@ package domain.backend.activity.service;
 
 
 import domain.backend.activity.domain.Activity;
+import domain.backend.activity.domain.ActivityPicture;
 import domain.backend.activity.domain.Status;
 import domain.backend.activity.dto.request.ActivityCreateRequest;
 import domain.backend.activity.dto.request.ActivityUpdateRequest;
@@ -37,7 +38,7 @@ public class ActivityService {
     // - 소유자 검증(getOwned)
     // - 필드 유효성 검증(validateForPublish)
     // - 부분 업데이트(applyPatch)
-    private Activity getOwned(Long id, Long userId) {
+    public Activity getOwned(Long id, Long userId) {
         Activity a = activityRepository.findById(id)
                 .orElseThrow(() -> {
                     log.warn(" 활동 조회 실패 - 존재하지 않음, activityId={}, userId={}", id, userId);
@@ -50,17 +51,11 @@ public class ActivityService {
         }
         return a;
     }
-    private void ensure(boolean cond, String msg) {
-        if (!cond) throw new IllegalStateException(msg);
-    }
+
     private void applyPatch(Activity a, ActivityUpdateRequest d) {
         a.updateField(d);
     }
-    private void validateForPublish(Activity a) {
-        //핵심 필드(제목,날짜) 검증
-        ensure(a.getName() != null && !a.getName().isBlank(), "제목은 필수입니다.");
-        ensure(a.getActivityDate() != null, "활동 날짜는 필수입니다.");
-    }
+
 
 
     // 1) 게시(바로 게시 생성)
@@ -77,10 +72,8 @@ public class ActivityService {
                 .participants(dto.getParticipants())
                 .weightKg(dto.getWeightKg())
                 .volumeL(dto.getVolumeL())
-                .status(Status.DRAFT)
+                .status(Status.PUBLISHED)
                 .build();
-
-        a.publish();
         activityRepository.save(a);
 
         // 위치 저장
@@ -105,7 +98,7 @@ public class ActivityService {
             a.getWastes().addAll(wasteEntities);
         }
         log.info("✔ 활동 게시 완료 - activityId={}", a.getActivityId());
-        return ActivityResponse.from(activityRepository.save(a));
+        return ActivityResponse.from(activityRepository.save(a), null);
     }
 
     // ───────── 임시저장 ─────────
@@ -130,7 +123,7 @@ public class ActivityService {
         activityOrganizationService.saveHostedOrganizations(a, dto.getHostedByList());
 
         log.info("✔ 활동 임시저장 완료 - activityId={}", a.getActivityId());
-        return ActivityResponse.from(a);
+        return ActivityResponse.from(a, null);
     }
 
     // 3) 임시저장 -> 게시
@@ -139,12 +132,23 @@ public class ActivityService {
         log.info("▶ 활동 게시 전환 요청 - activityId={}, userId={}", id, userId);
 
         Activity a = getOwned(id, userId);
-        ensure(a.getStatus() == Status.DRAFT, "초안만 게시할 수 있습니다.");
-        validateForPublish(a);
+
+        if (a.getStatus() != Status.DRAFT) {
+            throw new IllegalArgumentException("초안만 게시할 수 있습니다.");
+        }
+
+        // 게시 전 핵심 필드 유효성 검증
+        if (a.getName() == null || a.getName().isBlank()) {
+            throw new IllegalArgumentException("활동명은 필수입니다.");
+        }
+        if (a.getActivityDate() == null) {
+            throw new IllegalArgumentException("활동 날짜는 필수입니다.");
+        }
+
         a.publish();
 
         log.info("✔ 활동 게시 전환 완료 - activityId={}", id);
-        return ActivityResponse.from(a);
+        return ActivityResponse.from(a, null);
     }
 
     // 4) 게시 -> 수정 (부분 수정)
@@ -153,12 +157,24 @@ public class ActivityService {
         log.info(" 활동 수정 요청 - activityId={}, userId={}", id, userId);
 
         Activity a = getOwned(id, userId);
-        ensure(a.getStatus() == Status.PUBLISHED, "게시된 글만 수정할 수 있습니다.");
+
+        if (a.getStatus() != Status.PUBLISHED) {
+            throw new IllegalArgumentException("게시된 글만 수정할 수 있습니다.");
+        }
+
         applyPatch(a, dto);
-        validateForPublish(a);      // 핵심 필드(제목, 활동 날짜) 검증
+
+        // 업데이트된 최종 Activity 객체의 핵심 필드를 검증합니다.
+        if (a.getName() == null || a.getName().isBlank()) {
+            throw new IllegalArgumentException("활동명은 필수입니다.");
+        }
+        if (a.getActivityDate() == null) {
+            throw new IllegalArgumentException("활동 날짜는 필수입니다.");
+        }
+
 
         log.info("✔ 활동 수정 완료 - activityId={}", id);
-        return ActivityResponse.from(a);
+        return ActivityResponse.from(a, null);
     }
 
     // 5) 삭제(임시저장/게시 공통) -> 소프트 삭제
@@ -167,7 +183,7 @@ public class ActivityService {
         log.info(" 활동 삭제 요청 - activityId={}, userId={}", id, userId);
 
         Activity a = getOwned(id, userId);
-        ensure(a.getStatus() != Status.DELETED, "이미 삭제된 글입니다.");
+
         a.softDelete();
 
         log.info(" 활동 소프트 삭제 완료 - activityId={}, userId={}", id, userId);
@@ -179,22 +195,13 @@ public class ActivityService {
                 .orElseThrow(() -> new IllegalArgumentException("활동이 존재하지 않습니다. id=" + id));
 
         if (a.getStatus() != Status.PUBLISHED) {
-            ensure(userIdOrNull != null && a.getCreatedBy().getUserId().equals(userIdOrNull),
-                    "접근 권한이 없습니다.");
+
         }
 
-        return ActivityResponse.from(a); // ✅ 이제 hostedByList 포함됨
+        return ActivityResponse.from(a, null); // ✅ 이제 hostedByList 포함됨
     }
 
-    @Transactional(readOnly = true)
-    public Activity getOwnedEntity(Long id, Long userId) {
-        return getOwned(id, userId);
-    }
 
-//    public Page<ActivityResponse> listPublished(Pageable pageable) {
-//        return activityRepository.findAllByStatus(Status.PUBLISHED, pageable)
-//                .map(ActivityResponse::from);
-//    }
 
     // 목록 조회
     public Page<ActivityResponse> listPublished(Pageable pageable) {
@@ -202,16 +209,18 @@ public class ActivityService {
                 .map(activity -> {
                     // ✅ 대표 사진 1장 가져오기
                     String coverUrl = activityPictureRepository
-                            .findFirstPictureUrlByActivityId(activity.getActivityId());
+                            .findTopByActivityOrderByPictureIdAsc(activity)
+                            .map(ActivityPicture::getPictureUrl)
+                            .orElse(null);
 
                     // ✅ ActivityResponse로 변환
-                    return ActivityResponse.fromWithCover(activity, coverUrl);
+                    return ActivityResponse.from(activity, coverUrl);
                 });
     }
     //내 활동 목록 조회
     public Page<ActivityResponse> listMine(User me, Collection<Status> statuses, Pageable pageable) {
         return activityRepository.findAllByCreatedByAndStatusIn(me, statuses, pageable)
-                .map(ActivityResponse::from);
+                .map(activity -> ActivityResponse.from(activity, null));
     }
 }
 

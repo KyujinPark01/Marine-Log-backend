@@ -33,7 +33,7 @@ public class ActivityResponse {
     // todo LocationDto location,
     // todo List<HostedByResp> hostedBy
 
-    public static ActivityResponse from(Activity a) {
+    public static ActivityResponse from(Activity a, String coverUrl) {
         return ActivityResponse.builder()
                 .id(a.getActivityId())
                 .name(a.getName())
@@ -44,27 +44,13 @@ public class ActivityResponse {
                 .participants(a.getParticipants())
                 .status(a.getStatus())
                 .createdByName(a.getCreatedBy().getName())
-                // ✅ 단체 정보 변환
+                .coverUrl(coverUrl)
                 .hostedByList(
                         a.getHostedByList() == null ? null :
                                 a.getHostedByList().stream()
                                         .map(HostedByResponse::from)
                                         .collect(Collectors.toList())
                 )
-                .build();
-    }
-    public static ActivityResponse fromWithCover(Activity a, String coverUrl) {
-        return ActivityResponse.builder()
-                .id(a.getActivityId())
-                .name(a.getName())
-                .description(a.getDescription())
-                .activityDate(a.getActivityDate())
-                .startTime(a.getStartTime())
-                .endTime(a.getEndTime())
-                .participants(a.getParticipants())
-                .status(a.getStatus())
-                .createdByName(a.getCreatedBy().getName())
-                .coverUrl(coverUrl)  // ✅ 대표사진 추가
                 .build();
     }
 }

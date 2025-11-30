@@ -125,7 +125,7 @@ public class ActivityController {
             @RequestParam("files") List<MultipartFile> files
     ) throws IOException {
         User me = getCurrentUser();
-        Activity activity = activityService.getOwnedEntity(id, me.getUserId());
+        Activity activity = activityService.getOwned(id, me.getUserId());
         List<ActivityPicture> saved = activityPictureService.uploadPictures(activity, files);
         List<String> urls = saved.stream().map(ActivityPicture::getPictureUrl).toList();
         return ResponseEntity.ok(ApiResponse.ok(urls));
