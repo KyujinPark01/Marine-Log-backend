@@ -69,6 +69,7 @@ public class Activity extends BaseTimeEntity {
     private Double volumeL;
 
     @Builder
+
     public Activity(User createdBy,
                     String name,
                     String description,
