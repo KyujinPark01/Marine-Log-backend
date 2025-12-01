@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     if: |
       github.event.issue.pull_request &&
-      contains(github.event.comment.body, '/review')
+      contains(github.event.comment.body, '/gemini-review')
     steps:
       - name: PR Info
         run: |
@@ -22,17 +22,7 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@v3
         with:
-          # 👇 GITHUB_TOKEN 사용
-          token: ${{ secrets.GITHUB_TOKEN }}
-          # 👇 오류 유발 참조 페치를 막기 위해 Head 브랜치만 명시적으로 체크아웃
-          ref: ${{ github.event.pull_request.head.ref }}
-          fetch-depth: 10 # 전체 히스토리 대신 필요한 최소 깊이만 가져옴
-          
-      # 1.5. PR diff를 위해 Base 브랜치 내용을 수동으로 가져옴
-      - name: Fetch Base Branch for Diff
-        run: |
-          # Base SHA가 로컬에 있어야 git diff가 정상 작동합니다.
-          git fetch origin ${{ github.event.pull_request.base.ref }}
+          fetch-depth: 0
 
       - name: Get PR Details
         id: pr
@@ -43,10 +33,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: Swisyn/gemini-ai-code-reviewer@v1.0.0
+      - uses: 405supply/gemini-ai-code-reviewer@main
         with:
-          GITHUB_API_URL: "https://github.mycompany.com/api/v3"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          GEMINI_MODEL: gemini-2.5-flash # Optional, default is `gemini-2.0-flash-001`
+          GEMINI_MODEL: gemini-2.5-flash
           EXCLUDE: "*.md,*.txt,package-lock.json,*.yml,*.yaml"

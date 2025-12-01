@@ -1,4 +1,4 @@
-package domain.backend.auth.dto.response;
+package domain.backend.auth.dto.response.auth;
 
 import lombok.*;
 
