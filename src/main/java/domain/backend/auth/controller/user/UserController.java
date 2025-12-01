@@ -42,12 +42,6 @@ public class UserController {
             @AuthenticationPrincipal UserPrincipal principal,
             @RequestBody UserSignupRequest userSignupRequest) {
         UserSignupResponse userSignupResponse = userService.signupAdditional(principal.uuid(), userSignupRequest);
-        log.info("Controller Principal = {}", principal);
-        log.info("Principal UUID = {}", principal.uuid());
-        log.info("Principal Email = {}", principal.email());
-        log.info("Principal Role = {}", principal.role());
-        log.info("Principal RefreshToken = {}", principal.refreshToken());
-        System.out.println("🔥 principal uuid = " + principal.uuid());
         return ResponseEntity.ok(ApiResponse.ok(userSignupResponse));
     }
 }

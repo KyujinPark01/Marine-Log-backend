@@ -1,5 +1,6 @@
 package domain.backend.common.security.auth;
 
+import domain.backend.auth.domain.user.User;
 import lombok.Builder;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -10,8 +11,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-public record UserPrincipal(UUID uuid, String email, String name, String role, String refreshToken,
-                            LocalDateTime refreshTokenExpiresAt) implements UserDetails {
+public record UserPrincipal(UUID uuid, String email, String name, String role) implements UserDetails {
 
     @Builder
     public UserPrincipal {
@@ -51,5 +51,14 @@ public record UserPrincipal(UUID uuid, String email, String name, String role, S
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public static UserPrincipal from(User user) {
+        return new UserPrincipal(
+                user.getUuid(),
+                user.getEmail(),
+                user.getName(),
+                user.getRole().name()
+        );
     }
 }

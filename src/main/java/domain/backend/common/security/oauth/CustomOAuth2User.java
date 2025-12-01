@@ -10,21 +10,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
-public class CustomOAuth2User implements OAuth2User {
-
-    private final User user;
-    private final Map<String, Object> attributes;
-    private final boolean isNewUser;
-
-    public CustomOAuth2User(User user, Map<String, Object> attributes, boolean isNewUser) {
-        this.user = user;
-        this.attributes = attributes;
-        this.isNewUser = isNewUser;
-    }
-
-    public User getUser() {
-        return user;
-    }
+public record CustomOAuth2User(User user, Map<String, Object> attributes, boolean isNewUser) implements OAuth2User {
 
     public UserPrincipal toUserPrincipal() {
         return UserPrincipal.builder()
@@ -32,8 +18,6 @@ public class CustomOAuth2User implements OAuth2User {
                 .email(user.getEmail())
                 .name(user.getName())
                 .role(user.getRole().name())
-                .refreshToken(user.getRefreshToken())
-                .refreshTokenExpiresAt(user.getRefreshTokenExpiresAt())
                 .build();
     }
 
@@ -50,9 +34,5 @@ public class CustomOAuth2User implements OAuth2User {
     @Override
     public String getName() {
         return user.getName();
-    }
-
-    public boolean isNewUser() {
-        return isNewUser;
     }
 }

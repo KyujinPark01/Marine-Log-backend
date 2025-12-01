@@ -26,8 +26,6 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .email(user.getEmail())
                 .name(user.getName())
                 .role(user.getRole().name())
-                .refreshToken(user.getRefreshToken())
-                .refreshTokenExpiresAt(user.getRefreshTokenExpiresAt())
                 .build();
     }
 }

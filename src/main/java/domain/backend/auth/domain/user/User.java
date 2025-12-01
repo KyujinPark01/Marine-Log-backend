@@ -80,10 +80,14 @@ public class User extends BaseTimeEntity {
         this.refreshToken = refreshToken;
         this.refreshTokenExpiresAt = expiresAt;
     }
+
     public void updateAdditionalInfo(Organization organization, String phoneNumber, String address) {
         this.organization = organization;
         this.phoneNumber = phoneNumber;
         this.address = address;
+    }
+    public void updateRole(Role role){
+        this.role = role;
     }
 
 

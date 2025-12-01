@@ -1,18 +1,14 @@
 package domain.backend.auth.controller;
 
-import domain.backend.auth.domain.user.Role;
+import domain.backend.auth.domain.service.auth.TokenService;
 import domain.backend.auth.dto.response.auth.AuthResponse;
-import domain.backend.auth.dto.response.user.UserResponse;
 import domain.backend.common.dto.ApiResponse;
-import domain.backend.common.security.jwt.JwtTokenProvider;
-import io.jsonwebtoken.Claims;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
@@ -26,43 +22,21 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final JwtTokenProvider jwtTokenProvider;
-
+    private final TokenService tokenService;
     @Operation(summary = "토큰 갱신", description = "Refresh Token을 이용해 새로운 Access Token을 발급합니다.")
     @PostMapping("/refresh")
     public ResponseEntity<ApiResponse<AuthResponse>> refresh(HttpServletRequest request) {
 
-        String refreshToken = Arrays.stream(Optional.ofNullable(request.getCookies()).orElse(new Cookie[0]))
+        String refreshToken = Arrays.stream(
+                        Optional.ofNullable(request.getCookies()).orElse(new Cookie[0])
+                )
                 .filter(c -> "refreshToken".equals(c.getName()))
                 .findFirst()
                 .map(Cookie::getValue)
                 .orElse(null);
 
-        if (!StringUtils.hasText(refreshToken) || !jwtTokenProvider.validate(refreshToken)) {
-            return ResponseEntity.status(401).body(ApiResponse.error("Refresh Token이 유효하지 않습니다."));
-        }
+        AuthResponse response = tokenService.refresh(refreshToken);
 
-        Claims claims = jwtTokenProvider.getClaims(refreshToken);
-
-        String uuid = claims.getSubject();
-        String email = claims.get("email", String.class);
-        String role = claims.get("role", String.class);
-        String name = claims.get("name", String.class);
-
-        String access = jwtTokenProvider.createAccessToken(
-                uuid,
-                Map.of(
-                        "email", email,
-                        "name", name,
-                        "role", role
-                )
-        );
-
-        AuthResponse response = AuthResponse.builder()
-                .accessToken(access)
-                .refreshToken(refreshToken)
-                .isNewUser(false)
-                .build();
 
         return ResponseEntity.ok(ApiResponse.ok(response));
     }
@@ -73,19 +47,4 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.ok(null));
     }
 
-//    @Operation(summary = "내 정보 조회", description = "Access Token을 통해 로그인한 사용자의 정보를 반환합니다.")
-//    @GetMapping("/me")
-//    public ResponseEntity<ApiResponse<UserResponse>> me(HttpServletRequest request) {
-//
-//        Claims claims = (Claims) request.getAttribute("claims");
-//
-//        UserResponse response = UserResponse.builder()
-//                .uuid(UUID.fromString(claims.getSubject()))
-//                .email(claims.get("email", String.class))
-//                .name(claims.get("name", String.class))
-//                .role(Role.valueOf(claims.get("role", String.class)))
-//                .build();
-//
-//        return ResponseEntity.ok(ApiResponse.ok(response));
-//    }
 }

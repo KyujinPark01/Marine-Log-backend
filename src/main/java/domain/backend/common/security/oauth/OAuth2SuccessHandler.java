@@ -33,21 +33,22 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
             String uuid = principal.uuid().toString();
 
+            // 🔥 AccessToken 생성
             String accessToken = jwtTokenProvider.createAccessToken(
                     uuid,
                     Map.of(
                             "email", principal.email(),
-                            "name", principal.name(),
-                            "role", principal.role()
+                            "name", principal.name()
                     )
             );
 
-            String refreshToken = principal.refreshToken();
-            if (refreshToken == null || !jwtTokenProvider.validate(refreshToken)) {
-                refreshToken = jwtTokenProvider.createRefreshToken(uuid);
-                jwtTokenProvider.updateRefreshToken(uuid, refreshToken);
-            }
+            // 🔥 RefreshToken은 무조건 새로 발급 (중복 처리 필요 없음)
+            String refreshToken = jwtTokenProvider.createRefreshToken(uuid);
 
+            // 🔥 DB 업데이트 강제 수행
+            jwtTokenProvider.updateRefreshToken(uuid, refreshToken);
+
+            // 🔥 쿠키에 refreshToken 저장
             ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
                     .httpOnly(true)
                     .secure(true)
@@ -58,18 +59,19 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
             response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
 
+            // 리다이렉트
             String redirectUrl = "http://localhost:5173/oauth2/success"
                     + "?accessToken=" + accessToken;
 
             getRedirectStrategy().sendRedirect(request, response, redirectUrl);
-            log.info("OAuth2 Principal = {}", authentication.getPrincipal().getClass().getName());
-            log.info("OAuth2 Principal Details = {}", authentication.getPrincipal());
+
         } catch (Exception e) {
+            log.error("OAuth2 Success 처리 중 오류", e);
             try {
                 response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "OAuth2 처리 실패");
             } catch (Exception ignored) {}
         }
-
     }
+
 
 }
