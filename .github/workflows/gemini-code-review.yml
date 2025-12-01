@@ -1,22 +1,26 @@
-# .github/workflows/ai-code-review.yml
-
-name: AI Code Review
+name: Gemini AI Code Reviewer
 
 on:
-  pull_request:
-    types: [opened, synchronize]
+  issue_comment:
+    types: [created]
 
-permissions:
-  contents: read           # 코드 체크아웃 및 diff에 필요
-  pull-requests: write     # PR에 댓글을 달기 위해 필요
+permissions: write-all
 
 jobs:
-  code-review:
+  gemini-code-review:
     runs-on: ubuntu-latest
+    if: |
+      github.event.issue.pull_request &&
+      contains(github.event.comment.body, '/review')
     steps:
-      # 1. 소스 코드 체크아웃 (PR Fetch 오류 방지 설정)
-      - name: Checkout Head Branch
-        uses: actions/checkout@v4
+      - name: PR Info
+        run: |
+          echo "Comment: ${{ github.event.comment.body }}"
+          echo "Issue Number: ${{ github.event.issue.number }}"
+          echo "Repository: ${{ github.repository }}"
+
+      - name: Checkout Repo
+        uses: actions/checkout@v3
         with:
           # 👇 GITHUB_TOKEN 사용
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -30,56 +34,19 @@ jobs:
           # Base SHA가 로컬에 있어야 git diff가 정상 작동합니다.
           git fetch origin ${{ github.event.pull_request.base.ref }}
 
-      # 2. PR의 코드 변경사항(diff) 추출 (JSON 이스케이프 추가)
-      - name: Get PR Diff
-        id: diff
+      - name: Get PR Details
+        id: pr
         run: |
-          # git diff 수행
-          DIFF_CONTENT=$(git diff ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }})
-          
-          # 👇 셸 특수문자를 안전하게 처리하기 위해 jq를 사용해 JSON 문자열로 이스케이프
-          ESCAPED_DIFF=$(echo "$DIFF_CONTENT" | jq -s -R .)
-          
-          # 👇 JSON 이스케이프된 내용을 GITHUB_OUTPUT에 전달 (한 줄 문자열)
-          echo "diff_content=$ESCAPED_DIFF" >> "$GITHUB_OUTPUT"
-
-      # 3. Gemini API 호출 (JSON 포맷팅 및 입력 오류 해결)
-      - name: Call Gemini for Code Review
-        id: review
-        env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: |
-          # 👇 1. JSON 이스케이프된 output을 다시 일반 텍스트로 역변환하여 DIFF_CONTENT에 저장
-          DIFF_CONTENT=$(echo "${{ steps.diff.outputs.diff_content }}" | jq -r .)
-          
-          API_URL="https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=$GEMINI_API_KEY"
-          
-          PROMPT_TEMPLATE="당신은 시니어 소프트웨어 엔지니어입니다. 아래 git diff 형식의 코드 변경사항을 리뷰해주세요. 개선점, 잠재적인 버그, 코드 스타일, 베스트 프랙티스 준수 여부를 분석하고 리뷰 결과를 마크다운 형식으로 작성해주세요. 중요한 순서대로 핵심만 요약해서 알려주세요. 코드 변경사항:"
-
-          # 2. jq로 JSON 요청 본문 안전하게 생성
-          REQUEST_BODY=$(jq -n \
-            --arg prompt "$PROMPT_TEMPLATE" \
-            --arg diff "$DIFF_CONTENT" \
-            '{contents:[{parts:[{text: ($prompt + "\n\n```diff\n" + $diff + "\n```")}]}]}')
-
-          API_RESPONSE=$(curl -s -H "Content-Type: application/json" -X POST -d "$REQUEST_BODY" "$API_URL")
-          REVIEW_COMMENT=$(echo "$API_RESPONSE" | jq -r '.candidates[0].content.parts[0].text')
-          
-          # 👇 리뷰 결과를 다시 JSON 이스케이프하여 출력
-          ESCAPED_COMMENT=$(echo "$REVIEW_COMMENT" | jq -s -R .)
-          echo "comment=$ESCAPED_COMMENT" >> "$GITHUB_OUTPUT"
-
-      # 4. PR에 리뷰 코멘트 등록 (JSON 역변환을 통한 출력 오류 해결)
-      - name: Post Review Comment to PR
+          PR_JSON=$(gh api repos/${{ github.repository }}/pulls/${{ github.event.issue.number }})
+          echo "head_sha=$(echo $PR_JSON | jq -r .head.sha)" >> $GITHUB_OUTPUT
+          echo "base_sha=$(echo $PR_JSON | jq -r .base.sha)" >> $GITHUB_OUTPUT
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_ISSUE_URL: ${{ github.event.pull_request.issue_url }}
-        run: |
-          # 👇 JSON 이스케이프된 output을 다시 일반 텍스트로 역변환하여 사용
-          COMMENT_BODY=$(echo "${{ steps.review.outputs.comment }}" | jq -r .)
-          
-          curl -s -X POST \
-            -H "Authorization: token $GITHUB_TOKEN" \
-            -H "Accept: application/vnd.github.v3+json" \
-            "$PR_ISSUE_URL/comments" \
-            -d "$(jq -n --arg body_text "### 🤖 AI 코드 리뷰 요약\n\n$COMMENT_BODY" '{body: $body_text}')"
+
+      - uses: Swisyn/gemini-ai-code-reviewer@v1.0.0
+        with:
+          GITHUB_API_URL: "https://github.mycompany.com/api/v3"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: gemini-2.5-flash # Optional, default is `gemini-2.0-flash-001`
+          EXCLUDE: "*.md,*.txt,package-lock.json,*.yml,*.yaml"
