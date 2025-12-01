@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     if: |
       github.event.issue.pull_request &&
-      contains(github.event.comment.body, '/review')
+      contains(github.event.comment.body, '/gemini-review')
     steps:
       - name: PR Info
         run: |
@@ -33,10 +33,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: Swisyn/gemini-ai-code-reviewer@v1.0.0
+      - uses: 405supply/gemini-ai-code-reviewer@main
         with:
-          GITHUB_API_URL: "https://github.mycompany.com/api/v3"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          GEMINI_MODEL: gemini-2.5-flash # Optional, default is `gemini-2.0-flash-001`
+          GEMINI_MODEL: gemini-2.5-flash
           EXCLUDE: "*.md,*.txt,package-lock.json,*.yml,*.yaml"
