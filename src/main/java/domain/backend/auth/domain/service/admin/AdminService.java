@@ -18,7 +18,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
-import java.util.UUID;
 
 @Service
 @Slf4j
@@ -59,7 +58,7 @@ public class AdminService {
     @Transactional
     public void changeRole(UserChangeRoleRequest request) {
 
-        User user = userRepository.findByUuid(request.getUuid())
+        User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("유저 없음"));
 
         user.updateRole(request.getRole());
@@ -68,7 +67,7 @@ public class AdminService {
 
         if (auth != null && auth.getPrincipal() instanceof UserPrincipal principal) {
 
-            if (principal.uuid().equals(user.getUuid())) {
+            if (principal.userId().equals(user.getUserId())) {
 
                 UserPrincipal newPrincipal = UserPrincipal.from(user);
 

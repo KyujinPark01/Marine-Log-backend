@@ -42,21 +42,22 @@ public class ActivityService {
     // - 소유자 검증(getOwned)
     // - 필드 유효성 검증(validateForPublish)
     // - 부분 업데이트(applyPatch)
-    public Activity getOwned(Long id, UUID userUuid) {
-        Activity a = activityRepository.findById(id)
+    public Activity getOwned(Long activityId, Long userId) {
+        Activity a = activityRepository.findById(activityId)
                 .orElseThrow(() -> {
-                    log.warn(" 활동 조회 실패 - 존재하지 않음, activityId={}, userId={}", id, userUuid);
-                    return new IllegalArgumentException("활동이 존재하지 않습니다. id=" + id);
+                    log.warn(" 활동 조회 실패 - 존재하지 않음, activityId={}, userId={}", activityId, userId);
+                    return new IllegalArgumentException("활동이 존재하지 않습니다. id=" + activityId);
                 });
-        UUID ownerUuid = a.getCreatedBy().getUuid();
-        if (!ownerUuid.equals(userUuid)) {
-                log.warn("권한 없음 - userId={} is not owner of activityId={}", userUuid, id);
-                throw new AccessDeniedException("본인이 작성한 글만 조작할 수 있습니다.");
 
+        Long ownerId = a.getCreatedBy().getUserId();
+
+        if (!ownerId.equals(userId)) {
+            log.warn("권한 없음 - userId={} is not owner of activityId={}", userId, activityId);
+            throw new AccessDeniedException("본인이 작성한 글만 조작할 수 있습니다.");
         }
+
         return a;
     }
-
     private void applyPatch(Activity a, ActivityUpdateRequest d) {
         a.updateField(d);
     }
@@ -65,12 +66,12 @@ public class ActivityService {
 
     // 1) 게시(바로 게시 생성)
     @Transactional
-    public ActivityResponse createAndPublish(ActivityCreateRequest dto, UUID userUuid) {
+    public ActivityResponse createAndPublish(ActivityCreateRequest dto, Long userId) {
 
-        User author = userRepository.findByUuid(userUuid)
-                .orElseThrow(() -> new IllegalArgumentException("유저 없음. uuid=" + userUuid));
+        User author = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("유저 없음. uuid=" + userId));
 
-        log.info("▶ 활동 즉시 게시 생성 요청 - authorId={}, name={}", userUuid, dto.getName());
+        log.info("▶ 활동 즉시 게시 생성 요청 - authorId={}, name={}", userId, dto.getName());
         Activity a = Activity.builder()
                 .createdBy(author)
                 .name(dto.getName())
@@ -112,10 +113,10 @@ public class ActivityService {
 
     // ───────── 임시저장 ─────────
     @Transactional
-    public ActivityResponse createDraft(ActivityCreateRequest dto, UUID userUuid) {
+    public ActivityResponse createDraft(ActivityCreateRequest dto, Long userId) {
 
-        User author = userRepository.findByUuid(userUuid)
-                .orElseThrow(() -> new IllegalArgumentException("유저 없음. uuid=" + userUuid));
+        User author = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("유저 없음. uuid=" + userId));
 
         log.info("▶ 활동 임시저장 요청 - authorId={}, name={}", author.getUserId(), dto.getName());
 
@@ -142,16 +143,15 @@ public class ActivityService {
 
     // 3) 임시저장 -> 게시
     @Transactional
-    public ActivityResponse publish(Long id, UUID userUuid) {
-        log.info("▶ 활동 게시 전환 요청 - activityId={}, userId={}", id, userUuid);
+    public ActivityResponse publish(Long activityId, Long userId) {
+        log.info("▶ 활동 게시 전환 요청 - activityId={}, userId={}", activityId, userId);
 
-        Activity a = getOwned(id, userUuid);
+        Activity a = getOwned(activityId, userId);
 
         if (a.getStatus() != Status.DRAFT) {
             throw new IllegalArgumentException("초안만 게시할 수 있습니다.");
         }
 
-        // 게시 전 활동명, 활동 날짜 필드 유효성 검증
         if (a.getName() == null || a.getName().isBlank()) {
             throw new IllegalArgumentException("활동명은 필수입니다.");
         }
@@ -161,16 +161,16 @@ public class ActivityService {
 
         a.publish();
 
-        log.info("✔ 활동 게시 전환 완료 - activityId={}", id);
+        log.info("✔ 활동 게시 전환 완료 - activityId={}", activityId);
         return ActivityResponse.from(a, null);
     }
 
     // 4) 게시 -> 수정 (부분 수정)
     @Transactional
-    public ActivityResponse updatePublished(Long id, ActivityUpdateRequest dto, UUID userUuid) {
-        log.info(" 활동 수정 요청 - activityId={}, userId={}", id, userUuid);
+    public ActivityResponse updatePublished(Long activityId, ActivityUpdateRequest dto, Long userId) {
+        log.info(" 활동 수정 요청 - activityId={}, userId={}", activityId, userId);
 
-        Activity a = getOwned(id, userUuid);
+        Activity a = getOwned(activityId, userId);
 
         if (a.getStatus() != Status.PUBLISHED) {
             throw new IllegalArgumentException("게시된 글만 수정할 수 있습니다.");
@@ -178,7 +178,6 @@ public class ActivityService {
 
         applyPatch(a, dto);
 
-        // 수정된 최종 활동 입력 데이터의 활동명,활동 날짜 필드를 검증
         if (a.getName() == null || a.getName().isBlank()) {
             throw new IllegalArgumentException("활동명은 필수입니다.");
         }
@@ -186,36 +185,33 @@ public class ActivityService {
             throw new IllegalArgumentException("활동 날짜는 필수입니다.");
         }
 
-
-        log.info("✔ 활동 수정 완료 - activityId={}", id);
         return ActivityResponse.from(a, null);
     }
 
     // 5) 삭제(임시저장/게시 공통) -> 소프트 삭제
     @Transactional
-    public void delete(Long id, UUID userUuid) {
-        log.info(" 활동 삭제 요청 - activityId={}, userId={}", id, userUuid);
-
-        Activity a = getOwned(id, userUuid);
-
+    public void delete(Long id, Long userId) {
+        log.info(" 활동 삭제 요청 - activityId={}, userId={}", id, userId);
+        Activity a = getOwned(id, userId);
         a.softDelete();
-
-        log.info(" 활동 소프트 삭제 완료 - activityId={}, userId={}", id, userUuid);
+        log.info(" 활동 소프트 삭제 완료 - activityId={}, userId={}", id, userId);
     }
 
     //목록 상세 조회
-    public ActivityResponse getOne(Long id, UUID userUuidOrNull) {
+    public ActivityResponse getOne(Long id, Long userIdOrNull) {
         Activity a = activityRepository.findByIdWithHostedBy(id)
                 .orElseThrow(() -> new IllegalArgumentException("활동이 존재하지 않습니다. id=" + id));
-        //draft 상태인 활동은 소유자만 볼 수 있도록
+
+        // draft는 본인만 조회가능
         if (a.getStatus() != Status.PUBLISHED) {
-            if(userUuidOrNull == null || !a.getCreatedBy().getUuid().equals(userUuidOrNull)) {
-                log.warn("권한 없음 - userId={} is not owner of draft activityId={}", userUuidOrNull, id);
+            Long ownerId = a.getCreatedBy().getUserId();
+            if (userIdOrNull == null || !ownerId.equals(userIdOrNull)) {
+                log.warn("권한 없음 - userId={} is not owner of draft activityId={}", userIdOrNull, id);
                 throw new AccessDeniedException("게시되지 않은 활동에 접근할 권한이 없습니다.");
             }
         }
 
-        return ActivityResponse.from(a, null); // ✅ 이제 hostedByList 포함됨
+        return ActivityResponse.from(a, null);
     }
 
 
@@ -235,9 +231,9 @@ public class ActivityService {
                 });
     }
     //내 활동 목록 조회
-    public Page<ActivityResponse> listMine(UUID userUuid, Collection<Status> statuses, Pageable pageable) {
-        User me = userRepository.findByUuid(userUuid)
-                .orElseThrow(() -> new IllegalArgumentException("유저 없음. uuid=" + userUuid));
+    public Page<ActivityResponse> listMine(Long userId, Collection<Status> statuses, Pageable pageable) {
+        User me = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("유저 없음. userId=" + userId));
         return activityRepository.findAllByCreatedByAndStatusIn(me, statuses, pageable)
                 .map(activity -> ActivityResponse.from(activity, null));
     }
