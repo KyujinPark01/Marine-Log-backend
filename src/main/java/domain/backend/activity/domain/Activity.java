@@ -35,6 +35,7 @@ public class Activity extends BaseTimeEntity {
     private User createdBy;
 
     // 2. Mappings
+    @Setter
     @OneToOne(mappedBy = "activity", cascade = CascadeType.ALL, orphanRemoval = true)
     private Location location;
 
@@ -68,6 +69,7 @@ public class Activity extends BaseTimeEntity {
     private Double volumeL;
 
     @Builder
+
     public Activity(User createdBy,
                     String name,
                     String description,
@@ -103,9 +105,6 @@ public class Activity extends BaseTimeEntity {
         this.participants = request.getParticipants() != null ? request.getParticipants() : this.participants;
         this.weightKg = request.getWeightKg() != null ? request.getWeightKg() : this.weightKg;
         this.volumeL = request.getVolumeL() != null ? request.getVolumeL() : this.volumeL;
-    }
-    public void setLocation(Location location) {
-        this.location = location;
     }
 
 
