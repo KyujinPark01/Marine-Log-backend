@@ -42,7 +42,8 @@ public class AdminService {
         String accessToken = jwtTokenProvider.createAccessToken(
                 uuid,
                 Map.of(
-                        "email", admin.getEmail()
+                        "email", admin.getEmail(),
+                        "role", admin.getRole()
                 )
         );
         String refreshToken;

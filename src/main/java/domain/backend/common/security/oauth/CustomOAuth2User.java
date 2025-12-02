@@ -14,6 +14,7 @@ public record CustomOAuth2User(User user, Map<String, Object> attributes, boolea
 
     public UserPrincipal toUserPrincipal() {
         return UserPrincipal.builder()
+                .userId(user.getUserId())
                 .uuid(user.getUuid())
                 .email(user.getEmail())
                 .name(user.getName())
