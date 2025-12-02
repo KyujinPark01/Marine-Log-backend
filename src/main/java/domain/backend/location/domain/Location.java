@@ -30,7 +30,9 @@ public class Location extends BaseTimeEntity {
     private Activity activity;
 
     @Builder
-    public Location(Double latitude,
+    public Location(
+                    Activity activity,
+                    Double latitude,
                     Double longitude,
                     String region1depthName,
                     String region2depthName,
@@ -41,13 +43,10 @@ public class Location extends BaseTimeEntity {
             this.geometry = factory.createPoint(new Coordinate(longitude, latitude));
         }
 
+        this.activity = activity;
         this.region1depthName = region1depthName;
         this.region2depthName = region2depthName;
         this.region3depthName = region3depthName;
         this.address = address;
-    }
-
-    public void setActivity(Activity activity) {
-        this.activity = activity;
     }
 }

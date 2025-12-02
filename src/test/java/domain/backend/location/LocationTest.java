@@ -7,15 +7,14 @@ import domain.backend.activity.repository.ActivityRepository;
 import domain.backend.auth.domain.user.Role;
 import domain.backend.auth.domain.user.User;
 import domain.backend.auth.repository.UserRepository;
-import domain.backend.location.domain.Location;
 import domain.backend.location.domain.LocationRepository;
 import domain.backend.location.dto.request.LocationRequest;
 import domain.backend.location.dto.request.LocationWeightedRequest;
 import domain.backend.location.projection.LocationSpecificProjection;
 import domain.backend.location.projection.LocationWeightedProjection;
+import domain.backend.location.service.LocationService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.*;
-import org.locationtech.jts.geom.Coordinate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -25,7 +24,7 @@ import java.util.Random;
 
 @SpringBootTest
 @Transactional
-public class LocationSpecificTest {
+class LocationTest {
     @Autowired
     private LocationRepository locationRepository;
 
@@ -36,10 +35,12 @@ public class LocationSpecificTest {
     private UserRepository userRepository;
 
     private final Random random = new Random();
+    @Autowired
+    private LocationService locationService;
 
-    @org.junit.jupiter.api.BeforeEach
+    @BeforeEach
     void setup() {
-        int numEntities = 50;
+        int numEntities = 3;
 
         for (int i = 0; i < numEntities; i++) {
             User user = User.builder()
@@ -60,22 +61,14 @@ public class LocationSpecificTest {
                     .status(Status.PUBLISHED)
                     .activityDate(LocalDate.of(2010, 1, 1))
                     .createdBy(user)
+                    .weightKg(10 + random.nextDouble())
                     .build();
-            activityRepository.save(act);
+            activityRepository.saveAndFlush(act);
 
             double lat = 35 + random.nextDouble(); // 예: 35~36
             double lng = 126 + random.nextDouble(); // 예: 126~127
 
-            Location loc = Location.builder()
-                    .latitude(lat)
-                    .longitude(lng)
-                    .region1depthName("Region" + (i % 10))
-                    .region2depthName("SubRegion" + (i % 20))
-                    .region3depthName("Detail" + (i % 50))
-                    .address("Address " + i)
-                    .build();
-
-            locationRepository.save(loc);
+            locationService.saveForActivity(act, lat, lng);
         }
     }
 
@@ -83,6 +76,7 @@ public class LocationSpecificTest {
     @DisplayName("활동 정보가 알맞게 저장된다")
     void testSaveActivity() {
         activityRepository.findAll().forEach(a -> Assertions.assertEquals(LocalDate.of(2010, 1, 1), a.getActivityDate()));
+        Assertions.assertNotNull(locationRepository.findAll().getFirst().getAddress());
     }
 
     @Test
@@ -113,7 +107,7 @@ public class LocationSpecificTest {
     }
 
     @Test
-    @DisplayName("")
+    @DisplayName("가중치가 계산된 그리드 별 활동 통계가 반환된다")
     void testGetLocationWeighted() {
         LocationWeightedRequest request = LocationWeightedRequest.builder()
                 .startDate(LocalDate.of(2000, 1, 1))

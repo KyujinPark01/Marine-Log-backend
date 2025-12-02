@@ -1,7 +1,5 @@
 package domain.backend.location.domain;
 
-import domain.backend.activity.domain.Activity;
-import domain.backend.location.dto.request.LocationWeightedRequest;
 import domain.backend.location.projection.LocationAggregationProjection;
 import domain.backend.location.projection.LocationSpecificProjection;
 import domain.backend.location.projection.LocationWeightedProjection;
@@ -12,10 +10,10 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDate;
 import java.util.List;
 
-public interface LocationRepository extends JpaRepository<Location, Activity> {
+public interface LocationRepository extends JpaRepository<Location, Long> {
 
     @Query(value = """
-        SELECT 
+        SELECT
             l.region1depth_name AS region,
             COUNT(*) AS counts,
             AVG(ST_X(l.geometry)) AS longitude,
@@ -28,7 +26,7 @@ public interface LocationRepository extends JpaRepository<Location, Activity> {
     List<LocationAggregationProjection> getAggregatedNational();
 
     @Query(value = """
-        SELECT 
+        SELECT
             l.region2depth_name AS region,
             COUNT(*) AS counts,
             AVG(ST_X(l.geometry)) AS longitude,
@@ -40,26 +38,13 @@ public interface LocationRepository extends JpaRepository<Location, Activity> {
         """, nativeQuery = true)
     List<LocationAggregationProjection> getAggregatedBroad();
 
-    @Deprecated(forRemoval = true)
     @Query(value = """
-        SELECT 
-            region3depth_name AS region,
-            COUNT(*) AS counts,
-            AVG(ST_X(geometry)) AS longitude,
-            AVG(ST_Y(geometry)) AS latitude
-        FROM location
-        GROUP BY region3depth_name
-        """, nativeQuery = true)
-    List<LocationAggregationProjection> getAggregatedRegional();
-
-    // ✅ 위도/경도 좌표 제대로 반환하도록 수정
-    @Query(value = """
-        SELECT 
+        SELECT
             a.activity_id AS activityId,
             a.name AS activityName,
             a.activity_date AS activityDate,
-            ST_Y(l.geometry) AS latitude,      -- ✅ 위도
-            ST_X(l.geometry) AS longitude      -- ✅ 경도
+            ST_Y(l.geometry) AS latitude,
+            ST_X(l.geometry) AS longitude
         FROM location l
         JOIN activity a ON l.activity_id = a.activity_id
         LEFT JOIN hosted_by h ON h.activity_id = a.activity_id
