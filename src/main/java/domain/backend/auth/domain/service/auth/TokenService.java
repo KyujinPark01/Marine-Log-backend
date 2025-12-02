@@ -39,7 +39,8 @@ public class TokenService {
                 uuid,
                 Map.of(
                         "email", user.getEmail(),
-                        "name", user.getName()
+                        "name", user.getName(),
+                        "role", user.getRole()
                 )
         );
 

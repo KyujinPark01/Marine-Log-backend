@@ -41,7 +41,7 @@ public class UserController {
     public ResponseEntity<ApiResponse<?>> signupAdditional(
             @AuthenticationPrincipal UserPrincipal principal,
             @RequestBody UserSignupRequest userSignupRequest) {
-        UserSignupResponse userSignupResponse = userService.signupAdditional(principal.uuid(), userSignupRequest);
+        UserSignupResponse userSignupResponse = userService.signupAdditional(principal.userId(), userSignupRequest);
         return ResponseEntity.ok(ApiResponse.ok(userSignupResponse));
     }
 }

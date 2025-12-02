@@ -11,7 +11,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-public record UserPrincipal(UUID uuid, String email, String name, String role) implements UserDetails {
+public record UserPrincipal(UUID uuid, String email, String name, String role,Long userId) implements UserDetails {
 
     @Builder
     public UserPrincipal {
@@ -58,7 +58,8 @@ public record UserPrincipal(UUID uuid, String email, String name, String role) i
                 user.getUuid(),
                 user.getEmail(),
                 user.getName(),
-                user.getRole().name()
+                user.getRole().name(),
+                user.getUserId()
         );
     }
 }

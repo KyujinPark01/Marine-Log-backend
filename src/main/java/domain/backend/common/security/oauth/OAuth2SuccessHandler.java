@@ -33,22 +33,19 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
             String uuid = principal.uuid().toString();
 
-            // 🔥 AccessToken 생성
             String accessToken = jwtTokenProvider.createAccessToken(
                     uuid,
                     Map.of(
                             "email", principal.email(),
-                            "name", principal.name()
+                            "name", principal.name(),
+                            "role",principal.role()
                     )
             );
 
-            // 🔥 RefreshToken은 무조건 새로 발급 (중복 처리 필요 없음)
             String refreshToken = jwtTokenProvider.createRefreshToken(uuid);
 
-            // 🔥 DB 업데이트 강제 수행
             jwtTokenProvider.updateRefreshToken(uuid, refreshToken);
 
-            // 🔥 쿠키에 refreshToken 저장
             ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
                     .httpOnly(true)
                     .secure(true)

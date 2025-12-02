@@ -18,8 +18,8 @@ public class UserService {
     private final UserRepository userRepository;
     private final OrganizationRepository organizationRepository;
     @Transactional
-    public UserSignupResponse signupAdditional(UUID uuid, UserSignupRequest userSignupRequest){
-        User user = userRepository.findByUuid(uuid)
+    public UserSignupResponse signupAdditional(Long userId, UserSignupRequest userSignupRequest){
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("유저 없음"));
 
         Organization org = organizationRepository.findById(userSignupRequest.getOrganizationId())
