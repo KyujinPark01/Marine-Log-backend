@@ -1,6 +1,7 @@
 package domain.backend.notification.service;
 
 import domain.backend.auth.domain.user.User;
+import domain.backend.auth.repository.UserRepository;
 import domain.backend.notification.domain.Notification;
 import domain.backend.notification.dto.NotificationResponse;
 import domain.backend.notification.repository.NotificationRepository;
@@ -19,13 +20,20 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final SseEmitterService sseEmitterService;
+    private final UserRepository userRepository;
 
-    public Page<NotificationResponse> getNotifications(User user, Pageable pageable) {
+    public Page<NotificationResponse> getNotifications(Long userId, Pageable pageable) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("유저 없음"));
+
         return notificationRepository.findByTargetUserOrderByCreatedAtDesc(user, pageable)
                 .map(NotificationResponse::from);
     }
 
-    public long countUnread(User user) {
+    public long countUnread(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("유저 없음"));
+
         return notificationRepository.countByTargetUserAndIsReadFalse(user);
     }
 
@@ -37,25 +45,32 @@ public class NotificationService {
                 .message(message)
                 .type(type)
                 .build();
+
         notificationRepository.save(notification);
 
-        sseEmitterService.sendNotification(target.getUserId(), "notification", NotificationResponse.from(notification));
+        sseEmitterService.sendNotification(
+                target.getUserId(),
+                "notification",
+                NotificationResponse.from(notification)
+        );
     }
 
     @Transactional
-    public NotificationResponse markAsRead(Long notificationId, User user) {
+    public NotificationResponse markAsRead(Long notificationId, Long userId) {
+        User me = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("유저 없음"));
+
         Notification notification = notificationRepository.findById(notificationId)
-                .orElseThrow(() -> new IllegalArgumentException("Notification not found with id: " + notificationId));
-        if (!notification.getTargetUser().getUserId().equals(user.getUserId())) {
-            try {
-                throw new AccessDeniedException("읽기 권한이 없습니다.");
-            } catch (AccessDeniedException e) {
-                throw new RuntimeException(e);
-            }
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 알림입니다."));
+
+        if (!notification.getTargetUser().getUserId().equals(me.getUserId())) {
+            throw new RuntimeException("읽기 권한이 없습니다.");
         }
+
         if (!notification.isRead()) {
             notification.markAsRead();
         }
+
         return NotificationResponse.from(notification);
     }
 }

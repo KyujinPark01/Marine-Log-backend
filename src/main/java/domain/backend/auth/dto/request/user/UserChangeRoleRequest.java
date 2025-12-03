@@ -6,6 +6,7 @@ import lombok.Getter;
 import java.util.UUID;
 @Getter
 public class UserChangeRoleRequest {
-    private UUID uuid;
+    private Long userId;
     private Role role;
+
 }

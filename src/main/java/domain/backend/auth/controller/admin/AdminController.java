@@ -9,6 +9,7 @@ import domain.backend.auth.dto.response.user.UserChangeRoleResponse;
 import domain.backend.common.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,12 +25,12 @@ public class AdminController {
         AdminLoginResponse loginResponse = adminAuthService.login(adminLoginRequest);
         return ResponseEntity.ok(ApiResponse.ok(loginResponse));
     }
-
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/logout")
     public ResponseEntity<ApiResponse<?>> logout() {
         return ResponseEntity.ok(ApiResponse.ok(null));
     }
-
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/role")
     public ResponseEntity<ApiResponse<?>> changeRole(@RequestBody UserChangeRoleRequest request){
         adminAuthService.changeRole(request);
