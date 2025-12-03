@@ -28,7 +28,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.UUID;
 
 @Tag(
         name = "Activity API",
@@ -76,15 +75,18 @@ public class ActivityController {
     return ResponseEntity.ok(ApiResponse.ok(activityService.publish(id, principal.userId())));
     }
 
-    // 4. 게시 -> 수정 (부분수정)
+    // 4. 게시, 임시저장 활동 수정
     @PreAuthorize("hasRole('HOST')")
-    @Operation(summary = "활동 수정", description = "게시된 활동 정보를 부분 수정합니다.")
+    @Operation(summary = "활동 수정", description = "임시저장/게시 상태와 상관없이 활동을 부분 수정합니다.")
     @PatchMapping("/{id}")
-    public ResponseEntity<ApiResponse<ActivityResponse>> updatePublished(
+    public ResponseEntity<ApiResponse<ActivityResponse>> updateActivity(
             @PathVariable Long id,
             @Valid @RequestBody ActivityUpdateRequest dto,
-            @AuthenticationPrincipal UserPrincipal principal) {
-        return ResponseEntity.ok(ApiResponse.ok(activityService.updatePublished(id, dto, principal.userId())));
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+        return ResponseEntity.ok(
+                ApiResponse.ok(activityService.updateActivity(id, dto, principal.userId()))
+        );
     }
 
     // 5. 게시/초안 -> 삭제 (소프트 삭제)
