@@ -42,17 +42,16 @@ public class ActivityService {
     // - 소유자 검증(getOwned)
     // - 필드 유효성 검증(validateForPublish)
     // - 부분 업데이트(applyPatch)
-    public Activity getOwned(Long id, UUID userUuid) {
-        Activity a = activityRepository.findById(id)
+    public Activity getOwned(Long activityId, Long userId) {
+        Activity a = activityRepository.findById(activityId)
                 .orElseThrow(() -> {
-                    log.warn(" 활동 조회 실패 - 존재하지 않음, activityId={}, userId={}", id, userUuid);
-                    return new IllegalArgumentException("활동이 존재하지 않습니다. id=" + id);
+                    log.warn(" 활동 조회 실패 - 존재하지 않음, activityId={}, userId={}", activityId, userId);
+                    return new IllegalArgumentException("활동이 존재하지 않습니다. id=" + activityId);
                 });
-        UUID ownerUuid = a.getCreatedBy().getUuid();
-        if (!ownerUuid.equals(userUuid)) {
-                log.warn("권한 없음 - userId={} is not owner of activityId={}", userUuid, id);
-                throw new AccessDeniedException("본인이 작성한 글만 조작할 수 있습니다.");
-
+        Long ownerId = a.getCreatedBy().getUserId();
+        if (!ownerId.equals(userId)) {
+            log.warn("권한 없음 - userId={} is not owner of activityId={}", userId, activityId);
+            throw new AccessDeniedException("본인이 작성한 글만 조작할 수 있습니다.");
         }
         return a;
     }
@@ -64,25 +63,25 @@ public class ActivityService {
     // ==================== 생성 로직 (임시저장 / 게시 공통) ====================
 
     @Transactional
-    public ActivityResponse createAndPublish(ActivityCreateRequest dto, UUID userUuid) {
+    public ActivityResponse createAndPublish(ActivityCreateRequest dto, Long userId) {
         // 바로 게시
-        return createActivity(dto, userUuid, Status.PUBLISHED);
+        return createActivity(dto, userId, Status.PUBLISHED);
     }
 
     @Transactional
-    public ActivityResponse createDraft(ActivityCreateRequest dto, UUID userUuid) {
+    public ActivityResponse createDraft(ActivityCreateRequest dto, Long userId) {
         // 임시저장
-        return createActivity(dto, userUuid, Status.DRAFT);
+        return createActivity(dto, userId, Status.DRAFT);
     }
 
     /* 임시저장 / 게시 생성 공통 로직 */
     @Transactional
-    protected ActivityResponse createActivity(ActivityCreateRequest dto, UUID userUuid, Status status) {
+    protected ActivityResponse createActivity(ActivityCreateRequest dto, Long userId, Status status) {
 
-        User author = userRepository.findByUuid(userUuid)
-                .orElseThrow(() -> new IllegalArgumentException("유저 없음. uuid=" + userUuid));
+        User author = userRepository.findById(userId)
+            .orElseThrow(() -> new IllegalArgumentException("유저 없음. uuid=" + userId));
 
-        log.info("▶ 활동 생성 요청 - authorUuid={}, name={}, status={}", userUuid, dto.getName(), status);
+        log.info("▶ 활동 생성 요청 - authorUserId={}, name={}, status={}", userId, dto.getName(), status);
 
         Activity a = Activity.builder()
                 .createdBy(author)
@@ -137,10 +136,10 @@ public class ActivityService {
     }
 
     @Transactional
-    public ActivityResponse updateActivity(Long id, ActivityUpdateRequest dto, UUID userUuid) {
-        log.info("▶ 활동 수정 요청 - activityId={}, userId={}", id, userUuid);
+    public ActivityResponse updateActivity(Long id, ActivityUpdateRequest dto, Long userId) {
+        log.info("▶ 활동 수정 요청 - activityId={}, userId={}", id, userId);
 
-        Activity a = getOwned(id, userUuid);   // 소유자 체크
+        Activity a = getOwned(id, userId);   // 소유자 체크
 
         // 1) 삭제된 활동은 수정 금지
         if (a.getStatus() == Status.DELETED) {
@@ -196,10 +195,10 @@ public class ActivityService {
 
     // 3) 임시저장 -> 게시
     @Transactional
-    public ActivityResponse publish(Long id, UUID userUuid) {
-        log.info("▶ 활동 게시 전환 요청 - activityId={}, userId={}", id, userUuid);
+    public ActivityResponse publish(Long id, Long userId) {
+        log.info("▶ 활동 게시 전환 요청 - activityId={}, userId={}", id, userId);
 
-        Activity a = getOwned(id, userUuid);
+        Activity a = getOwned(id, userId);
 
         if (a.getStatus() != Status.DRAFT) {
             throw new IllegalArgumentException("초안만 게시할 수 있습니다.");
@@ -221,29 +220,31 @@ public class ActivityService {
 
     // 5) 삭제(임시저장/게시 공통) -> 소프트 삭제
     @Transactional
-    public void delete(Long id, UUID userUuid) {
-        log.info(" 활동 삭제 요청 - activityId={}, userId={}", id, userUuid);
+    public void delete(Long id, Long userId) {
+        log.info(" 활동 삭제 요청 - activityId={}, userId={}", id, userId);
 
-        Activity a = getOwned(id, userUuid);
+        Activity a = getOwned(id,userId);
 
         a.softDelete();
 
-        log.info(" 활동 소프트 삭제 완료 - activityId={}, userId={}", id, userUuid);
+        log.info(" 활동 소프트 삭제 완료 - activityId={}, userId={}", id, userId);
     }
 
     //목록 상세 조회
-    public ActivityResponse getOne(Long id, UUID userUuidOrNull) {
+    public ActivityResponse getOne(Long id, Long userIdOrNull) {
         Activity a = activityRepository.findByIdWithHostedBy(id)
                 .orElseThrow(() -> new IllegalArgumentException("활동이 존재하지 않습니다. id=" + id));
-        //draft 상태인 활동은 소유자만 볼 수 있도록
+
+        // draft는 본인만 조회가능
         if (a.getStatus() != Status.PUBLISHED) {
-            if(userUuidOrNull == null || !a.getCreatedBy().getUuid().equals(userUuidOrNull)) {
-                log.warn("권한 없음 - userId={} is not owner of draft activityId={}", userUuidOrNull, id);
+            Long ownerId = a.getCreatedBy().getUserId();
+            if (userIdOrNull == null || !ownerId.equals(userIdOrNull)) {
+                log.warn("권한 없음 - userId={} is not owner of draft activityId={}", userIdOrNull, id);
                 throw new AccessDeniedException("게시되지 않은 활동에 접근할 권한이 없습니다.");
             }
         }
 
-        return ActivityResponse.from(a, null); // ✅ 이제 hostedByList 포함됨
+        return ActivityResponse.from(a, null);
     }
 
 
@@ -262,9 +263,9 @@ public class ActivityService {
                 });
     }
     //내 활동 목록 조회
-    public Page<ActivityResponse> listMine(UUID userUuid, Collection<Status> statuses, Pageable pageable) {
-        User me = userRepository.findByUuid(userUuid)
-                .orElseThrow(() -> new IllegalArgumentException("유저 없음. uuid=" + userUuid));
+    public Page<ActivityResponse> listMine(Long userId, Collection<Status> statuses, Pageable pageable) {
+        User me = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("유저 없음. userId=" + userId));
         return activityRepository.findAllByCreatedByAndStatusIn(me, statuses, pageable)
                 .map(activity -> ActivityResponse.from(activity, null));
     }
