@@ -23,7 +23,6 @@ import java.util.UUID;
 @Component
 @RequiredArgsConstructor
 public class JwtTokenProvider {
-
     private final UserRepository userRepository;
 
     @Value("${jwt.secret}")
@@ -80,7 +79,15 @@ public class JwtTokenProvider {
             return false;
         }
     }
+    @Transactional
+    public void updateRefreshToken(String uuid, String refreshToken) {
+        User user = userRepository.findByUuid(UUID.fromString(uuid))
+                .orElseThrow(() -> new IllegalArgumentException("유저 없음"));
 
+        LocalDateTime expiresAt = LocalDateTime.now().plusSeconds(refreshExpSeconds);
+
+        user.updateRefreshToken(refreshToken, expiresAt);
+    }
     public Claims getClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
@@ -88,22 +95,14 @@ public class JwtTokenProvider {
                 .parseClaimsJws(token)
                 .getBody();
     }
-    @Transactional
-    public void updateRefreshToken(String uuid, String refreshToken) {
-        log.info("🔄 Refresh Token 업데이트 시작 => uuid={}, token={}", uuid, refreshToken);
-        User user = userRepository.findByUuid(UUID.fromString(uuid))
-                .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다: " + uuid));
 
-        LocalDateTime expiresAt = LocalDateTime.ofInstant(
-                Instant.now().plusSeconds(refreshExpSeconds),
-                ZoneId.systemDefault()
-        );
-
-        user.updateRefreshToken(refreshToken, expiresAt);
-        log.info("✅ Refresh Token 저장 완료 => newToken={}, expiresAt={}", refreshToken, expiresAt);
-    }
 
     public String getSubject(String token) {
         return getClaims(token).getSubject();
     }
+
+    public long getRefreshExpSeconds() {
+        return refreshExpSeconds;
+    }
 }
+
