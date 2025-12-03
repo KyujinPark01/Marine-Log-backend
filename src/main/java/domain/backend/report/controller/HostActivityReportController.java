@@ -22,19 +22,11 @@ public class HostActivityReportController {
 
     private final HandleActivityReportService handleActivityReportService;
 
-    private boolean isHost(UserPrincipal principal) {
-        return Role.HOST.name().equals(principal.role());
-    }
     @PreAuthorize("hasRole('HOST')")
     @PostMapping("/{activityReportId}/suggest-union")
     public ResponseEntity<ApiResponse<Void>> suggestUnionActivity(
             @AuthenticationPrincipal UserPrincipal principal,
             @PathVariable Long activityReportId) {
-
-        if (!principal.role().equals("HOST")) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(ApiResponse.error("UNAUTHORIZED"));
-        }
 
         handleActivityReportService.suggestUnionActivity(activityReportId, principal.userId());
         return ResponseEntity.ok(ApiResponse.ok(null));
@@ -46,11 +38,6 @@ public class HostActivityReportController {
             @AuthenticationPrincipal UserPrincipal principal,
             @PathVariable Long activityReportId,
             @RequestBody ActivityReportStatusUpdateRequest request) {
-
-        if (!isHost(principal)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(ApiResponse.error("UNAUTHORIZED"));
-        }
 
         ActivityReportResponse response =
                 handleActivityReportService.updateStatus(activityReportId, request);
