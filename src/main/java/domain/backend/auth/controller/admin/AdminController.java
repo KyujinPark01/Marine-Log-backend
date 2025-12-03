@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AdminController {
     private final AdminService adminAuthService;
-//    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("login")
     public ResponseEntity<ApiResponse<?>> login (@RequestBody AdminLoginRequest adminLoginRequest){
         AdminLoginResponse loginResponse = adminAuthService.login(adminLoginRequest);
