@@ -1,4 +1,4 @@
-package domain.backend.waste.dto;
+package domain.backend.waste.dto.request;
 
 import lombok.Getter;
 

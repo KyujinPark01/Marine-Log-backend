@@ -3,6 +3,7 @@ package domain.backend.activity.dto.response;
 import domain.backend.activity.domain.Activity;
 import domain.backend.activity.domain.Status;
 import domain.backend.organization.dto.response.HostedByResponse;
+import domain.backend.waste.dto.response.WasteResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -29,9 +30,11 @@ public class ActivityResponse {
 
     // ✅ 추가
     private List<HostedByResponse> hostedByList;
-    /*후순위*/
-    // todo LocationDto location,
-    // todo List<HostedByResp> hostedBy
+
+    private Double lat;  // 위도
+    private Double lng;  // 경도
+    private List<WasteResponse> wastes;  // 폐기물 목록
+    private List<ActivityPictureResponse> pictures;
 
     public static ActivityResponse from(Activity a, String coverUrl) {
         return ActivityResponse.builder()
@@ -51,6 +54,13 @@ public class ActivityResponse {
                                         .map(HostedByResponse::from)
                                         .collect(Collectors.toList())
                 )
+                .wastes(
+                        a.getWastes() == null ? null :
+                                a.getWastes().stream()
+                                        .map(WasteResponse::from)
+                                        .collect(Collectors.toList())
+                )
+                //todo : pictures 도 가져와야함
                 .build();
     }
 }

@@ -1,7 +1,7 @@
 package domain.backend.activity.dto.request;
 
 import domain.backend.organization.dto.HostedByDto;
-import domain.backend.waste.dto.WasteRequest;
+import domain.backend.waste.dto.request.WasteRequest;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;

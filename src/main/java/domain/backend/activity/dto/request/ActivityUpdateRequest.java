@@ -2,7 +2,7 @@ package domain.backend.activity.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import domain.backend.organization.dto.HostedByDto;
-import domain.backend.waste.dto.WasteRequest;
+import domain.backend.waste.dto.request.WasteRequest;
 import jakarta.validation.constraints.Positive;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
