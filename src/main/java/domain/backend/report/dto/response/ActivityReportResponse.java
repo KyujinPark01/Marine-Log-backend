@@ -1,7 +1,7 @@
 package domain.backend.report.dto.response;
 
 import domain.backend.report.domain.entity.ActivityReport;
-import domain.backend.report.domain.entity.ActivityStatus;
+import domain.backend.report.domain.enums.ActivityStatus;
 import lombok.Builder;
 import lombok.Getter;
 

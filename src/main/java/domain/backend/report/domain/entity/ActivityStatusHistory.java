@@ -3,6 +3,7 @@ package domain.backend.report.domain.entity;
 
 import domain.backend.auth.domain.user.User;
 import domain.backend.common.entity.BaseTimeEntity;
+import domain.backend.report.domain.enums.ActivityStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
