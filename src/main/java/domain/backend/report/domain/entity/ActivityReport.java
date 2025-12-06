@@ -2,12 +2,16 @@ package domain.backend.report.domain.entity;
 
 import domain.backend.auth.domain.user.User;
 import domain.backend.common.entity.BaseTimeEntity;
+import domain.backend.report.domain.enums.ActivityStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.PrecisionModel;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "activity_report")
@@ -43,7 +47,8 @@ public class ActivityReport extends BaseTimeEntity {
 
     @Column(columnDefinition = "geometry(Point, 4326)")
     private Point location;
-
+    @OneToMany(mappedBy = "activityReport", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ActivityStatusHistory> historyList = new ArrayList<>();
     @Builder
     public ActivityReport(User reporter, String title, String reportedReason, String reporterOccupation,
                           ActivityStatus status, String photoUrl, Double latitude, Double longitude) {

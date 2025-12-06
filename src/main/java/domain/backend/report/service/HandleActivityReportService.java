@@ -5,7 +5,7 @@ import domain.backend.auth.repository.UserRepository;
 import domain.backend.image.service.ImageUploadService;
 import domain.backend.notification.service.NotificationService;
 import domain.backend.report.domain.entity.ActivityReport;
-import domain.backend.report.domain.entity.ActivityStatus;
+import domain.backend.report.domain.enums.ActivityStatus;
 import domain.backend.report.dto.request.ActivityReportCreateRequest;
 import domain.backend.report.dto.response.ActivityReportResponse;
 import domain.backend.report.dto.request.ActivityReportStatusUpdateRequest;
