@@ -6,7 +6,9 @@ import domain.backend.activity.domain.ActivityPicture;
 import domain.backend.activity.domain.Status;
 import domain.backend.activity.dto.request.ActivityCreateRequest;
 import domain.backend.activity.dto.request.ActivityUpdateRequest;
-import domain.backend.activity.dto.response.ActivityResponse;
+import domain.backend.activity.dto.response.ActivityDetailResponse;
+import domain.backend.activity.dto.response.MyActivityListResponse;
+import domain.backend.activity.dto.response.PublicActivityListResponse;
 import domain.backend.activity.repository.ActivityPictureRepository;
 import domain.backend.activity.repository.ActivityRepository;
 
@@ -25,7 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.UUID;
 
 @Slf4j
 @Service
@@ -63,20 +64,24 @@ public class ActivityService {
     // ==================== 생성 로직 (임시저장 / 게시 공통) ====================
 
     @Transactional
-    public ActivityResponse createAndPublish(ActivityCreateRequest dto, Long userId) {
+    public ActivityDetailResponse createAndPublish(ActivityCreateRequest dto, Long userId) {
         // 바로 게시
-        return createActivity(dto, userId, Status.PUBLISHED);
+        Activity a = createActivity(dto, userId, Status.PUBLISHED);
+        // 생성 후 상세 정보를 다시 조회하여 반환
+        return getOne(a.getActivityId(), userId);
     }
 
     @Transactional
-    public ActivityResponse createDraft(ActivityCreateRequest dto, Long userId) {
+    public ActivityDetailResponse createDraft(ActivityCreateRequest dto, Long userId) {
         // 임시저장
-        return createActivity(dto, userId, Status.DRAFT);
+        Activity a = createActivity(dto, userId, Status.DRAFT);
+        // 생성 후 상세 정보를 다시 조회하여 반환
+        return getOne(a.getActivityId(), userId);
     }
 
     /* 임시저장 / 게시 생성 공통 로직 */
     @Transactional
-    protected ActivityResponse createActivity(ActivityCreateRequest dto, Long userId, Status status) {
+    protected Activity createActivity(ActivityCreateRequest dto, Long userId, Status status) {
 
         User author = userRepository.findById(userId)
             .orElseThrow(() -> new IllegalArgumentException("유저 없음. uuid=" + userId));
@@ -132,11 +137,11 @@ public class ActivityService {
         }
 
         log.info("✔ 활동 생성 완료 - activityId={}, status={}", a.getActivityId(), status);
-        return ActivityResponse.from(a, null);
+        return a; // 변경된 부분: Activity 객체 자체를 반환
     }
 
     @Transactional
-    public ActivityResponse updateActivity(Long id, ActivityUpdateRequest dto, Long userId) {
+    public ActivityDetailResponse updateActivity(Long id, ActivityUpdateRequest dto, Long userId) {
         log.info("▶ 활동 수정 요청 - activityId={}, userId={}", id, userId);
 
         Activity a = getOwned(id, userId);   // 소유자 체크
@@ -189,13 +194,14 @@ public class ActivityService {
         // DRAFT 인 경우에는 필수값 검증 X
 
         log.info("✔ 활동 수정 완료 - activityId={}, status={}", id, a.getStatus());
-        return ActivityResponse.from(a, null);
+        // 수정 후 상세 정보를 다시 조회하여 반환
+        return getOne(id, userId);
     }
 
 
     // 3) 임시저장 -> 게시
     @Transactional
-    public ActivityResponse publish(Long id, Long userId) {
+    public ActivityDetailResponse publish(Long id, Long userId) {
         log.info("▶ 활동 게시 전환 요청 - activityId={}, userId={}", id, userId);
 
         Activity a = getOwned(id, userId);
@@ -215,7 +221,8 @@ public class ActivityService {
         a.publish();
 
         log.info("✔ 활동 게시 전환 완료 - activityId={}", id);
-        return ActivityResponse.from(a, null);
+        // 게시 후 상세 정보를 다시 조회하여 반환
+        return getOne(id, userId);
     }
 
     // 5) 삭제(임시저장/게시 공통) -> 소프트 삭제
@@ -231,8 +238,8 @@ public class ActivityService {
     }
 
     //목록 상세 조회
-    public ActivityResponse getOne(Long id, Long userIdOrNull) {
-        Activity a = activityRepository.findByIdWithHostedBy(id)
+    public ActivityDetailResponse getOne(Long id, Long userIdOrNull) {
+        Activity a = activityRepository.findByIdWithAllDetails(id) // 변경된 부분: findByIdWithAllDetails 사용
                 .orElseThrow(() -> new IllegalArgumentException("활동이 존재하지 않습니다. id=" + id));
 
         // draft는 본인만 조회가능
@@ -244,30 +251,30 @@ public class ActivityService {
             }
         }
 
-        return ActivityResponse.from(a, null);
+        // 변경된 부분: ActivityDetailResponse.from 사용, a.getPictures() 전달
+        return ActivityDetailResponse.from(a, a.getPictures());
     }
 
 
     // 목록 조회
-    public Page<ActivityResponse> listPublished(Pageable pageable) {
+    public Page<PublicActivityListResponse> listPublished(Pageable pageable) {
         return activityRepository.findAllByStatus(Status.PUBLISHED, pageable)
                 .map(activity -> {
-                    // ✅ 대표 사진 1장 가져오기
                     String coverUrl = activityPictureRepository
                             .findTopByActivityOrderByPictureIdAsc(activity)
                             .map(ActivityPicture::getPictureUrl)
                             .orElse(null);
 
-                    // ✅ ActivityResponse로 변환
-                    return ActivityResponse.from(activity, coverUrl);
+                    return PublicActivityListResponse.from(activity, coverUrl);
                 });
     }
     //내 활동 목록 조회
-    public Page<ActivityResponse> listMine(Long userId, Collection<Status> statuses, Pageable pageable) {
+    public Page<MyActivityListResponse> listMine(Long userId, Collection<Status> statuses, Pageable pageable) {
         User me = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("유저 없음. userId=" + userId));
         return activityRepository.findAllByCreatedByAndStatusIn(me, statuses, pageable)
-                .map(activity -> ActivityResponse.from(activity, null));
+                .map(MyActivityListResponse::from);
     }
+
 }
 
