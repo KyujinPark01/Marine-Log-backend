@@ -51,7 +51,7 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<ApiResponse<Void>> logout(@AuthenticationPrincipal UserPrincipal principal) {
 
-        tokenStore.delete(principal.userId());
+        tokenStore.delete(principal.uuid().toString());
 
         ResponseCookie deleteCookie = ResponseCookie.from("refreshToken", "")
                 .maxAge(0)

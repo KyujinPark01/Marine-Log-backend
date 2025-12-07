@@ -33,8 +33,7 @@ public class AdminController {
     @PostMapping("/logout")
     public ResponseEntity<ApiResponse<?>> logout(@AuthenticationPrincipal UserPrincipal principal) {
 
-        tokenStore.delete(principal.userId());
-
+        tokenStore.delete(principal.uuid().toString());
         return ResponseEntity.ok(ApiResponse.ok(null));
     }
     @PreAuthorize("hasRole('ADMIN')")
