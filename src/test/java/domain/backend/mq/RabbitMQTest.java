@@ -1,6 +1,5 @@
 package domain.backend.mq;
 
-import domain.backend.fileexport.request.ExportRequest;
 import domain.backend.fileexport.service.ExportService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
