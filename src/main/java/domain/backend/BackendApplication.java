@@ -3,6 +3,7 @@ package domain.backend;
 import domain.backend.auth.domain.user.Role;
 import domain.backend.auth.domain.user.User;
 import domain.backend.auth.repository.UserRepository;
+import domain.backend.common.config.AdminProperties;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -21,26 +22,23 @@ public class BackendApplication {
     }
     @Bean
     public CommandLineRunner initAdmin(UserRepository userRepository,
-                                       PasswordEncoder passwordEncoder) {
+                                       PasswordEncoder passwordEncoder,
+                                       AdminProperties adminProps) {
         return args -> {
-            boolean exists = userRepository.existsByEmailAndRole("admin@naver.com", Role.ADMIN);
+            boolean exists = userRepository.existsByEmailAndRole(adminProps.getEmail(), Role.ADMIN);
+
             if (exists) {
-                System.out.println("✔ Admin already exists. Skip seeding.");
                 return;
             }
+
             User admin = User.builder()
-                    .email("admin@naver.com")
-                    .password(passwordEncoder.encode("admin1234"))
-                    .name("관리자")
+                    .email(adminProps.getEmail())
+                    .password(passwordEncoder.encode(adminProps.getPassword()))
+                    .name(adminProps.getName())
                     .role(Role.ADMIN)
-                    .address(null)
-                    .phoneNumber(null)
-                    .organization(null)
                     .build();
 
             userRepository.save(admin);
-
-            System.out.println("🎉 Admin account created: admin@naver.com / admin1234");
         };
     }
 

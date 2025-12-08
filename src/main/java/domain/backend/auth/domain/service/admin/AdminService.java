@@ -70,7 +70,7 @@ public class AdminService {
 
         // 6) Redis 저장
         tokenStore.save(
-                admin.getUserId(),
+                String.valueOf(admin.getUserId()),
                 refreshToken,
                 jwtTokenProvider.getRefreshExpSeconds()
         );
