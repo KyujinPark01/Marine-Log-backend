@@ -37,11 +37,6 @@ public class User extends BaseTimeEntity {
     @Column(nullable = false, length = 20)
     private Role role;
 
-    @Column(name = "refresh_token", length = 500)
-    private String refreshToken;
-    @Column(name = "refresh_token_expires_at")
-    private LocalDateTime refreshTokenExpiresAt;
-
     @Column(unique = true, nullable = false, updatable = false)
     private UUID uuid  = UUID.randomUUID();
 
@@ -60,8 +55,6 @@ public class User extends BaseTimeEntity {
                  String address,
                  String phoneNumber,
                  Role role,
-                 String refreshToken,
-                 LocalDateTime refreshTokenExpiresAt,
                  Organization organization
                  ) {
         this.userId = userId;
@@ -71,14 +64,7 @@ public class User extends BaseTimeEntity {
         this.address = address;
         this.phoneNumber = phoneNumber;
         this.role = role;
-        this.refreshToken = refreshToken;
-        this.refreshTokenExpiresAt = refreshTokenExpiresAt;
         this.organization = organization;
-    }
-
-    public void updateRefreshToken(String refreshToken, LocalDateTime expiresAt) {
-        this.refreshToken = refreshToken;
-        this.refreshTokenExpiresAt = expiresAt;
     }
 
     public void updateAdditionalInfo(Organization organization, String phoneNumber, String address) {

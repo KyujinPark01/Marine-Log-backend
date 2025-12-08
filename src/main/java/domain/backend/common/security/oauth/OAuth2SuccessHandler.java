@@ -1,7 +1,6 @@
 package domain.backend.common.security.oauth;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import domain.backend.auth.repository.UserRepository;
+import domain.backend.common.security.auth.RefreshTokenStore;
 import domain.backend.common.security.auth.UserPrincipal;
 import domain.backend.common.security.jwt.JwtTokenProvider;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,6 +21,7 @@ import java.util.Map;
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final RefreshTokenStore tokenStore;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -33,19 +33,27 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
             String uuid = principal.uuid().toString();
 
+            // Access Token 생성
             String accessToken = jwtTokenProvider.createAccessToken(
                     uuid,
                     Map.of(
                             "email", principal.email(),
                             "name", principal.name(),
-                            "role",principal.role()
+                            "role", principal.role()
                     )
             );
 
+            // Refresh Token 생성
             String refreshToken = jwtTokenProvider.createRefreshToken(uuid);
 
-            jwtTokenProvider.updateRefreshToken(uuid, refreshToken);
+            // Redis 저장 (uuid 기반)
+            tokenStore.save(
+                    uuid,
+                    refreshToken,
+                    jwtTokenProvider.getRefreshExpSeconds()
+            );
 
+            // RefreshToken → Cookie 저장
             ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
                     .httpOnly(true)
                     .secure(true)
@@ -56,7 +64,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
             response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
 
-            // 리다이렉트
+            // 프론트로 redirect
             String redirectUrl = "http://localhost:5173/oauth2/success"
                     + "?accessToken=" + accessToken;
 
@@ -69,6 +77,4 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             } catch (Exception ignored) {}
         }
     }
-
-
 }

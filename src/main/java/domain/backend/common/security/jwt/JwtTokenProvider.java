@@ -1,12 +1,9 @@
 package domain.backend.common.security.jwt;
 
-import domain.backend.auth.domain.user.User;
-import domain.backend.auth.repository.UserRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,17 +11,13 @@ import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Date;
 import java.util.Map;
-import java.util.UUID;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtTokenProvider {
-
-    private final UserRepository userRepository;
 
     @Value("${jwt.secret}")
     private String secretBase64;
@@ -88,22 +81,13 @@ public class JwtTokenProvider {
                 .parseClaimsJws(token)
                 .getBody();
     }
-    @Transactional
-    public void updateRefreshToken(String uuid, String refreshToken) {
-        log.info("🔄 Refresh Token 업데이트 시작 => uuid={}, token={}", uuid, refreshToken);
-        User user = userRepository.findByUuid(UUID.fromString(uuid))
-                .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다: " + uuid));
 
-        LocalDateTime expiresAt = LocalDateTime.ofInstant(
-                Instant.now().plusSeconds(refreshExpSeconds),
-                ZoneId.systemDefault()
-        );
-
-        user.updateRefreshToken(refreshToken, expiresAt);
-        log.info("✅ Refresh Token 저장 완료 => newToken={}, expiresAt={}", refreshToken, expiresAt);
-    }
 
     public String getSubject(String token) {
         return getClaims(token).getSubject();
+    }
+
+    public long getRefreshExpSeconds() {
+        return refreshExpSeconds;
     }
 }

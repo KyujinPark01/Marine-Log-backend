@@ -7,9 +7,12 @@ import domain.backend.auth.dto.request.user.UserChangeRoleRequest;
 import domain.backend.auth.dto.response.admin.AdminLoginResponse;
 import domain.backend.auth.dto.response.user.UserChangeRoleResponse;
 import domain.backend.common.dto.ApiResponse;
+import domain.backend.common.security.auth.RefreshTokenStore;
+import domain.backend.common.security.auth.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,14 +23,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AdminController {
     private final AdminService adminAuthService;
-    @PostMapping("login")
+    private final RefreshTokenStore tokenStore;
+    @PostMapping("/login")
     public ResponseEntity<ApiResponse<?>> login (@RequestBody AdminLoginRequest adminLoginRequest){
         AdminLoginResponse loginResponse = adminAuthService.login(adminLoginRequest);
         return ResponseEntity.ok(ApiResponse.ok(loginResponse));
     }
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/logout")
-    public ResponseEntity<ApiResponse<?>> logout() {
+    public ResponseEntity<ApiResponse<?>> logout(@AuthenticationPrincipal UserPrincipal principal) {
+
+        tokenStore.delete(principal.uuid().toString());
         return ResponseEntity.ok(ApiResponse.ok(null));
     }
     @PreAuthorize("hasRole('ADMIN')")
