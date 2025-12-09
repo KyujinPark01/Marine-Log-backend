@@ -53,13 +53,13 @@ dependencies {
     implementation 'net.coobird:thumbnailator:0.4.19'
     implementation 'commons-io:commons-io:2.20.0'
 
-    implementation 'org.springframework.boot:spring-boot-starter-amqp:3.5.6'
     implementation 'commons-io:commons-io:2.20.0'
     implementation 'software.amazon.awssdk:auth:2.25.32'
     implementation 'software.amazon.awssdk:regions:2.25.32'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.14'
     implementation 'org.springframework.statemachine:spring-statemachine-starter:4.0.1'
 
+    implementation 'com.opencsv:opencsv:5.12.0'
 }
 
 tasks.named('test') {

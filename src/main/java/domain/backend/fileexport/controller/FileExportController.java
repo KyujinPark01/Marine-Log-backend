@@ -1,10 +1,11 @@
 package domain.backend.fileexport.controller;
 
-import domain.backend.common.dto.ApiResponse;
-import domain.backend.common.security.auth.UserPrincipal;
 import domain.backend.fileexport.service.ExportService;
-import domain.backend.waste.domain.Waste;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,39 +19,36 @@ import java.time.LocalDate;
 public class FileExportController {
     private final ExportService exportService;
 
-    @PreAuthorize("hasRole('HOST')")
+//    @PreAuthorize("hasRole('USER')")
     @PostMapping("/v1/export/activities")
-    public ResponseEntity<ApiResponse<?>> queueActivityExport(
-            @RequestParam ActivityExportScope scope,
-            @RequestParam(required = false) LocalDate startDate,
-            @RequestParam(required = false) LocalDate endDate,
-            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+    public ResponseEntity<ByteArrayResource> exportActivities (
+            @RequestParam(defaultValue = "1900-01-01")
+            LocalDate startDate,
+            @RequestParam(defaultValue = "#{T(java.time.LocalDate).now().toString()}")
+            LocalDate endDate) {
 
-        exportService.queueActivityExport(scope.toString(), startDate, endDate, userPrincipal);
+        ByteArrayResource resource = exportService.ActivityExport(startDate, endDate);
 
-        return ResponseEntity.ok(ApiResponse.ok(null));
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=activities.csv")
+                .contentType(MediaType.parseMediaType("text/csv"))
+                .body(resource);
     }
 
-    @PreAuthorize("hasRole('HOST')")
+    @PreAuthorize("hasRole('USER')")
     @PostMapping("/v1/export/wastes")
-    public ResponseEntity<ApiResponse<?>> queueWastesExport(
-            @RequestParam WasteExportScope scope,
-            @RequestParam(required = false) Long activityId,
+    public ResponseEntity<ByteArrayResource> exportWastes (
             @RequestParam(required = false) String region,
-            @RequestParam(required = false) LocalDate startDate,
-            @RequestParam(required = false) LocalDate endDate,
-            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+            @RequestParam(defaultValue = "1900-01-01")
+            LocalDate startDate,
+            @RequestParam(defaultValue = "#{T(java.time.LocalDate).now().toString()}")
+            LocalDate endDate) {
 
-        exportService.queueWasteExport(activityId, region, startDate, endDate, userPrincipal);
+        ByteArrayResource resource = exportService.WasteExport(region, startDate, endDate);
 
-        return ResponseEntity.ok(ApiResponse.ok(null));
-    }
-
-    public enum ActivityExportScope {
-        ORG, USER
-    }
-
-    public enum WasteExportScope {
-
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=activities.csv")
+                .contentType(MediaType.parseMediaType("text/csv"))
+                .body(resource);
     }
 }
