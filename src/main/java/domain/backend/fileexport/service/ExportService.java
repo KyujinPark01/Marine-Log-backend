@@ -2,13 +2,13 @@ package domain.backend.fileexport.service;
 
 import com.opencsv.bean.StatefulBeanToCsv;
 import com.opencsv.bean.StatefulBeanToCsvBuilder;
-import domain.backend.common.security.auth.UserPrincipal;
 import domain.backend.fileexport.domain.ExportRepository;
 import domain.backend.fileexport.dto.ActivityCsvResponse;
+import domain.backend.fileexport.dto.WasteCsvResponse;
 import domain.backend.fileexport.projection.ActivityCsvProjection;
+import domain.backend.fileexport.projection.WasteCsvProjection;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.BadRequestException;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 
@@ -28,8 +28,6 @@ public class ExportService {
 
         List<ActivityCsvProjection> projections = exportRepository.getActivityByUserCsv(startDate, endDate);
 
-        log.info(projections.toString());
-
         List<ActivityCsvResponse> activityCsvResponses = projections.stream().map(
                 projection -> ActivityCsvResponse.builder()
                         .name(projection.getName())
@@ -43,8 +41,6 @@ public class ExportService {
                         .address(projection.getAddress())
                         .build()
         ).toList();
-
-        log.info(activityCsvResponses.toString());
 
         StringWriter sw = new StringWriter();
 
@@ -64,6 +60,32 @@ public class ExportService {
 
 
     public ByteArrayResource WasteExport(String region, LocalDate startDate, LocalDate endDate) {
-        return null;
+
+        List<WasteCsvProjection> projections = exportRepository.getWasteByRegionCsv(region, startDate, endDate);
+
+        List<WasteCsvResponse> wasteCsvResponses = projections.stream().map(
+                projection -> WasteCsvResponse.builder()
+                        .region(projection.getRegion())
+                        .type(projection.getType())
+                        .specificType(projection.getSpecificType())
+                        .weightKg(projection.getWeightKg())
+                        .volumeL(projection.getVolumeL())
+                        .build()
+        ).toList();
+
+        StringWriter sw = new StringWriter();
+
+        StatefulBeanToCsv<WasteCsvResponse> beanToCsv = new StatefulBeanToCsvBuilder<WasteCsvResponse>(sw)
+                .withSeparator(',')
+                .build();
+
+        try {
+            beanToCsv.write(wasteCsvResponses);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new IllegalArgumentException(e.getMessage());
+        }
+
+        return new ByteArrayResource(sw.toString().getBytes(StandardCharsets.UTF_8));
     }
 }

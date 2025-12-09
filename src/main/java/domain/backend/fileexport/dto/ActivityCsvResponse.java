@@ -8,7 +8,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Builder
-@ToString
 public class ActivityCsvResponse {
     @CsvBindByName(column = "활동명")
     private String name;
