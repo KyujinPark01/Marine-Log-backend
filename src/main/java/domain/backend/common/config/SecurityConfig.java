@@ -57,13 +57,14 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/index.html", "/favicon.*", "/assets/**").permitAll()
                         .requestMatchers("/login/**", "/oauth2/**", "/login/oauth2/**").permitAll()
+                        .requestMatchers("/location/**", "/key/**").permitAll()
+                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/activity-report").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/actuator/health").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
 
-                        .requestMatchers("/user/**").authenticated()
+                        .requestMatchers("/api/user/signup-additional").authenticated()
                         .requestMatchers("/api/v1/activities/**").authenticated()
-                        .requestMatchers("/activity-report/**").authenticated()
-                        .requestMatchers("/mypage/notifications/**").authenticated()
-                        .requestMatchers("/notifications/**").authenticated()
                         .anyRequest().permitAll()
                 )
 

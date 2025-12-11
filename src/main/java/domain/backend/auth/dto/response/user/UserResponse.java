@@ -15,4 +15,9 @@ public class UserResponse {
     private String name;
     private Role role;
     private UUID uuid;
+
+    // 단체 정보 (마이페이지에서 필요)
+    private Long organizationId;
+    private String organizationName;
 }
+

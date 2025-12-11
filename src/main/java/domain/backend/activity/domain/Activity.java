@@ -94,6 +94,9 @@ public class Activity extends BaseTimeEntity {
     private List<Waste> wastes = new ArrayList<>();
     @OneToMany(mappedBy = "activity", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<HostedBy> hostedByList = new ArrayList<>();
+    @OneToMany(mappedBy = "activity", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ActivityPicture> pictures = new ArrayList<>();
+
 
     // 게시글 수정 - 추가된 메소드
     public void updateField(ActivityUpdateRequest request) {

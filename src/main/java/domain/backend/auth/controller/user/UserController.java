@@ -25,14 +25,11 @@ public class UserController {
 
     @Operation(summary = "내 정보 조회", description = "Access Token을 통해 로그인한 사용자의 정보를 반환합니다.")
     @GetMapping("/me")
-    public ResponseEntity<ApiResponse<UserResponse>> me( @AuthenticationPrincipal UserPrincipal principal) {
+    public ResponseEntity<ApiResponse<UserResponse>> me(
+            @AuthenticationPrincipal UserPrincipal principal) {
 
-        UserResponse response = UserResponse.builder()
-                .uuid(principal.uuid())
-                .email(principal.email())
-                .name(principal.name())
-                .role(Role.valueOf(principal.role()))
-                .build();
+        // Service에서 단체 정보를 포함한 유저 정보 조회
+        UserResponse response = userService.getUserInfo(principal.userId());
 
         return ResponseEntity.ok(ApiResponse.ok(response));
     }
