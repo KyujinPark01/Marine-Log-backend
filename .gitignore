@@ -38,8 +38,7 @@ out/
 
 
 ### user custom ###
-*.properties
-*.yml
+.env
 
 ### ignore frontend
 src/main/java/domain/frontend/
