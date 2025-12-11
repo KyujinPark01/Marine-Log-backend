@@ -251,7 +251,6 @@ public class ActivityService {
             }
         }
 
-        // 변경된 부분: ActivityDetailResponse.from 사용, a.getPictures() 전달
         return ActivityDetailResponse.from(a, a.getPictures());
     }
 
