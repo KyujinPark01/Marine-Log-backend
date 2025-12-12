@@ -2,6 +2,7 @@ package domain.backend.report.statemachine.service;
 
 import domain.backend.report.domain.enums.ActivityEvent;
 import domain.backend.report.domain.enums.ActivityStatus;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
@@ -31,6 +32,7 @@ public class ActivityStateMachineService {
     /**
      * header 커스터마이징 지원
      */
+    @Transactional
     public void sendEvent(
             Long reportId,
             ActivityEvent event,

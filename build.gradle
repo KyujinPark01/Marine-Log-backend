@@ -67,6 +67,8 @@ dependencies {
 
     // State machine
     implementation 'org.springframework.statemachine:spring-statemachine-starter:4.0.1'
+
+    implementation 'com.opencsv:opencsv:5.9'
 }
 
 tasks.named('test') {

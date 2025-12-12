@@ -28,6 +28,7 @@ public class ActivityStateMachineConfig
     private final StartActivityAction startActivityAction;
     private final FinishActivityAction finishActivityAction;
     private final CancelAction cancelAction;
+    private final RecruitingCreateActivityAction recruitingCreateActivityAction;
 
     // Collaboration Actions
     private final CollaborationRequestAction collaborationRequestAction;
@@ -91,6 +92,7 @@ public class ActivityStateMachineConfig
                 .event(ActivityEvent.FINISH_SURVEY)
                 .guard(finishSurveyGuard)
                 .action(finishSurveyAction)
+
 
 
                 // ===== 모집 → 진행 =====

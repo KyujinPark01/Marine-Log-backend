@@ -1,5 +1,7 @@
 package domain.backend.common.security.oauth;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import domain.backend.auth.repository.UserRepository;
 import domain.backend.common.security.auth.RefreshTokenStore;
 import domain.backend.common.security.auth.UserPrincipal;
 import domain.backend.common.security.jwt.JwtTokenProvider;
@@ -13,6 +15,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 @Slf4j
@@ -33,48 +37,56 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
             String uuid = principal.uuid().toString();
 
+            String email = principal.email() != null ? principal.email() : "";
+            String name = principal.name() != null ? principal.name() : "Unknown";
+            String role = principal.role() != null ? principal.role().toString() : "ROLE_USER"; // Role이 Enum일 경우 toString()
+
             // Access Token 생성
             String accessToken = jwtTokenProvider.createAccessToken(
                     uuid,
                     Map.of(
-                            "email", principal.email(),
-                            "name", principal.name(),
-                            "role", principal.role()
+                            "email", email,
+                            "name", name,
+                            "role", role  // 반드시 문자열
                     )
             );
 
-            // Refresh Token 생성
             String refreshToken = jwtTokenProvider.createRefreshToken(uuid);
 
-            // Redis 저장 (uuid 기반)
+// Redis 저장 (uuid 기반 통일)
             tokenStore.save(
                     uuid,
                     refreshToken,
                     jwtTokenProvider.getRefreshExpSeconds()
             );
 
-            // RefreshToken → Cookie 저장
+// cookie (로컬에서는 secure=false 권장)
             ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
                     .httpOnly(true)
-                    .secure(true)
+                    .secure(false)  // localhost는 false
+                    .sameSite("Lax")
                     .path("/")
-                    .sameSite("None")
-                    .maxAge(14 * 24 * 60 * 60)
+                    .maxAge(jwtTokenProvider.getRefreshExpSeconds())
                     .build();
 
             response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
 
-            // 프론트로 redirect
             String redirectUrl = "http://localhost:5173/oauth2/success"
-                    + "?accessToken=" + accessToken;
+                    + "?accessToken=" + URLEncoder.encode(accessToken, StandardCharsets.UTF_8);
 
             getRedirectStrategy().sendRedirect(request, response, redirectUrl);
 
         } catch (Exception e) {
             log.error("OAuth2 Success 처리 중 오류", e);
             try {
-                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "OAuth2 처리 실패");
-            } catch (Exception ignored) {}
+                // 이미 응답이 커밋되지 않은 경우에만 에러 전송
+                if (!response.isCommitted()) {
+                    response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "OAuth2 처리 실패");
+                }
+            } catch (Exception ignored) {
+            }
         }
     }
+
+
 }

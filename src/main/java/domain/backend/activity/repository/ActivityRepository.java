@@ -18,11 +18,11 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
     Page<Activity> findAllByStatus(Status status, Pageable pageable);
     Page<Activity> findAllByCreatedByAndStatusIn(User user, Collection<Status> statuses, Pageable pageable);
 
-    @Query("SELECT a FROM Activity a " +
-           "LEFT JOIN FETCH a.hostedByList h " +
-           "LEFT JOIN FETCH h.organization " +
-           "LEFT JOIN FETCH a.wastes " +
-           "LEFT JOIN FETCH a.pictures " +
-           "WHERE a.activityId = :id")
+    @Query("""
+SELECT a FROM Activity a
+LEFT JOIN FETCH a.location
+WHERE a.activityId = :id
+""")
     Optional<Activity> findByIdWithAllDetails(@Param("id") Long id);
+
 }

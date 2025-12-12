@@ -30,7 +30,7 @@ public class CreateActivityReportController {
 
     private final HandleActivityReportService handleActivityReportService;
     private final ReadActivityReportService readActivityReportService;
-    @PreAuthorize("hasRole('HOST')")
+//    @PreAuthorize("hasRole('HOST')")
     @Operation(summary = "활동 제보 등록", description = "활동 제보 데이터를 업로드하여 등록합니다.")
     @PostMapping
     public ResponseEntity<ApiResponse<Long>> createActivityReport(
