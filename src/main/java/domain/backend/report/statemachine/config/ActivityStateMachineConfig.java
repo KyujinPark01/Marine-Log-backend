@@ -28,7 +28,6 @@ public class ActivityStateMachineConfig
     private final StartActivityAction startActivityAction;
     private final FinishActivityAction finishActivityAction;
     private final CancelAction cancelAction;
-    private final RecruitingCreateActivityAction recruitingCreateActivityAction;
 
     // Collaboration Actions
     private final CollaborationRequestAction collaborationRequestAction;
