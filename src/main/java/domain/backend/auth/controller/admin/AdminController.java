@@ -4,6 +4,7 @@ package domain.backend.auth.controller.admin;
 import domain.backend.auth.domain.service.admin.AdminService;
 import domain.backend.auth.dto.request.admin.AdminLoginRequest;
 import domain.backend.auth.dto.request.user.UserChangeRoleRequest;
+import domain.backend.auth.dto.response.TokenResponse;
 import domain.backend.auth.dto.response.admin.AdminLoginResponse;
 import domain.backend.auth.dto.response.user.UserChangeRoleResponse;
 import domain.backend.common.dto.ApiResponse;
@@ -39,7 +40,7 @@ public class AdminController {
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/role")
     public ResponseEntity<ApiResponse<?>> changeRole(@RequestBody UserChangeRoleRequest request){
-        adminAuthService.changeRole(request);
-        return ResponseEntity.ok(ApiResponse.ok(null));
+        TokenResponse tokenResponse = adminAuthService.changeRole(request);
+        return ResponseEntity.ok(ApiResponse.ok(tokenResponse));
     }
 }

@@ -65,6 +65,9 @@ public class SecurityConfig {
 
                         .requestMatchers("/api/user/signup-additional").authenticated()
                         .requestMatchers("/api/v1/activities/**").authenticated()
+                        .requestMatchers("/activity-report/**").authenticated()
+                        .requestMatchers("/mypage/notifications/**").authenticated()
+                        .requestMatchers("/notifications/**").authenticated()
                         .anyRequest().permitAll()
                 )
 

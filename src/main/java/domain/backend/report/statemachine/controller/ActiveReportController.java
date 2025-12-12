@@ -23,6 +23,7 @@ public class ActiveReportController {
     private final UserRepository userRepository;
     private final ActivityStateMachineService stateMachineService;
     private final CollaborationService collaborationService;
+
     private User getActor(UserPrincipal principal) {
         return userRepository.findById(principal.userId())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
@@ -69,7 +70,6 @@ public class ActiveReportController {
     }
 
 
-
     // 활동 시작
     @PatchMapping("/{id}/start")
     public ResponseEntity<Void> startActivity(
@@ -100,37 +100,39 @@ public class ActiveReportController {
         return ResponseEntity.ok().build();
     }
 
-    //연합 기능
-    // 연합 요청 목록 조회
+    // 1. 연합 요청 목록 조회
     @GetMapping("/{id}/collaboration")
-    public ResponseEntity<List<CollaborationResponse>> getCollaborations(
-            @PathVariable Long id) {
-
+    public ResponseEntity<List<CollaborationResponse>> getCollaborations(@PathVariable Long id) {
         List<CollaborationResponse> list = collaborationService.getByReport(id);
         return ResponseEntity.ok(list);
     }
-    // 연합 요청
+
+    // 2. 연합 요청 (상대방 -> 나에게 요청)
     @PostMapping("/{id}/collaboration")
     public ResponseEntity<Void> requestCollab(
             @AuthenticationPrincipal UserPrincipal principal,
-            @PathVariable Long id,
-            @RequestParam Long partnerOrgId
+            @PathVariable Long id
     ) throws Exception {
 
         User actor = getActor(principal);
+
+        // ✅ [추가] 로그인한 유저의 소속 단체 ID를 서버에서 직접 추출
+        Long myOrgId = actor.getOrganization().getOrgId(); // User 엔티티에 getOrganization()이 있다고 가정
 
         stateMachineService.sendEvent(
                 id,
                 ActivityEvent.COLLAB_REQUEST,
                 actor,
-                headers -> headers.setHeader("partnerOrgId", partnerOrgId)
+                headers -> {
+                    headers.setHeader("reportId", id);
+                    headers.setHeader("partnerOrgId", myOrgId); // ✅ 여기서 주입
+                }
         );
 
         return ResponseEntity.ok().build();
     }
 
-
-    // 연합 승인
+    // 3. 연합 승인 (나 -> 상대방 승인)
     @PatchMapping("/{id}/collaboration/approve")
     public ResponseEntity<Void> approveCollab(
             @AuthenticationPrincipal UserPrincipal principal,
@@ -144,13 +146,16 @@ public class ActiveReportController {
                 id,
                 ActivityEvent.COLLAB_APPROVE,
                 actor,
-                headers -> headers.setHeader("partnerOrgId", partnerOrgId)
+                headers -> {
+                    headers.setHeader("reportId", id);          // ✅ 필수
+                    headers.setHeader("partnerOrgId", partnerOrgId); // ✅ 필수
+                }
         );
 
         return ResponseEntity.ok().build();
     }
 
-    // 연합 거절
+    // 4. 연합 반려 (나 -> 상대방 거절)
     @PatchMapping("/{id}/collaboration/reject")
     public ResponseEntity<Void> rejectCollab(
             @AuthenticationPrincipal UserPrincipal principal,
@@ -164,7 +169,10 @@ public class ActiveReportController {
                 id,
                 ActivityEvent.COLLAB_REJECT,
                 actor,
-                headers -> headers.setHeader("partnerOrgId", partnerOrgId)
+                headers -> {
+                    headers.setHeader("reportId", id);          // ✅ 필수
+                    headers.setHeader("partnerOrgId", partnerOrgId); // ✅ 필수
+                }
         );
 
         return ResponseEntity.ok().build();

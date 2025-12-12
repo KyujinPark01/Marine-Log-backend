@@ -4,6 +4,7 @@ import domain.backend.auth.domain.user.Role;
 import domain.backend.auth.domain.user.User;
 import domain.backend.auth.dto.request.admin.AdminLoginRequest;
 import domain.backend.auth.dto.request.user.UserChangeRoleRequest;
+import domain.backend.auth.dto.response.TokenResponse;
 import domain.backend.auth.dto.response.admin.AdminLoginResponse;
 import domain.backend.auth.repository.UserRepository;
 import domain.backend.common.security.auth.RefreshTokenStore;
@@ -80,33 +81,60 @@ public class AdminService {
         return new AdminLoginResponse(accessToken, refreshToken);
     }
     @Transactional
-    public void changeRole(UserChangeRoleRequest request) {
+    public TokenResponse changeRole(UserChangeRoleRequest request) {
 
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("유저 없음"));
 
+        // 1) ROLE 업데이트
         user.updateRole(request.getRole());
 
+        // 2) 현재 로그인 유저인지 확인
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        if (auth != null && auth.getPrincipal() instanceof UserPrincipal principal) {
+        boolean isSelfChange = auth != null &&
+                auth.getPrincipal() instanceof UserPrincipal principal &&
+                principal.userId().equals(user.getUserId());
 
-            if (principal.userId().equals(user.getUserId())) {
+        // 3) 본인이 직접 role을 바꾼 경우 -> SecurityContext + JWT 모두 재발급
+        if (isSelfChange) {
 
-                UserPrincipal newPrincipal = UserPrincipal.from(user);
+            UserPrincipal newPrincipal = UserPrincipal.from(user);
 
-                Authentication newAuth = new UsernamePasswordAuthenticationToken(
-                        newPrincipal,
-                        null,
-                        newPrincipal.getAuthorities()
-                );
+            // SecurityContext 업데이트
+            Authentication newAuth = new UsernamePasswordAuthenticationToken(
+                    newPrincipal,
+                    null,
+                    newPrincipal.getAuthorities()
+            );
+            SecurityContextHolder.getContext().setAuthentication(newAuth);
 
-                SecurityContextHolder.getContext().setAuthentication(newAuth);
+            log.info("🔄 SecurityContext 권한 갱신: {}", newPrincipal.getAuthorities());
 
-                log.info("🔄 SecurityContext 권한 갱신 완료: {}", newPrincipal.getAuthorities());
-            }
+            // ==== 🔥 새 토큰 생성 (JwtTokenProvider 버전 맞춤) ====
+            Map<String, Object> claims = Map.of(
+                    "role", user.getRole().name()
+            );
+
+            String newAccessToken =
+                    jwtTokenProvider.createAccessToken(String.valueOf(user.getUuid()), claims);
+
+            String newRefreshToken =
+                    jwtTokenProvider.createRefreshToken(String.valueOf(user.getUuid()));
+
+            // refreshToken 저장 (Redis 또는 DB)
+            tokenStore.save(
+                    String.valueOf(user.getUserId()),
+                    newRefreshToken,
+                    jwtTokenProvider.getRefreshExpSeconds()
+            );
+
+            return new TokenResponse(newAccessToken, newRefreshToken);
         }
 
+        // 다른 유저의 권한 변경 → 토큰 불필요
+        return null;
     }
+
 
 }

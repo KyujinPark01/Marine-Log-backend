@@ -28,8 +28,8 @@ public class ApproveGuard implements Guard<ActivityStatus, ActivityEvent> {
 
         // REPORTED 상태에서만 승인 가능 + HOST 권한 필요
         return report.getStatus() == ActivityStatus.REPORTED
-                && actor != null
-                && actor.getRole() == Role.HOST;
+                && actor != null;
+//                && actor.getRole() == Role.ADMIN;
     }
 }
 

@@ -1,10 +1,8 @@
 package domain.backend.report.statemachine.action;
 
-import domain.backend.report.domain.entity.Collaboration;
 import domain.backend.report.domain.enums.ActivityEvent;
 import domain.backend.report.domain.enums.ActivityStatus;
-import domain.backend.report.domain.enums.CollaborationStatus;
-import domain.backend.report.domain.repository.CollaborationRepository;
+import domain.backend.report.service.CollaborationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.statemachine.StateContext;
@@ -16,21 +14,15 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class CollaborationApproveAction implements Action<ActivityStatus, ActivityEvent> {
 
-    private final CollaborationRepository collaborationRepository;
+    private final CollaborationService collaborationService;
 
     @Override
     public void execute(StateContext<ActivityStatus, ActivityEvent> context) {
-
         Long reportId = (Long) context.getMessageHeader("reportId");
         Long partnerOrgId = (Long) context.getMessageHeader("partnerOrgId");
 
-        Collaboration collab =
-                collaborationRepository.findByActivityReport_ActivityReportIdAndTargetOrg_OrgId(reportId, partnerOrgId)
-                        .orElseThrow();
+        collaborationService.approveRequest(reportId, partnerOrgId);
 
-        collab.approve();
-        collaborationRepository.save(collab);
-
-        log.info("🔥 Collaboration approved for reportId={}, partnerOrgId={}", reportId, partnerOrgId);
+        log.info("🔥 연합 승인 완료: reportId={}, partnerOrgId={}", reportId, partnerOrgId);
     }
 }

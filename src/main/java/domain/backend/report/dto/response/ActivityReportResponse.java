@@ -10,6 +10,8 @@ import lombok.Getter;
 public class ActivityReportResponse {
     private Long id;
     private String title;
+    private String reporterName;
+    private String reporterOrganizationName;
     private String reportedReason;
     private String reporterOccupation;
     private String photoUrl;
@@ -27,6 +29,8 @@ public class ActivityReportResponse {
                 .latitude(report.getLatitude())
                 .longitude(report.getLongitude())
                 .status(report.getStatus())
+                .reporterName(report.getReporter().getName())
+                .reporterOrganizationName(report.getReporter().getOrganization().getName())
                 .build();
     }
 }

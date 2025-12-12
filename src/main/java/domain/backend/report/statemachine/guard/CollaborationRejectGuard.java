@@ -23,7 +23,7 @@ public class CollaborationRejectGuard implements Guard<ActivityStatus, ActivityE
         Long partnerOrgId = (Long) context.getMessageHeader("partnerOrgId");
         User actor = (User) context.getMessageHeader("user");
 
-        Collaboration collab = collaborationRepository.findByActivityReport_ActivityReportIdAndTargetOrg_OrgId(reportId, partnerOrgId)
+        Collaboration collab = collaborationRepository.findByReportAndPartner(reportId, partnerOrgId)
                 .orElse(null);
 
         if (collab == null) return false;
