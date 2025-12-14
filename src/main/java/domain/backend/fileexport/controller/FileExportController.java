@@ -19,7 +19,7 @@ import java.time.LocalDate;
 public class FileExportController {
     private final ExportService exportService;
 
-//    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('USER')")
     @PostMapping("/v1/export/activities")
     public ResponseEntity<ByteArrayResource> exportActivities (
             @RequestParam(defaultValue = "1900-01-01")

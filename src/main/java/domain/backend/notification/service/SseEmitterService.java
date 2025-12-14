@@ -6,51 +6,44 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @Slf4j
 public class SseEmitterService {
 
-    private final Map<Long, SseEmitter> emitters = new ConcurrentHashMap<>();
+    private final Map<UUID, SseEmitter> emitters = new ConcurrentHashMap<>();
+    private static final Long CONNECTION_TIME = 3600000L;
 
-    public SseEmitter subscribe(Long userId) {
-        SseEmitter emitter = new SseEmitter(3600000L); // 1 hour
-        emitters.put(userId, emitter);
+    public SseEmitter subscribe(UUID uuid) {
+        SseEmitter emitter = new SseEmitter(CONNECTION_TIME); // 1 hour
+        emitters.put(uuid, emitter);
 
         emitter.onCompletion(() -> {
-            log.info("SSE completed for user {}", userId);
-            emitters.remove(userId);
+            log.info("SSE completed for user {}", uuid);
+            emitters.remove(uuid);
         });
         emitter.onTimeout(() -> {
-            log.info("SSE timed out for user {}", userId);
-            emitters.remove(userId);
+            log.info("SSE timed out for user {}", uuid);
+            emitters.remove(uuid);
         });
         emitter.onError(e -> {
-            log.error("SSE error for user {}: {}", userId, e.getMessage());
-            emitters.remove(userId);
+            log.error("SSE error for user {}: {}", uuid, e.getMessage());
+            emitters.remove(uuid);
         });
-
-        // ToDo: test notification for sure (later)
-        // Send a dummy event to establish the connection
-        try {
-            emitter.send(SseEmitter.event().name("connect").data("connected"));
-        } catch (IOException e) {
-            log.error("Failed to send initial SSE event for user {}: {}", userId, e.getMessage());
-            emitters.remove(userId);
-        }
 
         return emitter;
     }
 
-    public void sendNotification(Long userId, String eventName, Object data) {
-        SseEmitter emitter = emitters.get(userId);
+    public void sendNotification(UUID uuid, String eventName, Object data) {
+        SseEmitter emitter = emitters.get(uuid);
         if (emitter != null) {
             try {
                 emitter.send(SseEmitter.event().name(eventName).data(data));
             } catch (IOException e) {
-                log.error("Failed to send SSE event to user {}: {}", userId, e.getMessage());
-                emitters.remove(userId);
+                log.error("Failed to send SSE event to user {}: {}", uuid, e.getMessage());
+                emitters.remove(uuid);
             }
         }
     }

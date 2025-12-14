@@ -50,7 +50,7 @@ public interface ExportRepository extends JpaRepository<Activity, Integer> {
         ON
             w.activity_id = l.activity_id
         WHERE
-            l.region1depthName = :region
+            :region IS NULL OR l.region1depth_name = :region
         AND
             a.activity_date BETWEEN :startDate AND :endDate
     """, nativeQuery = true)
