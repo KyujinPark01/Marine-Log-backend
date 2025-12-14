@@ -2,6 +2,7 @@ package domain.backend.notification.service;
 
 import domain.backend.auth.domain.user.User;
 import domain.backend.auth.repository.UserRepository;
+import domain.backend.common.security.auth.UserPrincipal;
 import domain.backend.notification.domain.Notification;
 import domain.backend.notification.dto.NotificationResponse;
 import domain.backend.notification.repository.NotificationRepository;
@@ -49,7 +50,7 @@ public class NotificationService {
         notificationRepository.save(notification);
 
         sseEmitterService.sendNotification(
-                target.getUserId(),
+                target.getUuid(),
                 "notification",
                 NotificationResponse.from(notification)
         );
@@ -72,5 +73,12 @@ public class NotificationService {
         }
 
         return NotificationResponse.from(notification);
+    }
+
+    @Transactional
+    public void test(UserPrincipal principal) {
+        User user = userRepository.findById(principal.userId()).orElseThrow(IllegalArgumentException::new);
+
+        send(user, user, "Test", "test");
     }
 }

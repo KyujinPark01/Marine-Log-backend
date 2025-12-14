@@ -39,7 +39,6 @@ dependencies {
     implementation 'org.hibernate:hibernate-spatial:6.2.7.Final'
 
     // Spring redis
-    implementation 'org.springframework.session:spring-session-data-redis'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     testImplementation 'io.projectreactor:reactor-test'
 
