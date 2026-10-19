@@ -1,0 +1,15 @@
+
+.env
+.env.*
+
+build
+.gradle
+
+.git
+.github
+.idea
+monitoring
+scripts
+perf
+*.md
+compose*.yml
