@@ -63,7 +63,11 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/actuator/health").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
 
+                        .requestMatchers(HttpMethod.GET, "/api/v1/activities").permitAll()
+
                         .requestMatchers("/api/user/signup-additional").authenticated()
+                        .requestMatchers("/user/me").authenticated()
+                        .requestMatchers("/api/v1/notifications/**").authenticated()
                         .requestMatchers("/api/v1/activities/**").authenticated()
                         .requestMatchers("/activity-report/**").authenticated()
                         .requestMatchers("/mypage/notifications/**").authenticated()
