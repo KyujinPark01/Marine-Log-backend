@@ -8,6 +8,7 @@ import domain.backend.common.security.jwt.JwtTokenProvider;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -26,6 +27,12 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenStore tokenStore;
+
+    @Value("${app.frontend-url}")
+    private String frontendUrl;
+
+    @Value("${app.cookie-secure}")
+    private boolean cookieSecure;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -60,10 +67,10 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                     jwtTokenProvider.getRefreshExpSeconds()
             );
 
-// cookie (로컬에서는 secure=false 권장)
+// cookie (로컬 http는 false, 운영 https는 true)
             ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
                     .httpOnly(true)
-                    .secure(false)  // localhost는 false
+                    .secure(cookieSecure)
                     .sameSite("Lax")
                     .path("/")
                     .maxAge(jwtTokenProvider.getRefreshExpSeconds())
@@ -71,7 +78,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
             response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
 
-            String redirectUrl = "http://localhost:5173/oauth2/success"
+            String redirectUrl = frontendUrl + "/oauth2/success"
                     + "?accessToken=" + URLEncoder.encode(accessToken, StandardCharsets.UTF_8);
 
             getRedirectStrategy().sendRedirect(request, response, redirectUrl);

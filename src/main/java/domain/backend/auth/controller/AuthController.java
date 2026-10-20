@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +29,9 @@ import java.util.UUID;
 public class AuthController {
 
     private final TokenService tokenService;
+
+    @Value("${app.cookie-secure}")
+    private boolean cookieSecure;
     private final RefreshTokenStore tokenStore;
     @Operation(summary = "토큰 갱신", description = "Refresh Token을 이용해 새로운 Access Token을 발급합니다.")
     @PostMapping("/refresh")
@@ -56,8 +60,8 @@ public class AuthController {
         ResponseCookie deleteCookie = ResponseCookie.from("refreshToken", "")
                 .maxAge(0)
                 .path("/")
-                .sameSite("None")
-                .secure(true)
+                .sameSite("Lax")
+                .secure(cookieSecure)
                 .httpOnly(true)
                 .build();
 

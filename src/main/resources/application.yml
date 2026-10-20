@@ -96,3 +96,7 @@ admin:
   email: ${ADMIN_EMAIL}
   password: ${ADMIN_PASSWORD}
   name: ${ADMIN_NAME}
+
+app:
+  frontend-url: ${FRONTEND_URL:http://localhost:5173}
+  cookie-secure: ${COOKIE_SECURE:false}
